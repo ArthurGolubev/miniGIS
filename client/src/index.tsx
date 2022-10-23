@@ -1,10 +1,11 @@
-import ReactDOM from "react-dom/client"
-import React from 'react'
+import * as ReactDOM from "react-dom/client"
+import * as React from 'react'
 import { HttpLink, ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client'
 import { createHashRouter, RouterProvider } from 'react-router-dom'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import { App } from './App'
 import { ErrorPage } from './ErrorPage'
+import { Map } from "./map/Map"
 
 
 const root = ReactDOM.createRoot(document.querySelector("#root"))
@@ -26,14 +27,22 @@ const router = createHashRouter([
     {
         path: "/",
         element: <App />,
-        errorElement: <ErrorPage />
-    }
+        errorElement: <ErrorPage />,
+        children: [
+            {
+                path: 'map',
+                element: <Map />,
+            },
+            {
+                path: 'home',
+                element: <div>Hello world!</div>
+            }
+        ]
+    },
 ]);
 
 root.render(
-        <RouterProvider router={router}>
-            <ApolloProvider client={createApolloClient()}>
-                <div>123</div>
-            </ApolloProvider>
-        </RouterProvider>
+    <ApolloProvider client={createApolloClient()}>
+        <RouterProvider router={router} />
+    </ApolloProvider>
 )
