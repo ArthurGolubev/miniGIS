@@ -1,7 +1,14 @@
+from loguru import logger
 import strawberry
 from strawberry.fastapi import GraphQLRouter
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
+
+from Types import POI
+
+from calculation.EarthEngine import EarthEngine
+
+
 
 app = FastAPI()
 
@@ -11,6 +18,18 @@ class Query:
     @strawberry.field
     def test() -> str:
         return 'Hello World!'
+
+    @strawberry.field
+    def test_ee() -> str:
+        # earth_engine()
+        return '123'
+
+    @strawberry.field
+    def poi_images(poi: POI) -> list[str]:
+        # logger.debug(f"{poi=}")
+        names = EarthEngine().poi_images(poi)
+        return names
+
 
 
 

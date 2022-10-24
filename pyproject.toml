@@ -8,6 +8,8 @@ authors = ["ArthurGolubev <gg.arthur.go@gmail.com>"]
 python = "^3.10"
 fastapi = {extras = ["all"], version = "^0.85.1"}
 strawberry-graphql = {extras = ["fastapi"], version = "^0.137.0"}
+earthengine-api = "^0.1.328"
+loguru = "^0.6.0"
 
 [tool.poetry.dev-dependencies]
 

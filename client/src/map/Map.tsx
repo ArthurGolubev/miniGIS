@@ -10,18 +10,23 @@ export const Map = () => {
 
     const parsGeom = (geom: any) => {
         console.log(geom)
-        geom = geom.layer.toGeoJSON()
         console.log('Event ->', geom.type)
-        console.log('Geometry ->', geom.geometry.type)
         let id: string
         switch (geom.type) {
             case 'pm:create' || 'pm:edit':
+                console.log('case 1')
                 id = geom.layer._leaflet_id
-                break;
+                break
             case 'pm:cut':
+                console.log('case 2')
                 id = geom.originalLayer._leaflet_id
-                break;
+                break
+            default:
+                console.log('case Default')
+                break
         }
+        geom = geom.layer.toGeoJSON()
+        console.log('Geometry ->', geom.geometry.type)
         switch (geom.geometry.type) {
             case "Point":
                 mapData({...mapData(),

@@ -21,6 +21,11 @@ export const Sidebar = () => {
         </div>
         <div className='row justify-content-center'>
             <div className='col-12'>
+                <h5>Выбор спутникового снимка</h5>
+            </div>
+        </div>
+        <div className='row justify-content-center'>
+            <div className='col-12'>
                 <div className='table-responsive'>
                     <table className='table'>
                         <thead>
