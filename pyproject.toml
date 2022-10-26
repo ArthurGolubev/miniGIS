@@ -10,6 +10,9 @@ fastapi = {extras = ["all"], version = "^0.85.1"}
 strawberry-graphql = {extras = ["fastapi"], version = "^0.137.0"}
 earthengine-api = "^0.1.328"
 loguru = "^0.6.0"
+sentinelhub = "^3.8.0"
+google-cloud-storage = "^2.5.0"
+pandas = "^1.5.1"
 
 [tool.poetry.dev-dependencies]
 

@@ -33,4 +33,5 @@
 - FastAPI
 - strawberry-graphql
 - earthengine-api
+- google-cloud-storage
 - loguru
