@@ -1,9 +1,9 @@
 import * as React from 'react'
 import * as L from 'leaflet'
-import { Sidebar } from './Sidebar'
+import { Sidebar } from './sidebar/Sidebar'
 import '@geoman-io/leaflet-geoman-free'
 import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css'
-import { mapData } from './rv'
+import { mapData, mapObj, searchImages, sidebar } from './rv'
 
 
 export const Map = () => {
@@ -29,20 +29,27 @@ export const Map = () => {
         console.log('Geometry ->', geom.geometry.type)
         switch (geom.geometry.type) {
             case "Point":
-                mapData({...mapData(),
-                    [id]: {
-                        shape: 'Точка',
-                        outer_vertex: 1,
-                        text: ''
-                    }
-                })
+                if(sidebar().setPOI){
+                    searchImages({...searchImages(), poi: geom.geometry.coordinates})
+                    sidebar({...sidebar(), setPOI: false})
+                } else {
+                    mapData({...mapData(),
+                        [id]: {
+                            shape: 'Точка',
+                            outer_vertex: 1,
+                            text: '',
+                            geom: geom
+                        }
+                    })
+                }
                 break;
             case "LineString":
                 mapData({...mapData(),
                     [id]: {
                         shape: 'Полилиния',
                         outer_vertex: geom.geometry.coordinates.length,
-                        text: ''
+                        text: '',
+                        geom: geom
                     }
                 })
                 break;
@@ -52,7 +59,8 @@ export const Map = () => {
                         shape: 'Полигон',
                         outer_vertex: geom.geometry.coordinates[0].length -1,
                         inner_vertex: geom.geometry.coordinates[1] ? geom.geometry.coordinates[0].length -1 : undefined,
-                        text: ''
+                        text: '',
+                        geom: geom
                     }
                 })
                 break;
@@ -79,11 +87,12 @@ export const Map = () => {
         map.on('pm:create', (geom: any) => parsGeom(geom))
         map.on('pm:edit', (geom: any) => parsGeom(geom))
         map.on('pm:cut', (geom: any) => parsGeom(geom))
+        mapObj(map)
     })
 
 
     return <div className='row justify-content-center g-0'>
-        <div className='col-10'>
+        <div className='col-9'>
             <div id='map' style={{height: '945px', width: '100%'}}></div>
         </div>
         <div className='col'>

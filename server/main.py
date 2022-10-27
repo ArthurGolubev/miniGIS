@@ -7,7 +7,7 @@ from strawberry.scalars import JSON
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
-from Types import POI
+from Types import Coordinates, Period
 
 
 from calculation.EarthEngine import EarthEngine
@@ -20,8 +20,8 @@ class Query:
 
 
     @strawberry.field
-    def search_images(poi: POI, sensor: str = 'LC08') -> list[JSON]:
-        images = EarthEngine().search_images(poi, sensor)
+    def search_images(poi: Coordinates, date: Period, sensor: str = 'LC08') -> list[JSON]:
+        images = EarthEngine().search_images(poi, date, sensor)
         return images
 
 
@@ -38,7 +38,7 @@ class Query:
         with gzip.open('./index.csv.gz', 'rb') as f:
             file_content = f.readlines()
             with open('./test.csv', 'wb') as fw:
-                    fw.writelines(file_content)
+                fw.writelines(file_content)
         return '123'
 
 

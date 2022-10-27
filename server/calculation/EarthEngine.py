@@ -1,7 +1,7 @@
 from time import time
 import ee
 from loguru import logger
-from Types import POI
+from Types import Coordinates, Period
 from google.cloud import storage
 
 
@@ -20,6 +20,8 @@ def _time_benchmark(func):
 class EarthEngine:
     def __init__(self):
         self.benchmark = _time_benchmark
+        self.landsat = ['LC08']
+        self.sentinel = []
 
 
     def _download_blob(self, bucket_name, source_blob_name, destination_file_name):
@@ -56,14 +58,14 @@ class EarthEngine:
             logger.error(f"wrong sensor name {sensor}")
         return True
 
-    def search_images(self, poi: POI, sensor: str = 'LC08'):
+    def search_images(self, poi: Coordinates, date: Period,  sensor: str = 'LC08'):
         ee.Initialize()
-        point = ee.Geometry.Point(poi.coordinates.lon, poi.coordinates.lat)
+        point = ee.Geometry.Point(poi.lon, poi.lat)
 
-        if poi.source == 'Landsat':
-            images = ee.ImageCollection(f"LANDSAT/{sensor}/C02/T1_L2").filterBounds(point).filterDate(poi.date.start_date, poi.date.end_date)
-        elif poi.source == 'Sentinel':
-            images = ee.ImageCollection("COPERNICUS/S2_SR").filterBounds(point).filterDate(poi.date.start_date, poi.date.end_date)
+        if sensor in self.landsat:
+            images = ee.ImageCollection(f"LANDSAT/{sensor}/C02/T1_L2").filterBounds(point).filterDate(date.start_date, date.end_date)
+        elif sensor in self.sentinel:
+            images = ee.ImageCollection("COPERNICUS/S2_SR").filterBounds(point).filterDate(date.start_date, date.end_date)
         else:
             logger.error("wrong source")
         

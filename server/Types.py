@@ -13,10 +13,3 @@ class Period:
     end_date:   str
 
 
-@strawberry.input
-class POI:
-    coordinates: Coordinates
-    date: Period
-    source: str
-
-
