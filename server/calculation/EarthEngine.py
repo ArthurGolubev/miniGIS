@@ -1,7 +1,7 @@
 from time import time
 import ee
 from loguru import logger
-from Types import Coordinates, Period
+from Types import Coordinates, Images, Period
 from google.cloud import storage
 
 
@@ -31,31 +31,32 @@ class EarthEngine:
         blob.download_to_filename(destination_file_name)
 
 
-    def download_images(self, scene_id: str, sensor, bands: list[str]):
+    def download_images(self, images: list[Images]):
         s = time()
-        with open('./test.csv', 'r') as fr:
-            lines = fr.readlines()
-            for i in lines:
-                line = i.split(',')
-                if line[0] == scene_id:
-                    google_cloud_path = line[-1][29:].strip()
-                    scene = google_cloud_path.split('/')[-1].strip()
-                    logger.success(f"{i=}")
-                    logger.info(f"TIME: {time() - s}")
-                    break
-        logger.info(f"{google_cloud_path=}")
-        logger.info(f"{scene=}")
+        logger.info('START_')
+        for image in images:
+            logger.warning(image)
+            with open('./test.csv', 'r') as fr:
+                lines = fr.readlines()
+                for i in lines:
+                    line = i.split(',')
+                    if line[0] == image.scene_id:
+                        google_cloud_path = line[-1][29:].strip()
+                        scene = google_cloud_path.split('/')[-1].strip()
+                        logger.success(f"{i=}")
+                        logger.info(f"TIME: {time() - s}")
+                        break
 
-        if sensor in ['LC08']:  # разные спутники Landsat
-            for band in bands:
-                    
-                self._download_blob(
-                    "gcp-public-data-landsat",
-                    f"{google_cloud_path}/{scene}_{band}.TIF",
-                    f'./{scene}_{band}.TIF'
-                )
-        else:
-            logger.error(f"wrong sensor name {sensor}")
+            # if image.sensor in ['LC08']:  # разные спутники Landsat
+            #     for band in image.bands:
+                        
+            #         self._download_blob(
+            #             "gcp-public-data-landsat",
+            #             f"{google_cloud_path}/{scene}_{band}.TIF",
+            #             f'./{scene}_{band}.TIF'
+            #         )
+            # else:
+            #     logger.error(f"wrong sensor name {image.sensor}")
         return True
 
     def search_images(self, poi: Coordinates, date: Period,  sensor: str = 'LC08'):

@@ -7,7 +7,7 @@ from strawberry.scalars import JSON
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
-from Types import Coordinates, Period
+from Types import Coordinates, Images, Period
 
 
 from calculation.EarthEngine import EarthEngine
@@ -25,11 +25,16 @@ class Query:
         return images
 
 
-    @strawberry.field
-    def download_images(scene_id: str, sensor: str = 'LC08', bands: list[str] = ['B4']) -> str:
-        EarthEngine().download_images(scene_id, sensor, bands)
-        return "success"
+    # @strawberry.field
+    # def download_images(scene_id: str, sensor: str = 'LC08', bands: list[str] = ['B4']) -> str:
+    #     EarthEngine().download_images(scene_id, sensor, bands)
+    #     return "success"
 
+    @strawberry.field
+    def download_images(images: list[Images]) -> str:
+        logger.success('START')
+        EarthEngine().download_images(images)
+        return "success"
 
     @strawberry.field
     def read_csv() -> str:  # 

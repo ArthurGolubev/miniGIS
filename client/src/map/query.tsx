@@ -5,3 +5,9 @@ export const SEARCH_IMAGES = gql`
         searchImages(poi: $poi, date: $date, sensor: $sensor)
     }
 `
+
+export const DOWNLOAD_IMAGES = gql`
+    query downloadImages($images: [Images!]!){
+        downloadImages(images: $images)
+    }
+`

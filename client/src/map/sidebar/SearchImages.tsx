@@ -1,7 +1,7 @@
 import { useLazyQuery, useReactiveVar } from '@apollo/client'
 import * as React from 'react'
 import { SEARCH_IMAGES } from '../query'
-import { errors, mapObj, metadataImage, searchImages, sidebar } from '../rv'
+import { downloadImages, errors, mapObj, metadataImage, searchImages, sidebar } from '../rv'
 import { ImagesList } from './ImagesList'
 import { Metadata } from './Metadata'
 
@@ -112,6 +112,7 @@ export const SearchImages = () => {
         <button onClick={()=>console.log(data)} className='btn btn-sm btn-success' type='button' disabled={loading}>data</button>
         <button onClick={()=>console.log(searchImagesSub)} className='btn btn-sm btn-success' type='button' disabled={loading}>searchImagesSub</button>
         <button onClick={()=>console.log(error)} className='btn btn-sm btn-success' type='button' disabled={loading}>error</button>
+        <button onClick={()=>console.log(downloadImages())} className='btn btn-sm btn-success' type='button' disabled={loading}>downloadImages</button>
         {
             searchImagesSub.images.length > 0 && metadataImageSub == undefined &&
             <ImagesList />

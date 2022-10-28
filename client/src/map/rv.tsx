@@ -27,6 +27,10 @@ interface sidebar {
     }
 }
 
+interface downloadImages {
+    [sceneNameId: string]: Array<string>
+}
+
 
 
 
@@ -39,6 +43,9 @@ export const searchImages = makeVar({
     sensor: "LC08",
     images: []
 })
+
+
+export const downloadImages = makeVar({} as downloadImages)
 
 export const metadataImage = makeVar(undefined)
 
