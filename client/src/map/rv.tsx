@@ -67,3 +67,5 @@ export const sidebar = makeVar({
 export const errors = makeVar({
     period: false
 })
+
+export const imagePreview = makeVar([])

@@ -46,6 +46,11 @@ class Query:
                 fw.writelines(file_content)
         return '123'
 
+    @strawberry.field
+    def get_image_preview(system_index: str) -> str:
+        preview = EarthEngine.show_images_preview(system_index)
+        return preview
+
 
 schema = strawberry.Schema(query=Query)
 graphql_app = GraphQLRouter(schema=schema)

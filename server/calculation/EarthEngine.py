@@ -71,12 +71,26 @@ class EarthEngine:
             logger.error("wrong source")
         
         img_metadata = []
+        
         for p in images.getInfo()['features']:
-            del p["properties"]["system:footprint"]
+            p["properties"]["system:footprint"] = str(p["properties"]["system:footprint"])
             img_metadata.append(p["properties"])
 
-        
+        return img_metadata
+
+    def show_images_preview(system_index: str):
+        ee.Initialize()
+        res = ee.Image(f'LANDSAT/LC08/C02/T1/{system_index}');
+        parameters = {
+            "min": 7000,
+            "max": 16000,
+            "dimensions": 2000,
+            "bands": ['B4', "B3", "B2"]
+        }
+        logger.info(f'{res.getInfo()["properties"]["system:footprint"]["coordinates"]=}')
+        for i in range(len(res.getInfo()["properties"]["system:footprint"]["coordinates"])):
+            print(f'{i+1} - {res.getInfo()["properties"]["system:footprint"]["coordinates"][i]}')
+        return res.getThumbURL(parameters)
         # google_scenes = pd.read_csv('https://storage.googleapis.com/gcp-public-data-landsat/index.csv.gz', compression='gzip')
 
-        return img_metadata
 

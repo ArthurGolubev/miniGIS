@@ -1,7 +1,7 @@
 import { useLazyQuery, useReactiveVar } from '@apollo/client'
 import * as React from 'react'
-import { SEARCH_IMAGES } from '../query'
-import { downloadImages, errors, mapObj, metadataImage, searchImages, sidebar } from '../rv'
+import { GET_PREVIEW, SEARCH_IMAGES } from '../query'
+import { downloadImages, errors, imagePreview, mapObj, metadataImage, searchImages, sidebar } from '../rv'
 import { ImagesList } from './ImagesList'
 import { Metadata } from './Metadata'
 
@@ -12,7 +12,10 @@ export const SearchImages = () => {
     const metadataImageSub = useReactiveVar(metadataImage)
     const searchImagesSub = useReactiveVar(searchImages)
     const mapObjSub = useReactiveVar(mapObj) as any
-    const [searchImagesQuery, {data, loading, error}] = useLazyQuery(SEARCH_IMAGES)
+    const [searchImagesQuery, {data: data1, loading: loading1, error: error1}] = useLazyQuery(SEARCH_IMAGES)
+    const [getImagePreview, {data: data2, loading: loading2, error: error2}] = useLazyQuery(GET_PREVIEW,
+        {fetchPolicy: 'network-only', onCompleted: data => mapObjSub.imageOverlay(data.getImagePreview, )}
+        )
 
     const setPOI = () => {
         sidebar({...sidebarSub, setPOI: true})
@@ -41,6 +44,8 @@ export const SearchImages = () => {
     }
 
 
+
+
     return <div>
         <div className='row justify-content-start'>
             <div className='col ms-2'>
@@ -56,7 +61,7 @@ export const SearchImages = () => {
                     className='btn btn-sm btn-success'
                     type='button'
                     disabled={
-                        searchImagesSub.poi.length <= 0 || loading || searchImagesSub.period.start == '' || searchImagesSub.period.end == ''
+                        searchImagesSub.poi.length <= 0 || loading1 || searchImagesSub.period.start == '' || searchImagesSub.period.end == ''
                         }>
                         Поиск
                 </button>
@@ -109,10 +114,12 @@ export const SearchImages = () => {
                 </div>
             </div>
         </div>
-        <button onClick={()=>console.log(data)} className='btn btn-sm btn-success' type='button' disabled={loading}>data</button>
-        <button onClick={()=>console.log(searchImagesSub)} className='btn btn-sm btn-success' type='button' disabled={loading}>searchImagesSub</button>
-        <button onClick={()=>console.log(error)} className='btn btn-sm btn-success' type='button' disabled={loading}>error</button>
-        <button onClick={()=>console.log(downloadImages())} className='btn btn-sm btn-success' type='button' disabled={loading}>downloadImages</button>
+        <button onClick={()=>console.log(data1)} className='btn btn-sm btn-success' type='button' disabled={loading1}>data</button>
+        <button onClick={()=>console.log(searchImagesSub)} className='btn btn-sm btn-success' type='button' disabled={loading1}>searchImagesSub</button>
+        <button onClick={()=>console.log(error1)} className='btn btn-sm btn-success' type='button' disabled={loading1}>error</button>
+        <button onClick={()=>console.log(downloadImages())} className='btn btn-sm btn-success' type='button' disabled={loading1}>downloadImages</button>
+        <button onClick={()=>getImagePreview({variables: {systemIndex: metadataImageSub["system:index"]} })} className='btn btn-sm btn-success' type='button' disabled={loading1}>getImagePreview</button>
+        <button onClick={()=>console.log(data2, error2)} className='btn btn-sm btn-success' type='button' disabled={loading1}>getImagePreview</button>
         {
             searchImagesSub.images.length > 0 && metadataImageSub == undefined &&
             <ImagesList />
@@ -120,6 +127,12 @@ export const SearchImages = () => {
         {
             metadataImageSub &&
             <Metadata />
+        }
+        {
+            data2 && !loading2 && <div>
+                src
+                <img src={data2.getImagePreview} className="img-fluid" />
+            </div>
         }
     </div>
 }
