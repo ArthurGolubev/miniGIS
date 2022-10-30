@@ -12,7 +12,9 @@ export const ImagesList = () => {
                 {
                     searchImagesSub.images.map((item: any, iter: number) => {
                         return <li key={iter} className="mb-1">
-                            <button className="btn btn-sm btn-outline-primary" onClick={()=>metadataImage(item)}>{item.DATE_ACQUIRED}</button>
+                            <div className="d-grid gap-2 col-10 mx-auto">
+                                <button className="btn btn-sm btn-outline-primary" onClick={()=>metadataImage(item)}>{item.DATE_ACQUIRED} Cloud Cover ({item.CLOUD_COVER})</button>
+                            </div>
                         </li>
                     })
                 }

@@ -1,14 +1,26 @@
 import { useLazyQuery, useReactiveVar } from '@apollo/client'
 import * as React from 'react'
-import { DOWNLOAD_IMAGES } from '../query'
-import { downloadImages, metadataImage } from '../rv'
+import { DOWNLOAD_IMAGES, GET_PREVIEW } from '../query'
+import { downloadImages, mapObj, metadataImage, preview } from '../rv'
+import * as L from 'leaflet'
 
 
 export const Metadata = () => {
     const metadataImageSub = useReactiveVar(metadataImage)
     const downloadImagesSub = useReactiveVar(downloadImages)
-    const [downloadImagesQ, {data, loading, error}] = useLazyQuery(DOWNLOAD_IMAGES)
+    const mapObjSub = useReactiveVar(mapObj) as any
+    const previewSub = useReactiveVar(preview) as any
 
+    const [downloadImagesQ, {data, loading, error}] = useLazyQuery(DOWNLOAD_IMAGES)
+    const [getImagePreview, {data: data2, loading: loading2, error: error2}] = useLazyQuery(GET_PREVIEW,
+        {fetchPolicy: 'network-only', onCompleted: data => {
+            let coordinates = metadataImageSub["system:footprint"]["coordinates"]
+            L.geoJSON().addTo(mapObjSub).addData({type: 'LineString', coordinates: coordinates} as any)
+            let p = L.imageOverlay(data.getImagePreview, coordinates.map((point: Array<number>) => [point[1], point[0]]) )
+            preview(p)
+            p.addTo(mapObjSub)
+        }
+        })
 
     const c = () => {
         console.log(123)
@@ -20,6 +32,7 @@ export const Metadata = () => {
             }
         })
     }
+
 
     let LC08_bands = ['B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'B9', 'B10', 'B11']
     return <div className='row justify-content-start'>
@@ -90,13 +103,29 @@ export const Metadata = () => {
                     </table>
                 </div>
             </div>
+            <div className='row justify-content-center'>
+                <div className='col-12 ms-2 mt-2'>
+                    <button onClick={()=>getImagePreview({variables: {systemIndex: metadataImageSub["system:index"]} })} className='btn btn-sm btn-success' type='button' disabled={loading2}>getImagePreview</button>
+                    <button onClick={()=>console.log(data2, error2)} className='btn btn-sm btn-success' type='button' disabled={loading2}> console getImagePreview</button>
+                </div>
+            </div>
+            <div className='row justify-content-center'>
+                <div className='col-12'>
+                    <label htmlFor="previewOpacity" className="form-label">Прозрачность</label>
+                    <input type="range" className="form-range" min="" max="100" defaultValue={100} id="previewOpacity"
+                        onChange={e => previewSub.setOpacity(parseInt(e.target.value) / 100) }
+                    />
+                </div>
+            </div>
             <div className='row justify-content-center h-25'>
                 <div className='col-12 overflow-auto'>
                     <p className='mt-2 text-center'><b>Все методанные</b></p>
                     <ul>
                         {
                             Object.keys(metadataImageSub).map((key: string, iter: number) => {
-                                return <li key={iter}>{key}: <b>{metadataImageSub[key]}</b></li>
+                                if(key !== 'system:footprint'){
+                                    return <li key={iter}>{key}: <b>{metadataImageSub[key]}</b></li>
+                                } else return null
                             })
                         }
                     </ul>

@@ -69,3 +69,5 @@ export const errors = makeVar({
 })
 
 export const imagePreview = makeVar([])
+
+export const preview = makeVar({} as any)

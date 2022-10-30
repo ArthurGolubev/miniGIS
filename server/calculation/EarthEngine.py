@@ -73,7 +73,8 @@ class EarthEngine:
         img_metadata = []
         
         for p in images.getInfo()['features']:
-            p["properties"]["system:footprint"] = str(p["properties"]["system:footprint"])
+            # p["properties"]["system:footprint"] = str(p["properties"]["system:footprint"])
+            # del p["properties"]["system:footprint"]
             img_metadata.append(p["properties"])
 
         return img_metadata
@@ -87,9 +88,12 @@ class EarthEngine:
             "dimensions": 2000,
             "bands": ['B4', "B3", "B2"]
         }
-        logger.info(f'{res.getInfo()["properties"]["system:footprint"]["coordinates"]=}')
-        for i in range(len(res.getInfo()["properties"]["system:footprint"]["coordinates"])):
-            print(f'{i+1} - {res.getInfo()["properties"]["system:footprint"]["coordinates"][i]}')
+        # logger.info(f"{res.pixelLonLat().reproject('EPSG:32631').select(['longitude', 'latitude']).getInfo()=}")
+        # for i in range(len(res.getInfo()["properties"]["system:footprint"]["coordinates"])):
+        #     print(f'{i+1} - {res.getInfo()["properties"]["system:footprint"]["coordinates"][i]}')
+
+        p = ee.Geometry.Polygon(res.getInfo()["properties"]["system:footprint"]["coordinates"])
+        logger.info(f"{p.toGeoJSON()=}")
         return res.getThumbURL(parameters)
         # google_scenes = pd.read_csv('https://storage.googleapis.com/gcp-public-data-landsat/index.csv.gz', compression='gzip')
 
