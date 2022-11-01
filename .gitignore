@@ -3,3 +3,4 @@ __pycache__/
 *.TIF
 *.gz
 *.csv
+*.jp2

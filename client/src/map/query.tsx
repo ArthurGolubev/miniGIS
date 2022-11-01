@@ -14,7 +14,7 @@ export const DOWNLOAD_IMAGES = gql`
 `
 
 export const GET_PREVIEW = gql`
-    query get_image_preview_query($systemIndex: String!){
-        getImagePreview(systemIndex: $systemIndex)
+    query get_image_preview_query($systemIndex: String!, $sensor: String!){
+        getImagePreview(systemIndex: $systemIndex, sensor: $sensor)
     }
 `

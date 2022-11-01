@@ -24,12 +24,6 @@ class Query:
         images = EarthEngine().search_images(poi, date, sensor)
         return images
 
-
-    # @strawberry.field
-    # def download_images(scene_id: str, sensor: str = 'LC08', bands: list[str] = ['B4']) -> str:
-    #     EarthEngine().download_images(scene_id, sensor, bands)
-    #     return "success"
-
     @strawberry.field
     def download_images(images: list[Images]) -> str:
         logger.success('START')
@@ -47,9 +41,14 @@ class Query:
         return '123'
 
     @strawberry.field
-    def get_image_preview(system_index: str) -> str:
-        preview = EarthEngine.show_images_preview(system_index)
+    def get_image_preview(system_index: str, sensor: str) -> str:
+        preview = EarthEngine().show_images_preview(system_index, sensor)
         return preview
+
+    @strawberry.field
+    def sentinelCSV() -> str:
+        EarthEngine().sentinelCSV()
+        return '123'
 
 
 schema = strawberry.Schema(query=Query)

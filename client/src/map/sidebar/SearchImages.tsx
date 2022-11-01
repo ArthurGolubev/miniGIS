@@ -12,7 +12,7 @@ export const SearchImages = () => {
     const metadataImageSub = useReactiveVar(metadataImage)
     const searchImagesSub = useReactiveVar(searchImages)
     const mapObjSub = useReactiveVar(mapObj) as any
-    const [searchImagesQuery, {data: data1, loading: loading1, error: error1}] = useLazyQuery(SEARCH_IMAGES)
+    const [searchImagesQuery, {data: data1, loading: loading1, error: error1}] = useLazyQuery(SEARCH_IMAGES, {fetchPolicy: "network-only"})
     
 
     const setPOI = () => {
@@ -99,15 +99,22 @@ export const SearchImages = () => {
         </div>
         <div className='row justify-content-start'>
             <div className='col-9 ms-2 mt-3'>
+                {
+                    searchImagesSub.sensor == 'LC08' &&
+                    <div className="alert alert-success text-center" role="alert">
+                        Collection 1 (1982-2021)
+                    </div>
+                }
                 <div className="input-group input-group-sm mb-3">
                     <label className="input-group-text" htmlFor="sensor">Спутник</label>
-                    <select defaultValue="LC08" className="form-select" id="sensor" disabled
+                    <select defaultValue="S2" className="form-select" id="sensor"
                         onChange={e => searchImages({...searchImagesSub, sensor: e.target.value})}>
-                        <option value="LC08">Landsat 8/9</option>
-                        <option value={1}>Landsat 4</option>
+                        <option value="S2">Sentinel 2</option>
+                        <option value="LC08">Landsat 8</option>
+                        {/* <option value={1}>Landsat 4</option>
                         <option value={2}>Landsat 5</option>
                         <option value={3}>Landsat 7</option>
-                        <option value={4}>Sentinel 2</option>
+                        <option value={4}>Sentinel 2</option> */}
                     </select>
                 </div>
             </div>

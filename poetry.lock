@@ -177,6 +177,8 @@ python-versions = ">=3.7"
 [package.dependencies]
 google-auth = ">=1.25.0,<3.0dev"
 googleapis-common-protos = ">=1.56.2,<2.0dev"
+grpcio = {version = ">=1.33.2,<2.0dev", optional = true, markers = "extra == \"grpc\""}
+grpcio-status = {version = ">=1.33.2,<2.0dev", optional = true, markers = "extra == \"grpc\""}
 protobuf = ">=3.19.5,<3.20.0 || >3.20.0,<3.20.1 || >3.20.1,<4.21.0 || >4.21.0,<4.21.1 || >4.21.1,<4.21.2 || >4.21.2,<4.21.3 || >4.21.3,<4.21.4 || >4.21.4,<4.21.5 || >4.21.5,<5.0.0dev"
 requests = ">=2.18.0,<3.0.0dev"
 
@@ -233,6 +235,53 @@ python-versions = "*"
 google-auth = "*"
 httplib2 = ">=0.15.0"
 six = "*"
+
+[[package]]
+name = "google-cloud-bigquery"
+version = "3.3.5"
+description = "Google BigQuery API client library"
+category = "main"
+optional = false
+python-versions = ">=3.7, <3.11"
+
+[package.dependencies]
+google-api-core = {version = ">=1.31.5,<2.0.0 || >2.3.0,<3.0.0dev", extras = ["grpc"]}
+google-cloud-bigquery-storage = ">=2.0.0,<3.0.0dev"
+google-cloud-core = ">=1.4.1,<3.0.0dev"
+google-resumable-media = ">=0.6.0,<3.0dev"
+grpcio = ">=1.47.0,<2.0dev"
+packaging = ">=14.3,<22.0.0dev"
+proto-plus = ">=1.22.0,<2.0.0dev"
+protobuf = ">=3.19.5,<3.20.0 || >3.20.0,<3.20.1 || >3.20.1,<4.21.0 || >4.21.0,<4.21.1 || >4.21.1,<4.21.2 || >4.21.2,<4.21.3 || >4.21.3,<4.21.4 || >4.21.4,<4.21.5 || >4.21.5,<5.0.0dev"
+pyarrow = ">=3.0.0,<10.0dev"
+python-dateutil = ">=2.7.2,<3.0dev"
+requests = ">=2.18.0,<3.0.0dev"
+
+[package.extras]
+all = ["pandas (>=1.0.0)", "db-dtypes (>=0.3.0,<2.0.0dev)", "geopandas (>=0.9.0,<1.0dev)", "Shapely (>=1.6.0,<2.0dev)", "ipython (>=7.0.1,!=8.1.0)", "tqdm (>=4.7.4,<5.0.0dev)", "opentelemetry-api (>=1.1.0)", "opentelemetry-sdk (>=1.1.0)", "opentelemetry-instrumentation (>=0.20b0)"]
+geopandas = ["geopandas (>=0.9.0,<1.0dev)", "Shapely (>=1.6.0,<2.0dev)"]
+ipython = ["ipython (>=7.0.1,!=8.1.0)"]
+opentelemetry = ["opentelemetry-api (>=1.1.0)", "opentelemetry-sdk (>=1.1.0)", "opentelemetry-instrumentation (>=0.20b0)"]
+pandas = ["pandas (>=1.0.0)", "db-dtypes (>=0.3.0,<2.0.0dev)"]
+tqdm = ["tqdm (>=4.7.4,<5.0.0dev)"]
+
+[[package]]
+name = "google-cloud-bigquery-storage"
+version = "2.16.2"
+description = "BigQuery Storage API API client library"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+google-api-core = {version = ">=1.32.0,<2.0.0 || >=2.8.0,<3.0.0dev", extras = ["grpc"]}
+proto-plus = ">=1.22.0,<2.0.0dev"
+protobuf = ">=3.19.5,<3.20.0 || >3.20.0,<3.20.1 || >3.20.1,<4.21.0 || >4.21.0,<4.21.1 || >4.21.1,<4.21.2 || >4.21.2,<4.21.3 || >4.21.3,<4.21.4 || >4.21.4,<4.21.5 || >4.21.5,<5.0.0dev"
+
+[package.extras]
+fastavro = ["fastavro (>=0.21.2)"]
+pandas = ["pandas (>=0.21.1)"]
+pyarrow = ["pyarrow (>=0.15.0)"]
 
 [[package]]
 name = "google-cloud-core"
@@ -314,6 +363,33 @@ description = "GraphQL implementation for Python, a port of GraphQL.js, the Java
 category = "main"
 optional = false
 python-versions = ">=3.6,<4"
+
+[[package]]
+name = "grpcio"
+version = "1.50.0"
+description = "HTTP/2-based RPC framework"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+six = ">=1.5.2"
+
+[package.extras]
+protobuf = ["grpcio-tools (>=1.50.0)"]
+
+[[package]]
+name = "grpcio-status"
+version = "1.50.0"
+description = "Status proto mapping for gRPC"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+googleapis-common-protos = ">=1.5.5"
+grpcio = ">=1.50.0"
+protobuf = ">=4.21.6"
 
 [[package]]
 name = "h11"
@@ -517,12 +593,37 @@ docs = ["furo", "olefile", "sphinx (>=2.4)", "sphinx-copybutton", "sphinx-issues
 tests = ["check-manifest", "coverage", "defusedxml", "markdown2", "olefile", "packaging", "pyroma", "pytest", "pytest-cov", "pytest-timeout"]
 
 [[package]]
+name = "proto-plus"
+version = "1.22.1"
+description = "Beautiful, Pythonic protocol buffers."
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+protobuf = ">=3.19.0,<5.0.0dev"
+
+[package.extras]
+testing = ["google-api-core[grpc] (>=1.31.5)"]
+
+[[package]]
 name = "protobuf"
 version = "4.21.8"
 description = ""
 category = "main"
 optional = false
 python-versions = ">=3.7"
+
+[[package]]
+name = "pyarrow"
+version = "9.0.0"
+description = "Python library for Apache Arrow"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+numpy = ">=1.16.6"
 
 [[package]]
 name = "pyasn1"
@@ -930,8 +1031,8 @@ dev = ["pytest (>=4.6.2)", "black (>=19.3b0)"]
 
 [metadata]
 lock-version = "1.1"
-python-versions = "^3.10"
-content-hash = "b7f5a1843fc8912c582240308adf19ea6690bd82f2a7a0446dd5b41b7083c4f8"
+python-versions = "~3.10"
+content-hash = "3fd131a6e209392d4a6677e3a6d2798584ffb6ec5e360d83f3e5a4567370ae40"
 
 [metadata.files]
 aenum = []
@@ -957,12 +1058,16 @@ google-api-core = []
 google-api-python-client = []
 google-auth = []
 google-auth-httplib2 = []
+google-cloud-bigquery = []
+google-cloud-bigquery-storage = []
 google-cloud-core = []
 google-cloud-storage = []
 google-crc32c = []
 google-resumable-media = []
 googleapis-common-protos = []
 graphql-core = []
+grpcio = []
+grpcio-status = []
 h11 = []
 httplib2 = []
 httplib2shim = []
@@ -987,7 +1092,9 @@ packaging = [
 ]
 pandas = []
 pillow = []
+proto-plus = []
 protobuf = []
+pyarrow = []
 pyasn1 = [
     {file = "pyasn1-0.4.8-py2.4.egg", hash = "sha256:fec3e9d8e36808a28efb59b489e4528c10ad0f480e57dcc32b4de5c9d8c9fdf3"},
     {file = "pyasn1-0.4.8-py2.5.egg", hash = "sha256:0458773cfe65b153891ac249bcf1b5f8f320b7c2ce462151f8fa74de8934becf"},

@@ -40,7 +40,7 @@ export const searchImages = makeVar({
         start: "",
         end: ""
     },
-    sensor: "LC08",
+    sensor: "S2",
     images: []
 })
 

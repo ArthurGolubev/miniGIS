@@ -1,29 +1,19 @@
 import { useLazyQuery, useReactiveVar } from '@apollo/client'
 import * as React from 'react'
 import { DOWNLOAD_IMAGES, GET_PREVIEW } from '../query'
-import { downloadImages, mapObj, metadataImage, preview } from '../rv'
-import * as L from 'leaflet'
+import { downloadImages, mapObj, metadataImage, preview, searchImages } from '../rv'
 
 
 export const Metadata = () => {
-    const metadataImageSub = useReactiveVar(metadataImage)
+    const metadataImageSub  = useReactiveVar(metadataImage)
     const downloadImagesSub = useReactiveVar(downloadImages)
-    const mapObjSub = useReactiveVar(mapObj) as any
-    const previewSub = useReactiveVar(preview) as any
+    const previewSub        = useReactiveVar(preview) as any
 
-    const [downloadImagesQ, {data, loading, error}] = useLazyQuery(DOWNLOAD_IMAGES)
-    const [getImagePreview, {data: data2, loading: loading2, error: error2}] = useLazyQuery(GET_PREVIEW,
-        {fetchPolicy: 'network-only', onCompleted: data => {
-            let coordinates = metadataImageSub["system:footprint"]["coordinates"]
-            L.geoJSON().addTo(mapObjSub).addData({type: 'LineString', coordinates: coordinates} as any)
-            let p = L.imageOverlay(data.getImagePreview, coordinates.map((point: Array<number>) => [point[1], point[0]]) )
-            preview(p)
-            p.addTo(mapObjSub)
-        }
-        })
+    const [downloadImagesQ, {data, loading, error}] = useLazyQuery(DOWNLOAD_IMAGES, {fetchPolicy: "network-only"})
 
-    const c = () => {
+    const download = () => {
         console.log(123)
+        console.log(downloadImagesSub)
         downloadImagesQ({
             variables: {
                 images: Object.keys(downloadImagesSub).map((key: string) => {
@@ -33,6 +23,7 @@ export const Metadata = () => {
         })
     }
 
+    
 
     let LC08_bands = ['B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'B9', 'B10', 'B11']
     return <div className='row justify-content-start'>
@@ -40,7 +31,7 @@ export const Metadata = () => {
             <div className='row justify-content-center'>
                 <div className='col-12'>
                     <button onClick={()=>metadataImage(undefined)} className='btn btn-sm btn-success' type='button'>back to list</button>
-                    <button onClick={()=>c()} className='btn btn-sm btn-success' type='button'>go</button>
+                    <button onClick={()=>download()} className='btn btn-sm btn-success' type='button'>go</button>
                     <button onClick={()=>console.log(error)} className='btn btn-sm btn-success' type='button'>error</button>
                     <div className='row justify-content-center'>
                             {
@@ -103,12 +94,12 @@ export const Metadata = () => {
                     </table>
                 </div>
             </div>
-            <div className='row justify-content-center'>
+            {/* <div className='row justify-content-center'>
                 <div className='col-12 ms-2 mt-2'>
-                    <button onClick={()=>getImagePreview({variables: {systemIndex: metadataImageSub["system:index"]} })} className='btn btn-sm btn-success' type='button' disabled={loading2}>getImagePreview</button>
+                    <button onClick={()=> getImagePreviewHandler()} className='btn btn-sm btn-success' type='button' disabled={loading2}>getImagePreview</button>
                     <button onClick={()=>console.log(data2, error2)} className='btn btn-sm btn-success' type='button' disabled={loading2}> console getImagePreview</button>
                 </div>
-            </div>
+            </div> */}
             <div className='row justify-content-center'>
                 <div className='col-12'>
                     <label htmlFor="previewOpacity" className="form-label">Прозрачность</label>
@@ -120,7 +111,7 @@ export const Metadata = () => {
             <div className='row justify-content-center h-25'>
                 <div className='col-12 overflow-auto'>
                     <p className='mt-2 text-center'><b>Все методанные</b></p>
-                    <ul>
+                    {/* <ul>
                         {
                             Object.keys(metadataImageSub).map((key: string, iter: number) => {
                                 if(key !== 'system:footprint'){
@@ -128,7 +119,7 @@ export const Metadata = () => {
                                 } else return null
                             })
                         }
-                    </ul>
+                    </ul> */}
                 </div>
             </div>
 
