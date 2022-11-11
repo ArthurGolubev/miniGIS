@@ -4,3 +4,4 @@ __pycache__/
 *.gz
 *.csv
 *.jp2
+*.db

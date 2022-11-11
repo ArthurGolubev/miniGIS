@@ -1,4 +1,5 @@
 import strawberry
+from datetime import datetime
 
 
 @strawberry.input
@@ -18,3 +19,23 @@ class Images:
     sensor: str
     bands: list[str]
 
+@strawberry.input
+class LandsatDownload:
+    sensor_id: str
+    path: str
+    row: str
+    product_id: str
+    bands: list[str]
+
+@strawberry.input
+class SentinelDownload:
+    mgrs_tile: str
+    product_id: str
+    granule_id: str
+    bands: list[str]
+
+@strawberry.type
+class ToastMessage:
+    header: str
+    message: str
+    datetime: datetime

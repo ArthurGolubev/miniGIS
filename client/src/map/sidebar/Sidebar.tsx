@@ -10,7 +10,7 @@ export const Sidebar = () => {
     const sidebarSub = useReactiveVar(sidebar)
 
 
-    return <div className='card' style={{height: "100%"}}>
+    return <div className='card overflow-hidden' style={{height: "100%"}}>
         
         <div className='row justify-content-center' style={{height: "100px"}}>
             <div className='col-12 mt-2 mb-2 ms-2'>
@@ -37,6 +37,7 @@ export const Sidebar = () => {
                 </div>
             </div>
         }
+        
         {/* <div className='row justify-content-center'>
             <div className='col-12'>
                 <GeometryTable />

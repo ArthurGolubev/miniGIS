@@ -7,14 +7,27 @@ export const SEARCH_IMAGES = gql`
     }
 `
 
-export const DOWNLOAD_IMAGES = gql`
-    query download_images_query($images: [Images!]!){
-        downloadImages(images: $images)
-    }
-`
-
 export const GET_PREVIEW = gql`
     query get_image_preview_query($systemIndex: String!, $sensor: String!){
         getImagePreview(systemIndex: $systemIndex, sensor: $sensor)
+    }
+`
+
+export const DOWNLOAD_SENTINEL = gql`
+    query download_sentinel_query($sentinelMeta: SentinelDownload!){
+        downloadSentinel(sentinelMeta: $sentinelMeta){
+            header,
+            message,
+            datetime
+        }
+    }
+`
+export const DOWNLOAD_LANDSAT = gql`
+    query download_landsat_query($landsatMeta: LandsatDownload!){
+        downloadLandsat(landsatMeta: $landsatMeta){
+            header,
+            message,
+            datetime
+        }
     }
 `

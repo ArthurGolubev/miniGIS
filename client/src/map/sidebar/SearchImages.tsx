@@ -1,7 +1,7 @@
 import { useLazyQuery, useReactiveVar } from '@apollo/client'
 import * as React from 'react'
 import { SEARCH_IMAGES } from '../query'
-import { downloadImages, errors, imagePreview, mapObj, metadataImage, searchImages, sidebar } from '../rv'
+import { errors, isLoading, mapObj, selectedImage, searchImages, sidebar, imagesStack } from '../rv'
 import { ImagesList } from './ImagesList'
 import { Metadata } from './Metadata'
 
@@ -9,7 +9,7 @@ import { Metadata } from './Metadata'
 export const SearchImages = () => {
     const errorsSub = useReactiveVar(errors)
     const sidebarSub = useReactiveVar(sidebar)
-    const metadataImageSub = useReactiveVar(metadataImage)
+    const selectedImageSub = useReactiveVar(selectedImage)
     const searchImagesSub = useReactiveVar(searchImages)
     const mapObjSub = useReactiveVar(mapObj) as any
     const [searchImagesQuery, {data: data1, loading: loading1, error: error1}] = useLazyQuery(SEARCH_IMAGES, {fetchPolicy: "network-only"})
@@ -28,13 +28,17 @@ export const SearchImages = () => {
 
     const searchImagesHandler = () => {
         if (searchImagesSub.period.start && searchImagesSub.period.end){
+            isLoading(true)
             searchImagesQuery({
                 variables: {
                     poi: {lat: searchImagesSub.poi[1], lon: searchImagesSub.poi[0]},
                     date: {startDate: searchImagesSub.period.start, endDate: searchImagesSub.period.end},
                     sensor: searchImagesSub.sensor
                 },
-                onCompleted: data => searchImages({...searchImagesSub, images: data.searchImages})
+                onCompleted: data => {
+                    searchImages({...searchImagesSub, images: data.searchImages})
+                    isLoading(false)
+                }
             })
         } else {
             errors({...errorsSub, period: true})
@@ -111,10 +115,9 @@ export const SearchImages = () => {
                         onChange={e => searchImages({...searchImagesSub, sensor: e.target.value})}>
                         <option value="S2">Sentinel 2</option>
                         <option value="LC08">Landsat 8</option>
-                        {/* <option value={1}>Landsat 4</option>
-                        <option value={2}>Landsat 5</option>
-                        <option value={3}>Landsat 7</option>
-                        <option value={4}>Sentinel 2</option> */}
+                        <option value="LC07">Landsat 7</option>
+                        <option value="LC05">Landsat 5</option>
+                        <option value="LC04">Landsat 4</option>
                     </select>
                 </div>
             </div>
@@ -122,14 +125,14 @@ export const SearchImages = () => {
         <button onClick={()=>console.log(data1)} className='btn btn-sm btn-success' type='button' disabled={loading1}>data</button>
         <button onClick={()=>console.log(searchImagesSub)} className='btn btn-sm btn-success' type='button' disabled={loading1}>searchImagesSub</button>
         <button onClick={()=>console.log(error1)} className='btn btn-sm btn-success' type='button' disabled={loading1}>error</button>
-        <button onClick={()=>console.log(downloadImages())} className='btn btn-sm btn-success' type='button' disabled={loading1}>downloadImages</button>
+        <button onClick={()=>console.log(imagesStack())} className='btn btn-sm btn-secondary' type='button' disabled={loading1}>imagesStack</button>
         
         {
-            searchImagesSub.images.length > 0 && metadataImageSub == undefined &&
+            searchImagesSub.images.length > 0 && selectedImageSub == undefined &&
             <ImagesList />
         }
         {
-            metadataImageSub &&
+            selectedImageSub &&
             <Metadata />
         }
     </div>

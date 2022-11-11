@@ -1,38 +1,34 @@
-from time import time
 import gzip
 import ee
+from time import time
+from datetime import datetime, timedelta
 from loguru import logger
-from Types import Coordinates, Images, Period
+from Types import Coordinates, LandsatDownload, Period, SentinelDownload, ToastMessage
 from google.cloud import storage
 from pathlib import Path
 
 
 
-def _time_benchmark(func):
-    logger.error("OMG! IT'S TIME BENCHMARK")
-    def wrapper():
-        s = time()
-        c = func()
-        logger.success(f"time: {time() - s}")
-        return c
+def time_metr(func):
+    logger.info(f"Старт {func.__name__}")
+    start = time()
+    def wrapper(*args, **kwargs):
+        return func(*args, **kwargs)
+    logger.info(f"{func.__name__} -> Вермя выполнения: {timedelta(seconds=time()-start)} секунд")
     return wrapper
 
-    
+
 
 class EarthEngine:
     def __init__(self):
-        self.benchmark = _time_benchmark
         self.landsat = ['LC08']
         self.sentinel = ['S2']
-
-
-
-    def __ee_init(self):
         try:
             ee.Initialize()
         except:
             logger.error('some problem in __ee_init')
             ee.Authenticate()
+            ee.Initialize()
 
 
 
@@ -44,45 +40,8 @@ class EarthEngine:
 
 
 
-    def download_images(self, images: list[Images]):
-        s = time()
-        logger.info('START_')
-        for image in images:
-            csv = "sentinel.csv.gz" if image.sensor == 'S2' else "landsat.csv.gz"
-            with gzip.open(f'./{csv}', 'rt') as fr:
-                lines = fr.readlines()
-                google_cloud_path = None
-                logger.info(f"{len(lines)=}")
-                for i in lines:
-                    line = i.split(',')
-                    print(line[0], image.scene_id, line[0] == image.scene_id)
-                    if line[0] == image.scene_id:
-                        google_cloud_path = line[-1][29:].strip()
-                        scene = google_cloud_path.split('/')[-1].strip()
-                        logger.success(f"{i=}")
-                        logger.info(f"TIME: {time() - s}")
-                        break
-                    
-            if not google_cloud_path:
-                logger.error(f"{image.scene_id} not in index.csv.gz")
-                return False
-
-            if image.sensor in ['LC08']:  # разные спутники Landsat
-                Path(f"./{image.scene_id}").mkdir(parents=True, exist_ok=True)
-                for band in image.bands:
-                    self._download_blob(
-                        "gcp-public-data-landsat",
-                        f"{google_cloud_path}/{scene}_{band}.TIF",
-                        f'./{image.scene_id}/{scene}_{band}.TIF'
-                    )
-            else:
-                logger.error(f"wrong sensor name {image.sensor}")
-        return True
-
-
-
+    @time_metr
     def search_images(self, poi: Coordinates, date: Period,  sensor: str = 'LC08'):
-        self.__ee_init()
         point = ee.Geometry.Point(poi.lon, poi.lat)
 
         if sensor in self.landsat:
@@ -99,21 +58,20 @@ class EarthEngine:
 
 
 
+    @time_metr
     def show_images_preview(self, system_index: str, sensor: str):
-        logger.info("show_images_preview")
-        self.__ee_init()
         if sensor in self.landsat:
-            res = ee.Image(f'LANDSAT/LC08/C02/T1/{system_index}')
+            res = ee.Image(f'LANDSAT/LC08/C01/T1/{system_index}')
             parameters = {
-                "min": 0,
-                "max": 3000,
+                "min": 5000,
+                "max": 12000,
                 "dimensions": 2000,
                 "bands": ['B4', "B3", "B2"],
                 # "gamma": [0.95, 1.1, 1]
             }
         elif sensor in self.sentinel:
             res = ee.Image(f'COPERNICUS/S2_HARMONIZED/{system_index}')
-            logger.info(f"{res.getInfo()}=")
+            # logger.info(f"{res.getInfo()}=")
             parameters = {
                 "min": 0,
                 "max": 3000,
@@ -123,43 +81,88 @@ class EarthEngine:
         else:
             logger.error(f"wrong sensor {sensor=}")
 
-        p = ee.Geometry.Polygon(res.getInfo()["properties"]["system:footprint"]["coordinates"])
-        logger.info(f"{p.toGeoJSON()=}")
+        # p = ee.Geometry.Polygon(res.getInfo()["properties"]["system:footprint"]["coordinates"])
+        # logger.info(f"{p.toGeoJSON()=}")
         return res.getThumbURL(parameters)
 
 
 
-    def sentinelCSV(self):
-        logger.info("START CSV")
-        with gzip.open('./sentinel.csv.gz', 'rt') as fr:
-            line1 = fr.readline().split(',')
-            logger.info(f"{line1=}")
-            line2 = fr.readline().split(',')
-            logger.info(f"{line2=}")
+    @time_metr
+    def download_sentinel(self, sentinel_meta: SentinelDownload) -> ToastMessage:
+        UTM_ZONE        = sentinel_meta.mgrs_tile[:2]
+        LATITUDE_BAND   = sentinel_meta.mgrs_tile[2:3]
+        GRID_SQUARE     = sentinel_meta.mgrs_tile[3:]
+        PRODUCT_ID      = sentinel_meta.product_id + '.SAFE'
+        GRANULE_ID      = sentinel_meta.granule_id
+        bands           = sentinel_meta.bands
 
-            for header, attr in zip(line1, line2):
-                logger.info(f"{header} - {attr}")
-            # for count, _ in enumerate(fr):
-            #     pass
-        mgrs_tile = line2[3]
-        logger.success(mgrs_tile)
-        UTM_ZONE        = mgrs_tile[:2]
-        LATITUDE_BAND   = mgrs_tile[2:3]
-        GRID_SQUARE     = mgrs_tile[3:]
-        PRODUCT_ID      = "S2B_MSIL1C_20200324T032539_N0209_R018_T48PVC_20200324T074418.SAFE"
-        GRANULE_ID      = "L1C_T48PVC_A015917_20200324T034315"
-        LAYER           = f"T{mgrs_tile}_{PRODUCT_ID[11:26]}_B03.jp2"
-
-        logger.warning(f"{UTM_ZONE=}")
-        logger.warning(f"{LATITUDE_BAND=}")
-        logger.warning(f"{GRID_SQUARE=}")
-        logger.warning(f"{LAYER=}")
-
-        self._download_blob(
-            "gcp-public-data-sentinel-2",
-            f"tiles/{UTM_ZONE}/{LATITUDE_BAND}/{GRID_SQUARE}/{PRODUCT_ID}/GRANULE/{GRANULE_ID}/IMG_DATA/{LAYER}",
-            f'./{LAYER}'
+        logger.info(f"SENTINEL")
+        Path(f"./images/Sentinel/{PRODUCT_ID}/").mkdir(parents=True, exist_ok=True)
+        for band in bands:
+            LAYER = f"T{sentinel_meta.mgrs_tile}_{PRODUCT_ID[11:26]}_{band}.jp2"
+            logger.info(f"{UTM_ZONE}/{LATITUDE_BAND}/{GRID_SQUARE}/{PRODUCT_ID}/GRANULE/{GRANULE_ID}/IMG_DATA/{LAYER}")
+            self._download_blob(
+                "gcp-public-data-sentinel-2",
+                f"tiles/{UTM_ZONE}/{LATITUDE_BAND}/{GRID_SQUARE}/{PRODUCT_ID}/GRANULE/{GRANULE_ID}/IMG_DATA/{LAYER}",
+                f'./images/Sentinel/{PRODUCT_ID}/{LAYER}'
+            )
+        return ToastMessage(
+            header=f'Загрузка завершина - Sentinel',
+            message=f"""
+                Продукт {PRODUCT_ID},
+                Скачены слои {bands}
+            """,
+            datetime=datetime.now()
         )
-        logger.info("END CSV")
-        return True
 
+
+    @time_metr
+    def download_landsat(self, landsat_download: LandsatDownload) -> ToastMessage:
+        SENSOR_ID           = landsat_download.sensor_id
+        PATH                = landsat_download.path.zfill(3)
+        ROW                 = landsat_download.row.zfill(3)
+        bands               = landsat_download.bands
+        PRODUCT_ID          = landsat_download.product_id
+
+        Path(f"./images/Landsat/{PRODUCT_ID}/").mkdir(parents=True, exist_ok=True)
+        for band in bands:
+            PRODUCT_ID_BAND = f"{PRODUCT_ID}_{band}.TIF"
+            logger.info(f"START_LANDSAT\n{SENSOR_ID}/01/{PATH}/{ROW}/{PRODUCT_ID}/{PRODUCT_ID_BAND}")
+            self._download_blob(
+                "gcp-public-data-landsat",
+                f"{SENSOR_ID}/01/{PATH}/{ROW}/{PRODUCT_ID}/{PRODUCT_ID_BAND}",
+                f'./images/Landsat/{PRODUCT_ID}/{PRODUCT_ID_BAND}.TIF'
+            )
+        return ToastMessage(
+            header=f'Загрузка завершина - Landsat',
+            message=f"""
+                Продукт {PRODUCT_ID},
+                Скачены слои {bands}
+            """,
+            datetime=datetime.now()
+        )
+
+
+    def test_data(self):
+        granule_ids = {}
+        err = []
+        with gzip.open('sentinel.csv.gz', 'rt') as f:
+            headers = f.readline().split(',')
+            logger.debug(headers)
+            for _ in range(500000):
+                row = f.readline().split(',')
+                # for k, v in zip(headers, row):
+                #     logger.info(f"{k} - {v}")
+                d = granule_ids.get(row[0]+row[1], None)
+                if d:
+                    err.append(d)
+                    err.append(row)
+                else:
+                    granule_ids[row[0]+row[1]] = row
+
+        for e1 in sorted(err):
+            logger.info(f"{e1[1]}")
+            # for v1, v2, h in zip(e1, e2, headers):
+            #     logger.success(f"{v1==v2} {h}")
+            #     logger.info(f"{v1=} - {v2=}")
+            # print()

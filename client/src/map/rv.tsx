@@ -26,31 +26,81 @@ interface sidebar {
         Crop: string
     }
 }
+interface sentinel {
+    mgrsTile: string
+    productId: string
+    granuleId: string
+    bands: Array<string>
+}
 
-interface downloadImages {
-    [sceneNameId: string]: Array<string>
+interface landsat {
+    sensorId: string
+    path: string
+    row: string
+    productId: string
+    bands: Array<string>
+}
+
+interface imagesStack {
+    sentinel: {
+        [sceneNameId: string]: {
+            meta: {
+                mgrsTile: string
+                productId: string
+                granuleId: string
+                bands: Array<string>
+            }
+            status: "wait" | "loading" | "downloaded"
+        } | {
+            meta: {
+                bands: Array<string>
+            }
+        }
+    },
+    landsat: {
+        [sceneNameId: string]: {
+            meta: {
+                sensorId: string
+                path: string
+                row: string
+                productId: string
+                bands: Array<string>
+            }
+            status: "wait" | "loading" | "downloaded"
+        } | {
+            meta: {
+                bands: Array<string>
+            }
+        }
+    }
+    // [satellite: string]: {
+    //     [sceneNameId: string]: landsat | sentinel
+    // }
+}
+
+interface toasts {
+    [key: string]: {
+        datetime: Date,
+        header: string,
+        message: string,
+        show: boolean
+    }
 }
 
 
 
 
-export const searchImages = makeVar({
-    poi: [],
-    period: {
-        start: "",
-        end: ""
-    },
-    sensor: "S2",
-    images: []
-})
 
 
-export const downloadImages = makeVar({} as downloadImages)
-
-export const metadataImage = makeVar(undefined)
-
+export const imagesStack = makeVar({} as imagesStack)
+export const selectedImage = makeVar(undefined)
 export const mapObj = makeVar({})
 export const mapData = makeVar({} as geom)
+export const imagePreview = makeVar([])
+export const preview = makeVar({} as any)
+export const isLoading = makeVar(false)
+export const errors = makeVar({period: false})
+
 export const sidebar = makeVar({
     setPOI: false,
     show: 'POI',
@@ -64,10 +114,23 @@ export const sidebar = makeVar({
     }
 } as sidebar)
 
-export const errors = makeVar({
-    period: false
+
+export const searchImages = makeVar({
+    poi: [],
+    period: {
+        start: "",
+        end: ""
+    },
+    sensor: "S2",
+    images: []
 })
 
-export const imagePreview = makeVar([])
+export const bands = {
+    landsat4and5: ['B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7'],
+    landsat7: ['B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8'],
+    landsat8and9: ['B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'B9', 'B10', 'B11', 'BQA'],
+    sentinel2: ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B10', 'B11', 'B12', 'TCI'],
+}
 
-export const preview = makeVar({} as any)
+
+export const toasts = makeVar({} as toasts)

@@ -3,6 +3,7 @@ import * as React from 'react'
 import { HttpLink, ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client'
 import { createHashRouter, RouterProvider } from 'react-router-dom'
 import 'bootstrap/dist/css/bootstrap.min.css'
+import "bootstrap-icons/font/bootstrap-icons.css"
 import { App } from './App'
 import { ErrorPage } from './ErrorPage'
 import { Map } from "./map/Map"
@@ -31,7 +32,7 @@ const router = createHashRouter([
         children: [
             {
                 path: 'map',
-                element: <Map />,
+                element: <Map></Map>,
             },
             {
                 path: 'home',
