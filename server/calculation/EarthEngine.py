@@ -131,7 +131,7 @@ class EarthEngine:
             self._download_blob(
                 "gcp-public-data-landsat",
                 f"{SENSOR_ID}/01/{PATH}/{ROW}/{PRODUCT_ID}/{PRODUCT_ID_BAND}",
-                f'./images/Landsat/{PRODUCT_ID}/{PRODUCT_ID_BAND}.TIF'
+                f'./images/Landsat/{PRODUCT_ID}/{PRODUCT_ID_BAND}'
             )
         return ToastMessage(
             header=f'Загрузка завершина - Landsat',

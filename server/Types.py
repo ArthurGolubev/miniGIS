@@ -1,5 +1,7 @@
 import strawberry
 from datetime import datetime
+from strawberry.scalars import JSON
+
 
 
 @strawberry.input
@@ -39,3 +41,9 @@ class ToastMessage:
     header: str
     message: str
     datetime: datetime
+
+@strawberry.input
+class GeoJSON:
+    geometry: JSON
+    properties: JSON
+    type: str

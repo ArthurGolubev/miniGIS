@@ -16,9 +16,9 @@ export const NavTabs = () => {
             </li>
             <li className='nav-item'>
                 <button
-                onClick={()=>sidebar({...sidebarSub, show: 'Download'})}
-                className={sidebarSub.show == 'Download' ? 'nav-link active' : 'nav-link'}
-                type='button'>Скачать</button>
+                onClick={()=>sidebar({...sidebarSub, show: 'Clip'})}
+                className={sidebarSub.show == 'Clip' ? 'nav-link active' : 'nav-link'}
+                type='button'>Clip</button>
             </li>
             <li className='nav-item'>
                 <button

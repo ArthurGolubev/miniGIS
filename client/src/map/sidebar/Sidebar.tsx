@@ -1,13 +1,15 @@
 import { useReactiveVar } from '@apollo/client'
 import * as React from 'react'
 import { sidebar } from '../rv'
-import { GeometryTable } from './GeometryTable'
+import { GeometryTable } from './Clip/GeometryTable'
 import { NavTabs } from './NavTabs'
-import { SearchImages } from './SearchImages'
+import { SearchImages } from './POI/SearchImages'
+import { Clip } from './Clip/Clip'
 
 
 export const Sidebar = () => {
     const sidebarSub = useReactiveVar(sidebar)
+
 
 
     return <div className='card overflow-hidden' style={{height: "100%"}}>
@@ -18,12 +20,12 @@ export const Sidebar = () => {
                     <blockquote className="blockquote">
                         <p>
                             {sidebarSub.show == 'POI' && sidebarSub.title.POI}
-                            {sidebarSub.show == 'Crop' && sidebarSub.title.Crop}
+                            {sidebarSub.show == 'Clip' && sidebarSub.title.Clip}
                         </p>
                     </blockquote>
                     <figcaption className="blockquote-footer">
                         {sidebarSub.show == 'POI' && sidebarSub.description.POI}
-                        {sidebarSub.show == 'Crop' && sidebarSub.description.Crop}
+                        {sidebarSub.show == 'Clip' && sidebarSub.description.Clip}
                     </figcaption>
                 </figure>
             </div>
@@ -37,11 +39,14 @@ export const Sidebar = () => {
                 </div>
             </div>
         }
-        
-        {/* <div className='row justify-content-center'>
-            <div className='col-12'>
-                <GeometryTable />
+        {
+            sidebarSub.show == 'Clip' &&
+            <div className='row justify-content-center mt-2'>
+                <div className='col-12'>
+                    <Clip />
+                </div>
             </div>
-        </div> */}
+        }
+        
     </div>
 }

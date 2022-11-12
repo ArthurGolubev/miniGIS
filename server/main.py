@@ -1,17 +1,18 @@
-import gzip
-from multiprocessing import get_context
 import strawberry
 
+import geopandas as gpd
 from loguru import logger
+from datetime import datetime
 from fastapi import FastAPI, Depends
 from fastapi.staticfiles import StaticFiles
 from strawberry.fastapi import GraphQLRouter
 from strawberry.scalars import JSON
 from strawberry.types import Info
 
-from sqlmodel import Session
-from Types import Coordinates, Images, LandsatDownload, Period, SentinelDownload, ToastMessage
+
+from Types import Coordinates, LandsatDownload, Period, SentinelDownload, ToastMessage, GeoJSON
 from calculation.EarthEngine import EarthEngine
+from calculation.FileHandler import FileHandler
 
 app = FastAPI()
 
@@ -45,12 +46,6 @@ class Query:
         return images
 
     @strawberry.field
-    def download_images(images: list[Images]) -> str:
-        logger.success('START')
-        EarthEngine().download_images(images)
-        return "success"
-
-    @strawberry.field
     def get_image_preview(system_index: str, sensor: str) -> str:
         preview = EarthEngine().show_images_preview(system_index, sensor)
         return preview
@@ -68,9 +63,16 @@ class Query:
         return toast_message
 
     @strawberry.field
-    def sentinel_db_update_from_csv(self, info: Info) -> str:
-        EarthEngine().sentinel_db_update_from_csv(info.context["session"])
-        return 'str'
+    def available_files(self) -> JSON:
+        response: JSON = FileHandler().available_files()
+        return response
+
+    @strawberry.field
+    def clip_to_mask(self, file_path: str, geojson: GeoJSON) -> ToastMessage:
+        logger.info(f'{file_path=}')
+        logger.info(f'{geojson=}')
+        toast_message: ToastMessage =  FileHandler().clip_to_mask(file_path, mask=geojson)
+        return toast_message
 
     @strawberry.field
     def test_data(self) -> None:

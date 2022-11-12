@@ -1,8 +1,8 @@
 import { useLazyQuery, useReactiveVar } from '@apollo/client'
 import * as React from 'react'
-import { GET_PREVIEW } from '../query'
+import { GET_PREVIEW } from '../../query'
 import * as L from 'leaflet'
-import { isLoading, mapObj, selectedImage, preview, searchImages } from '../rv'
+import { isLoading, mapObj, selectedImage, preview, searchImages } from '../../rv'
 
 
 export const ImagesList = () => {

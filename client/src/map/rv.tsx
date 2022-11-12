@@ -19,25 +19,17 @@ interface sidebar {
     show: string,
     title: {
         POI: string
-        Crop: string
+        Clip: string
     }
     description: {
         POI: string
-        Crop: string
+        Clip: string
     }
 }
 interface sentinel {
     mgrsTile: string
     productId: string
     granuleId: string
-    bands: Array<string>
-}
-
-interface landsat {
-    sensorId: string
-    path: string
-    row: string
-    productId: string
     bands: Array<string>
 }
 
@@ -101,16 +93,17 @@ export const preview = makeVar({} as any)
 export const isLoading = makeVar(false)
 export const errors = makeVar({period: false})
 
+
 export const sidebar = makeVar({
     setPOI: false,
     show: 'POI',
     title: {
         POI: 'Выбор спутникого снимка',
-        Crop: "Кадрирование"
+        Clip: 'Создать GeoJSON'
     },
     description: {
         POI: 'поиск спутниковых снимков за указанный период на указанной территории',
-        Crop: ""
+        Clip: 'создание векторного слоя для кадрирования'
     }
 } as sidebar)
 

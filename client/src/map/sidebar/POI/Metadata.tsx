@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { useLazyQuery, useReactiveVar } from '@apollo/client'
-import { DOWNLOAD_LANDSAT, DOWNLOAD_SENTINEL } from '../query'
-import { selectedImage, preview, searchImages, bands, imagesStack, toasts, isLoading } from '../rv'
+import { DOWNLOAD_LANDSAT, DOWNLOAD_SENTINEL } from '../../query'
+import { selectedImage, preview, searchImages, bands, imagesStack, toasts, isLoading } from '../../rv'
 
 
 export const Metadata = () => {
@@ -174,7 +174,7 @@ export const Metadata = () => {
             case 'LC07':
                 console.log('LC07')
                 return bands.landsat7
-            case 'LC05' || 'LC04':
+            case 'LC05':
                 console.log('LC05')
                 return bands.landsat4and5
             case 'LC04':
