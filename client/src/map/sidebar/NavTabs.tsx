@@ -22,15 +22,15 @@ export const NavTabs = () => {
             </li>
             <li className='nav-item'>
                 <button
-                onClick={()=>sidebar({...sidebarSub, show: 'Crop'})}
-                className={sidebarSub.show == 'Crop' ? 'nav-link active' : 'nav-link'}
-                type='button'>Кадрировать</button>
+                onClick={()=>sidebar({...sidebarSub, show: 'Stack'})}
+                className={sidebarSub.show == 'Stack' ? 'nav-link active' : 'nav-link'}
+                type='button'>Stack</button>
             </li>
             <li className='nav-item'>
                 <button
-                onClick={()=>sidebar({...sidebarSub, show: 'Analysis'})}
-                className={sidebarSub.show == 'Analysis' ? 'nav-link active' : 'nav-link'}
-                type='button'>Анализ</button>
+                onClick={()=>sidebar({...sidebarSub, show: 'Classification'})}
+                className={sidebarSub.show == 'Classification' ? 'nav-link active' : 'nav-link'}
+                type='button'>Классификация</button>
             </li>
         </ul>
     </div>

@@ -1,86 +1,4 @@
-import { makeVar } from "@apollo/client";
-
-interface geom {
-    [index: number]: {
-        shape: string
-        outer_vertex: number
-        inner_vertex?: number | undefined
-        text: string,
-        geom: any
-    },
-    poi?: {
-        lat: string,
-        lon: string
-    }
-}
-
-interface sidebar {
-    setPOI: boolean,
-    show: string,
-    title: {
-        POI: string
-        Clip: string
-    }
-    description: {
-        POI: string
-        Clip: string
-    }
-}
-interface sentinel {
-    mgrsTile: string
-    productId: string
-    granuleId: string
-    bands: Array<string>
-}
-
-interface imagesStack {
-    sentinel: {
-        [sceneNameId: string]: {
-            meta: {
-                mgrsTile: string
-                productId: string
-                granuleId: string
-                bands: Array<string>
-            }
-            status: "wait" | "loading" | "downloaded"
-        } | {
-            meta: {
-                bands: Array<string>
-            }
-        }
-    },
-    landsat: {
-        [sceneNameId: string]: {
-            meta: {
-                sensorId: string
-                path: string
-                row: string
-                productId: string
-                bands: Array<string>
-            }
-            status: "wait" | "loading" | "downloaded"
-        } | {
-            meta: {
-                bands: Array<string>
-            }
-        }
-    }
-    // [satellite: string]: {
-    //     [sceneNameId: string]: landsat | sentinel
-    // }
-}
-
-interface toasts {
-    [key: string]: {
-        datetime: Date,
-        header: string,
-        message: string,
-        show: boolean
-    }
-}
-
-
-
+import { makeVar } from "@apollo/client"
 
 
 
@@ -99,11 +17,15 @@ export const sidebar = makeVar({
     show: 'POI',
     title: {
         POI: 'Выбор спутникого снимка',
-        Clip: 'Создать GeoJSON'
+        Clip: 'Создать GeoJSON',
+        Stack: 'Объединить слои',
+        Classification: 'Классификация'
     },
     description: {
         POI: 'поиск спутниковых снимков за указанный период на указанной территории',
-        Clip: 'создание векторного слоя для кадрирования'
+        Clip: 'создание векторного слоя для кадрирования',
+        Stack: 'создание композитного изображения из нескольких слоёв (объединение нескольких файлов-слоёв в один файл)',
+        Classification: 'классификация (с/без учителя) пикселей на изображении'
     }
 } as sidebar)
 
@@ -127,3 +49,5 @@ export const bands = {
 
 
 export const toasts = makeVar({} as toasts)
+export const classification = makeVar({} as classification)
+export const selectedFiles = makeVar({} as selectedFiles)

@@ -13,6 +13,7 @@ from strawberry.types import Info
 from Types import Coordinates, LandsatDownload, Period, SentinelDownload, ToastMessage, GeoJSON
 from calculation.EarthEngine import EarthEngine
 from calculation.FileHandler import FileHandler
+from calculation.Classifier import Classifier
 
 app = FastAPI()
 
@@ -63,15 +64,23 @@ class Query:
         return toast_message
 
     @strawberry.field
-    def available_files(self) -> JSON:
-        response: JSON = FileHandler().available_files()
+    def available_files(self, to: str) -> JSON:
+        response: JSON = FileHandler().available_files(to)
         return response
 
     @strawberry.field
-    def clip_to_mask(self, file_path: str, geojson: GeoJSON) -> ToastMessage:
-        logger.info(f'{file_path=}')
-        logger.info(f'{geojson=}')
-        toast_message: ToastMessage =  FileHandler().clip_to_mask(file_path, mask=geojson)
+    def clip_to_mask(self, files: list[str], geojson: GeoJSON) -> ToastMessage:
+        toast_message: ToastMessage = FileHandler().clip_to_mask(files, mask=geojson)
+        return toast_message
+    
+    @strawberry.field
+    def stack_bands(self, files: list[str]) -> ToastMessage:
+        toast_message: ToastMessage = FileHandler().stack_bands(files)
+        return toast_message
+
+    @strawberry.field
+    def classify_k_mean(self, file_path: str, k: int) -> ToastMessage:
+        toast_message: ToastMessage = Classifier().k_mean(file_path, k)
         return toast_message
 
     @strawberry.field

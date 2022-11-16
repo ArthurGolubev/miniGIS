@@ -67,11 +67,9 @@ class EarthEngine:
                 "max": 12000,
                 "dimensions": 2000,
                 "bands": ['B4', "B3", "B2"],
-                # "gamma": [0.95, 1.1, 1]
             }
         elif sensor in self.sentinel:
             res = ee.Image(f'COPERNICUS/S2_HARMONIZED/{system_index}')
-            # logger.info(f"{res.getInfo()}=")
             parameters = {
                 "min": 0,
                 "max": 3000,
@@ -81,8 +79,6 @@ class EarthEngine:
         else:
             logger.error(f"wrong sensor {sensor=}")
 
-        # p = ee.Geometry.Polygon(res.getInfo()["properties"]["system:footprint"]["coordinates"])
-        # logger.info(f"{p.toGeoJSON()=}")
         return res.getThumbURL(parameters)
 
 
@@ -96,15 +92,14 @@ class EarthEngine:
         GRANULE_ID      = sentinel_meta.granule_id
         bands           = sentinel_meta.bands
 
-        logger.info(f"SENTINEL")
-        Path(f"./images/Sentinel/{PRODUCT_ID}/").mkdir(parents=True, exist_ok=True)
+        Path(f"./images/raw/Sentinel/{PRODUCT_ID}/").mkdir(parents=True, exist_ok=True)
         for band in bands:
             LAYER = f"T{sentinel_meta.mgrs_tile}_{PRODUCT_ID[11:26]}_{band}.jp2"
             logger.info(f"{UTM_ZONE}/{LATITUDE_BAND}/{GRID_SQUARE}/{PRODUCT_ID}/GRANULE/{GRANULE_ID}/IMG_DATA/{LAYER}")
             self._download_blob(
                 "gcp-public-data-sentinel-2",
                 f"tiles/{UTM_ZONE}/{LATITUDE_BAND}/{GRID_SQUARE}/{PRODUCT_ID}/GRANULE/{GRANULE_ID}/IMG_DATA/{LAYER}",
-                f'./images/Sentinel/{PRODUCT_ID}/{LAYER}'
+                f'./images/raw/Sentinel/{PRODUCT_ID}/{LAYER}'
             )
         return ToastMessage(
             header=f'Загрузка завершина - Sentinel',
@@ -116,6 +111,7 @@ class EarthEngine:
         )
 
 
+
     @time_metr
     def download_landsat(self, landsat_download: LandsatDownload) -> ToastMessage:
         SENSOR_ID           = landsat_download.sensor_id
@@ -124,14 +120,14 @@ class EarthEngine:
         bands               = landsat_download.bands
         PRODUCT_ID          = landsat_download.product_id
 
-        Path(f"./images/Landsat/{PRODUCT_ID}/").mkdir(parents=True, exist_ok=True)
+        Path(f"./images/raw/Landsat/{PRODUCT_ID}/").mkdir(parents=True, exist_ok=True)
         for band in bands:
             PRODUCT_ID_BAND = f"{PRODUCT_ID}_{band}.TIF"
             logger.info(f"START_LANDSAT\n{SENSOR_ID}/01/{PATH}/{ROW}/{PRODUCT_ID}/{PRODUCT_ID_BAND}")
             self._download_blob(
                 "gcp-public-data-landsat",
                 f"{SENSOR_ID}/01/{PATH}/{ROW}/{PRODUCT_ID}/{PRODUCT_ID_BAND}",
-                f'./images/Landsat/{PRODUCT_ID}/{PRODUCT_ID_BAND}'
+                f'./images/raw/Landsat/{PRODUCT_ID}/{PRODUCT_ID_BAND}'
             )
         return ToastMessage(
             header=f'Загрузка завершина - Landsat',
@@ -141,6 +137,7 @@ class EarthEngine:
             """,
             datetime=datetime.now()
         )
+
 
 
     def test_data(self):

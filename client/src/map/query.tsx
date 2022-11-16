@@ -31,9 +31,9 @@ export const DOWNLOAD_LANDSAT = gql`
     }
 `
 
-export const SEND_GEOJSON = gql`
-    query send_geojson_query($filePath: String!, $geojson: GeoJSON!){
-        clipToMask(filePath: $filePath, geojson: $geojson){
+export const CLIP_LAYERS = gql`
+    query send_geojson_query($files: [String!]!, $geojson: GeoJSON!){
+        clipToMask(files: $files, geojson: $geojson){
             header,
             message,
             datetime
@@ -42,7 +42,27 @@ export const SEND_GEOJSON = gql`
 `
 
 export const AVAILABLE_FILES = gql`
-    query availableFiles{
-        availableFiles
+    query available_files_query($to: String!){
+        availableFiles(to: $to)
+    }
+`
+
+export const STACK_BANDS = gql`
+    query stack_bands_query($files: [String!]!){
+        stackBands(files: $files){
+            header,
+            message,
+            datetime
+        }
+    }
+`
+
+export const CLASSIFY_K_MEAN = gql`
+    query classify_k_mean_query($filePath: String!, $k: Int!){
+        classifyKMean(filePath: $filePath, k: $k){
+            header,
+            message,
+            datetime
+        }
     }
 `
