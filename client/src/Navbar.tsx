@@ -1,7 +1,7 @@
 import { useReactiveVar } from '@apollo/client'
 import * as React from 'react'
 import { Link } from 'react-router-dom'
-import { isLoading } from './map/rv'
+import { isLoading, sidebar } from './map/rv'
 import { WorkbenchStack } from './WorkbenchStack'
 
 
@@ -19,21 +19,38 @@ export const NavBar = () => {
             </button>
         
             <div className="collapse navbar-collapse " id="navbarNav">
-                <div className='col-auto'>
-                    <ul className="navbar-nav">
+                <div className='col-auto text-end'>
+                    {/* <ul className="navbar-nav">
                         <li className="nav-item">
-                            <Link className="nav-link active" aria-current="page" to="/map">Map</Link>
+                            <a href='/map' onClick={()=>sidebar({show: 'tools'})} className='nav-link active' type='button'>Tools</a>
                         </li>
                         <li className="nav-item">
-                            <Link className="nav-link active" aria-current="page" to="/home">Home</Link>
+                            <a href='#/map' onClick={()=>sidebar({show: 'layers'})} className='nav-link active' type='button'>Layers</a>
                         </li>
-                    </ul>
+                    </ul> */}
                 </div>
                 <div className='col-auto text-center'>
                     {isLoadingSub && <div className="spinner-grow spinner-grow-sm text-success"><span className="visually-hidden">Loading...</span></div>}
                 </div>
                 <div className='ms-auto'>
-                    <WorkbenchStack />
+                    <div className='row justify-content-center'>
+                        
+                        <div className='col'>
+                            <ul className="navbar-nav">
+                                <li className="nav-item">
+                                    <a href='#/map' onClick={()=>sidebar({show: 'tools'})} className='nav-link active' type='button'>Tools</a>
+                                </li>
+                                <li className="nav-item">
+                                    <a href='#/map' onClick={()=>sidebar({show: 'layers'})} className='nav-link active' type='button'>Layers</a>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div className='col-auto'>
+                            <WorkbenchStack />
+                        </div>
+                        
+                    </div>
                 </div>
             </div>
         </div>

@@ -11,8 +11,8 @@ export const preview = makeVar({} as any)
 export const isLoading = makeVar(false)
 export const errors = makeVar({period: false})
 
-
-export const sidebar = makeVar({
+export const sidebar = makeVar({show: 'tools'} as sidebar)
+export const tools = makeVar({
     setPOI: false,
     show: 'POI',
     title: {
@@ -27,7 +27,7 @@ export const sidebar = makeVar({
         Stack: 'создание композитного изображения из нескольких слоёв (объединение нескольких файлов-слоёв в один файл)',
         Classification: 'классификация (с/без учителя) пикселей на изображении'
     }
-} as sidebar)
+} as tools)
 
 
 export const searchImages = makeVar({
@@ -51,3 +51,6 @@ export const bands = {
 export const toasts = makeVar({} as toasts)
 export const classification = makeVar({} as classification)
 export const selectedFiles = makeVar({} as selectedFiles)
+// TEST. Позже - удалить
+export const test = makeVar({metadata: {}})
+// 

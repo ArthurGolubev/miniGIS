@@ -7,6 +7,7 @@ import "bootstrap-icons/font/bootstrap-icons.css"
 import { App } from './App'
 import { ErrorPage } from './ErrorPage'
 import { Map } from "./map/Map"
+import { Tools } from "./map/sidebar/tools/Tools"
 
 
 const root = ReactDOM.createRoot(document.querySelector("#root"))
@@ -32,7 +33,7 @@ const router = createHashRouter([
         children: [
             {
                 path: 'map',
-                element: <Map></Map>,
+                element: <Map />,
             },
             {
                 path: 'home',

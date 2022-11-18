@@ -1,7 +1,7 @@
 import { useLazyQuery, useReactiveVar } from '@apollo/client'
 import * as React from 'react'
-import { CLASSIFY_K_MEAN } from '../../../query'
-import { classification, isLoading, selectedFiles } from '../../../rv'
+import { CLASSIFY_K_MEAN } from '../../../../query'
+import { classification, isLoading, selectedFiles } from '../../../../rv'
 
 
 export const KMean = () => {

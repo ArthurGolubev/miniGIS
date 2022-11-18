@@ -14,9 +14,9 @@ interface geom {
     }
 }
 
-interface sidebar {
+interface tools {
     setPOI: boolean,
-    show: "POI" | "Clip" | "Stack" | "Classification",
+    show: "POI" | "Clip" | "Stack" | "Classification" | "View",
     title: {
         POI: string
         Clip: string
@@ -82,6 +82,7 @@ interface selectedFiles {
         Stack: Array<string>
         Clip: Array<string>
         Classification: Array<string>
+        View: Array<string>
     }
 }
 
@@ -90,3 +91,6 @@ interface classification {
     classes: number
 }
 
+interface sidebar {
+    show: 'tools' | 'layers'
+}

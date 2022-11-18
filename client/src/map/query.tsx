@@ -66,3 +66,9 @@ export const CLASSIFY_K_MEAN = gql`
         }
     }
 `
+
+export const GET_CLASSIFICATION_LAYER = gql`
+    query get_classification_layer_query($filePath: String!){
+        getClassificationLayer(filePath: $filePath)
+    }
+`

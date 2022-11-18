@@ -1,7 +1,7 @@
 import { useLazyQuery, useReactiveVar } from "@apollo/client"
 import * as React from "react"
-import { CLIP_LAYERS } from "../../query"
-import { isLoading, mapData, selectedFiles } from "../../rv"
+import { CLIP_LAYERS } from "../../../query"
+import { isLoading, mapData, selectedFiles } from "../../../rv"
 
 
 export const ClipBtn = () => {
@@ -14,7 +14,7 @@ export const ClipBtn = () => {
         isLoading(true)
         sendToServer({variables: {
             geojson: mapDataSub[key].geom,
-            files: selectedFilesSub.files
+            files: selectedFilesSub.files.Clip
         }, onCompleted: () => {
             isLoading(false)
         }})

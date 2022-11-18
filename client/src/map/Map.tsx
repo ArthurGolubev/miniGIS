@@ -3,7 +3,7 @@ import * as L from 'leaflet'
 import { Sidebar } from './sidebar/Sidebar'
 import '@geoman-io/leaflet-geoman-free'
 import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css'
-import { mapData, mapObj, searchImages, sidebar } from './rv'
+import { mapData, mapObj, searchImages, tools } from './rv'
 
 
 export const Map = () => {
@@ -29,9 +29,9 @@ export const Map = () => {
         console.log('Geometry ->', geom.geometry.type)
         switch (geom.geometry.type) {
             case "Point":
-                if(sidebar().setPOI){
+                if(tools().setPOI){
                     searchImages({...searchImages(), poi: geom.geometry.coordinates})
-                    sidebar({...sidebar(), setPOI: false})
+                    tools({...tools(), setPOI: false})
                 } else {
                     mapData({...mapData(),
                         [id]: {

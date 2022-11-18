@@ -1,6 +1,6 @@
 import { useReactiveVar } from '@apollo/client'
 import * as React from 'react'
-import { mapData } from '../../rv'
+import { mapData } from '../../../rv'
 
 export const GeometryTable = () => {
     const mapDataSub = useReactiveVar(mapData)

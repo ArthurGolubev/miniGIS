@@ -1,6 +1,6 @@
 import { useReactiveVar } from '@apollo/client'
 import * as React from 'react'
-import { classification } from '../../rv'
+import { classification } from '../../../rv'
 import { AvailableFiles } from '../AvailableFiles'
 import { KMean } from './options/KMean'
 

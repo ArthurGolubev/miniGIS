@@ -1,14 +1,14 @@
 import { useLazyQuery, useReactiveVar } from '@apollo/client'
 import * as React from 'react'
-import { SEARCH_IMAGES } from '../../query'
-import { errors, isLoading, mapObj, selectedImage, searchImages, sidebar, imagesStack } from '../../rv'
+import { SEARCH_IMAGES } from '../../../query'
+import { errors, isLoading, mapObj, selectedImage, searchImages, tools, imagesStack } from '../../../rv'
 import { ImagesList } from './ImagesList'
 import { Metadata } from './Metadata'
 
 
 export const SearchImages = () => {
     const errorsSub = useReactiveVar(errors)
-    const sidebarSub = useReactiveVar(sidebar)
+    const toolsSub = useReactiveVar(tools)
     const selectedImageSub = useReactiveVar(selectedImage)
     const searchImagesSub = useReactiveVar(searchImages)
     const mapObjSub = useReactiveVar(mapObj) as any
@@ -16,7 +16,7 @@ export const SearchImages = () => {
     
 
     const setPOI = () => {
-        sidebar({...sidebarSub, setPOI: true})
+        tools({...toolsSub, setPOI: true})
         mapObjSub.pm.enableDraw('Marker', {
             tooltips: false,
             markerStyle: {
@@ -55,7 +55,7 @@ export const SearchImages = () => {
                     onClick={()=>setPOI()}
                     className='btn btn-sm btn-success me-2'
                     type='button'
-                    disabled={sidebarSub.setPOI}>
+                    disabled={toolsSub.setPOI}>
                         Указать точку на местности
                 </button>
                 <button

@@ -1,5 +1,5 @@
 import { useReactiveVar } from "@apollo/client"
-import { bands, imagesStack, searchImages, selectedImage } from "../../rv"
+import { bands, imagesStack, searchImages, selectedImage } from "../../../rv"
 import * as React from 'react'
 
 

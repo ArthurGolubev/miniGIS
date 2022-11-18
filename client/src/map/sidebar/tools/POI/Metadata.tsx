@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { useReactiveVar } from '@apollo/client'
-import { selectedImage, preview } from '../../rv'
+import { selectedImage, preview } from '../../../rv'
 import { DownloadBtn } from './DownloadBtn'
 import { BandsList } from './BandsList'
 

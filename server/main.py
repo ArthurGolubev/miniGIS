@@ -5,6 +5,7 @@ from loguru import logger
 from datetime import datetime
 from fastapi import FastAPI, Depends
 from fastapi.staticfiles import StaticFiles
+# from fastapi.staticfiles import Mount
 from strawberry.fastapi import GraphQLRouter
 from strawberry.scalars import JSON
 from strawberry.types import Info
@@ -84,6 +85,12 @@ class Query:
         return toast_message
 
     @strawberry.field
+    def get_classification_layer(self, file_path: str) -> JSON:
+        res = FileHandler().get_classification_layer(file_path)
+        return res 
+
+
+    @strawberry.field
     def test_data(self) -> None:
         EarthEngine().test_data()
 
@@ -92,4 +99,5 @@ schema = strawberry.Schema(query=Query)
 graphql_app = GraphQLRouter(schema=schema, context_getter=get_context)
 
 app.include_router(graphql_app, prefix='/api/graphql')
-app.mount('/', StaticFiles(directory='../client', html=True), name='somename')
+app.mount('/images', StaticFiles(directory='../server/images/'), name='images')
+app.mount('/', StaticFiles(directory='../client', html=True), name='index')

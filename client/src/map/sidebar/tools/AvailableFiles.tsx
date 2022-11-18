@@ -1,12 +1,12 @@
 import { useQuery, useReactiveVar } from '@apollo/client'
 import * as React from 'react'
-import { AVAILABLE_FILES } from '../query'
-import { selectedFiles, sidebar } from '../rv'
+import { AVAILABLE_FILES } from '../../query'
+import { selectedFiles, tools } from '../../rv'
 
 
 export const AvailableFiles = () => {
-    const sidebarSub = useReactiveVar(sidebar)
-    const {data, loading} = useQuery(AVAILABLE_FILES, {variables: {to: sidebarSub.show}})
+    const toolsSub = useReactiveVar(tools)
+    const {data, loading} = useQuery(AVAILABLE_FILES, {variables: {to: toolsSub.show}})
     const selectedFilesSub = useReactiveVar(selectedFiles)
 
     return <div className='col-11'>
@@ -18,7 +18,7 @@ export const AvailableFiles = () => {
                     <select className="form-select" id="satellite"
                         onChange={e => selectedFiles({satellite: e.target.value, product: '', files: {
                             ...selectedFilesSub.files,
-                            [sidebarSub.show]: []
+                            [toolsSub.show]: []
                         }})}>
                         <option>...</option>
                         {
@@ -56,14 +56,14 @@ export const AvailableFiles = () => {
                     data && !loading && selectedFilesSub?.product && selectedFilesSub?.satellite && 
                     Object.entries(data.availableFiles[selectedFilesSub.satellite][selectedFilesSub.product]).map((entry: Array<any>, iter: number) => {
                         console.log("key ->", entry[0])
-                        return <div className={sidebarSub.show == "Classification" ? 'col-12' : 'col-4'} key={iter}>
+                        return <div className={toolsSub.show == "Classification" ? 'col-12' : 'col-4'} key={iter}>
                             <div className="form-check form-check-inline">
                                 <input className='form-check-input' type={"checkbox"} id={`band-${entry[0]}`} defaultChecked={false} value={entry[1]}
                                     onChange={e => selectedFiles({
                                         ...selectedFilesSub,
                                         files: {
                                             ...selectedFilesSub.files,
-                                            [sidebarSub.show]: [...selectedFilesSub.files[sidebarSub.show], e.target.value]
+                                            [toolsSub.show]: [...selectedFilesSub.files[toolsSub.show], e.target.value]
                                         }
                                         })}
                                 />

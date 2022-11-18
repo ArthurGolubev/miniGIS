@@ -1,7 +1,7 @@
 import { useLazyQuery, useReactiveVar } from '@apollo/client'
 import * as React from 'react'
-import { DOWNLOAD_LANDSAT, DOWNLOAD_SENTINEL } from '../../query'
-import { imagesStack, isLoading, toasts } from '../../rv'
+import { DOWNLOAD_LANDSAT, DOWNLOAD_SENTINEL } from '../../../query'
+import { imagesStack, isLoading, toasts } from '../../../rv'
 
 
 export const DownloadBtn = () => {

@@ -1,8 +1,8 @@
 import { useLazyQuery, useReactiveVar } from '@apollo/client'
 import * as React from 'react'
-import { GET_PREVIEW } from '../../query'
+import { GET_PREVIEW } from '../../../query'
 import * as L from 'leaflet'
-import { isLoading, mapObj, selectedImage, preview, searchImages } from '../../rv'
+import { isLoading, mapObj, selectedImage, preview, searchImages, test } from '../../../rv'
 
 
 export const ImagesList = () => {
@@ -18,6 +18,9 @@ export const ImagesList = () => {
         },
         onCompleted: data => {
             let coordinates = metadata["system:footprint"]["coordinates"]
+            // TEST. Позжу - удалить
+            test(metadata)
+            // 
             L.geoJSON().addTo(mapObjSub).addData({type: 'LineString', coordinates: coordinates} as any)
             let p = L.imageOverlay(data.getImagePreview, coordinates.map((point: Array<number>) => [point[1], point[0]]) )
             preview(p)
@@ -37,7 +40,9 @@ export const ImagesList = () => {
                     searchImagesSub.images.map((item: any, iter: number) => {
                         return <li key={iter} className="mb-1">
                             <div className="d-grid gap-2 col-10 mx-auto">
-                                <button className="btn btn-sm btn-outline-primary" onClick={()=>getImagePreviewHandler(item)} disabled={loading2}>
+                                <button className="btn btn-sm btn-outline-primary"
+                                onClick={()=>getImagePreviewHandler(item)}
+                                disabled={loading2}>
                                     {
                                         `
                                         ${item.DATE_ACQUIRED ? (item.DATE_ACQUIRED) : (new Date(item.GENERATION_TIME).toISOString().slice(0, 10))} 

@@ -1,7 +1,7 @@
 import { useLazyQuery, useReactiveVar } from '@apollo/client'
 import * as React from 'react'
-import { STACK_BANDS } from '../../query'
-import { isLoading, selectedFiles } from '../../rv'
+import { STACK_BANDS } from '../../../query'
+import { isLoading, selectedFiles } from '../../../rv'
 
 
 export const StackBtn = () => {
