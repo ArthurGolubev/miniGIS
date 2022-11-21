@@ -70,8 +70,8 @@ class Query:
         return response
 
     @strawberry.field
-    def clip_to_mask(self, files: list[str], geojson: GeoJSON) -> ToastMessage:
-        toast_message: ToastMessage = FileHandler().clip_to_mask(files, mask=geojson)
+    def clip_to_mask(self, files: list[str], geoJSONs: list[GeoJSON]) -> ToastMessage:
+        toast_message: ToastMessage = FileHandler().clip_to_mask(files, mask=geoJSONs)
         return toast_message
     
     @strawberry.field
@@ -87,7 +87,7 @@ class Query:
     @strawberry.field
     def get_classification_layer(self, file_path: str) -> JSON:
         res = FileHandler().get_classification_layer(file_path)
-        return res 
+        return res
 
 
     @strawberry.field

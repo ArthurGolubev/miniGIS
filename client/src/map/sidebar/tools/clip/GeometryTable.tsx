@@ -1,9 +1,9 @@
 import { useReactiveVar } from '@apollo/client'
 import * as React from 'react'
-import { mapData } from '../../../rv'
+import { layers } from '../../../rv'
 
 export const GeometryTable = () => {
-    const mapDataSub = useReactiveVar(mapData)
+    const layersSub = useReactiveVar(layers)
 
     return <div className='table-responsive'>
         <table className='table'>
@@ -16,13 +16,17 @@ export const GeometryTable = () => {
                 </tr>
             </thead>
             <tbody>
-                {Object.values(mapDataSub).map((geom: any, iter: number) => {
+                {Object.values(layersSub).map((geom: any, iter: number) => {
+                    if(geom.type == 'shape'){
                     return <tr key={'geom-' + iter}>
                         <th>{iter + 1}</th>
                         <td>{geom.shape}</td>
                         <td>{geom.outer_vertex}</td>
                         <td>{geom.inner_vertex}</td>
                     </tr>
+                    } else {
+                        return null
+                    }
                 })}
             </tbody>
         </table>

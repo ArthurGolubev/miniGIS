@@ -1,13 +1,12 @@
 import * as React from 'react'
 import { useReactiveVar } from '@apollo/client'
-import { selectedImage, preview } from '../../../rv'
+import { selectedImage } from '../../../rv'
 import { DownloadBtn } from './DownloadBtn'
 import { BandsList } from './BandsList'
 
 
 export const Metadata = () => {
     const selectedImageSub  = useReactiveVar(selectedImage)
-    const previewSub        = useReactiveVar(preview) as any
 
 
     return <div className='row justify-content-start'>
@@ -55,9 +54,6 @@ export const Metadata = () => {
             <div className='row justify-content-center'>
                 <div className='col-12'>
                     <label htmlFor="previewOpacity" className="form-label">Прозрачность</label>
-                    <input type="range" className="form-range" min="" max="100" defaultValue={100} id="previewOpacity"
-                        onChange={e => previewSub.setOpacity(parseInt(e.target.value) / 100) }
-                    />
                 </div>
             </div>
             <div className='row justify-content-center h-25'>

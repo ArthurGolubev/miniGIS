@@ -6,7 +6,7 @@ import { imagesStack, isLoading, toasts } from '../../../rv'
 
 export const DownloadBtn = () => {
     const imagesStackSub    = useReactiveVar(imagesStack)
-    const isLoadingSub      = useReactiveVar(isLoading)
+    const isLoadingSub: boolean = useReactiveVar(isLoading)
 
     const [downloadSentinel, {loading: sentinelLoading}] = useLazyQuery(DOWNLOAD_SENTINEL, {fetchPolicy: "network-only"})
     const [downloadLandsat, {loading: landsatLoading}] = useLazyQuery(DOWNLOAD_LANDSAT, {fetchPolicy: "network-only"})

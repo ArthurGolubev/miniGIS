@@ -1,13 +1,12 @@
 import { makeVar } from "@apollo/client"
+import { MapLayers, MapObject } from "./types/newTypes"
 
 
-
+// TODO Почистить
 export const imagesStack = makeVar({} as imagesStack)
 export const selectedImage = makeVar(undefined)
-export const mapObj = makeVar({})
-export const mapData = makeVar({} as geom)
+export const mapObj = makeVar({} as MapObject)
 export const imagePreview = makeVar([])
-export const preview = makeVar({} as any)
 export const isLoading = makeVar(false)
 export const errors = makeVar({period: false})
 
@@ -51,6 +50,5 @@ export const bands = {
 export const toasts = makeVar({} as toasts)
 export const classification = makeVar({} as classification)
 export const selectedFiles = makeVar({} as selectedFiles)
-// TEST. Позже - удалить
-export const test = makeVar({metadata: {}})
-// 
+
+export const layers = makeVar({} as MapLayers)

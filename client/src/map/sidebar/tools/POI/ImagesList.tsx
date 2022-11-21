@@ -2,12 +2,14 @@ import { useLazyQuery, useReactiveVar } from '@apollo/client'
 import * as React from 'react'
 import { GET_PREVIEW } from '../../../query'
 import * as L from 'leaflet'
-import { isLoading, mapObj, selectedImage, preview, searchImages, test } from '../../../rv'
+import { isLoading, mapObj, selectedImage, searchImages, layers } from '../../../rv'
+import { MapLayer, MapLayers } from '../../../types/newTypes'
 
 
 export const ImagesList = () => {
     const mapObjSub         = useReactiveVar(mapObj) as any
     const searchImagesSub = useReactiveVar(searchImages)
+    const layersSub: MapLayers = useReactiveVar(layers)
     
     const [getImagePreview, {data: data2, loading: loading2, error: error2}] = useLazyQuery(GET_PREVIEW)
     const getImagePreviewHandler = (metadata: any) => {
@@ -18,13 +20,20 @@ export const ImagesList = () => {
         },
         onCompleted: data => {
             let coordinates = metadata["system:footprint"]["coordinates"]
-            // TEST. Позжу - удалить
-            test(metadata)
-            // 
             L.geoJSON().addTo(mapObjSub).addData({type: 'LineString', coordinates: coordinates} as any)
-            let p = L.imageOverlay(data.getImagePreview, coordinates.map((point: Array<number>) => [point[1], point[0]]) )
-            preview(p)
-            p.addTo(mapObjSub)
+            let layer = L.imageOverlay(data.getImagePreview, coordinates.map((point: Array<number>) => [point[1], point[0]]) )
+
+            let date = metadata.DATE_ACQUIRED ? (metadata.DATE_ACQUIRED) : (new Date(metadata.GENERATION_TIME).toISOString().slice(0, 10))
+            let cloud = metadata.CLOUD_COVER ? (metadata.CLOUD_COVER.toFixed(2)) : (metadata.CLOUD_COVERAGE_ASSESSMENT.toFixed(2))
+            let mapLayer: MapLayer = {
+                layerType: "preview",
+                layer: layer,
+                date: date,
+                cloud: cloud,
+                positionInTable: Object.keys(layersSub).length + 1
+            }
+            layers({ ...layersSub, [metadata["system:index"]]: mapLayer })
+            layer.addTo(mapObjSub)
             selectedImage(metadata)
             isLoading(false)
         },

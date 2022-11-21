@@ -1,36 +1,40 @@
 import { useLazyQuery, useQuery, useReactiveVar } from '@apollo/client'
 import * as React from 'react'
 import { AVAILABLE_FILES, GET_CLASSIFICATION_LAYER } from '../../../query'
-import { mapObj, selectedFiles, tools, test } from '../../../rv'
+import { isLoading, layers, mapObj, selectedFiles, tools } from '../../../rv'
 import * as L from 'leaflet'
+import { MapLayer, MapLayers } from '../../../types/newTypes'
 
 
 export const ViewBtn = () => {
     const toolsSub = useReactiveVar(tools)
-    const {data, loading} = useQuery(AVAILABLE_FILES, {variables: {to: toolsSub.show}})
+    const {data} = useQuery(AVAILABLE_FILES, {variables: {to: toolsSub.show}})
     const selectedFilesSub = useReactiveVar(selectedFiles)
     const mapObjSub         = useReactiveVar(mapObj) as any
-    const testSub = useReactiveVar(test) as any
+    const layersSub: MapLayers = useReactiveVar(layers)
     const [getClassificationLayer] = useLazyQuery(GET_CLASSIFICATION_LAYER)
 
 
     const se = () => {
-        // Тут делается запросик на получения координат из .tif и получения правильной (полной) ссылки на .png
-        // делается это в onCompleted
+        isLoading(true)
         getClassificationLayer({
             variables: {filePath: selectedFilesSub.files.View[0]},
             onCompleted: data => {
                 let coordinates = data.getClassificationLayer.coordinates
                 let imgUrl = data.getClassificationLayer.imgUrl
-                console.log("TEST ->", testSub)
+                let fileName = data.getClassificationLayer.fileName
                 L.geoJSON().addTo(mapObjSub).addData({type: 'LineString', coordinates: coordinates} as any)
-                // let p = L.imageOverlay(selectedFilesSub.files?.View[0], coordinates.map((point: Array<number>) => [point[1], point[0]]) )
-                let p = L.imageOverlay(imgUrl, coordinates.map((point: Array<number>) => [point[1], point[0]]) )
-                // preview(p)
-                p.addTo(mapObjSub)
+                let layer = L.imageOverlay(imgUrl, coordinates.map((point: Array<number>) => [point[1], point[0]]) )
+                let mapLayer: MapLayer = {
+                    layerType: "result",
+                    layer: layer,
+                    positionInTable: Object.keys(layersSub).length + 1
+                }
+                layers({ ...layersSub, [fileName]: mapLayer })
+                layer.addTo(mapObjSub)
+                isLoading(false)
             }
         })
-        // selectedImage(metadata)
     }
 
 
@@ -38,7 +42,6 @@ export const ViewBtn = () => {
         <div className='col-4'>
             <button onClick={()=>console.log(data)} className='btn btn-sm btn-success' type='button'>data</button>
             { selectedFilesSub.files?.View.length != undefined && <img src={ selectedFilesSub.files?.View[0] } /> }
-            {/* <img src='images/test.png' /> */}
             <button onClick={()=>se()} className='btn btn-sm btn-success' type='button'>btn</button>
         </div>
     </div>

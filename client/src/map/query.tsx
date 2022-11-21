@@ -32,8 +32,8 @@ export const DOWNLOAD_LANDSAT = gql`
 `
 
 export const CLIP_LAYERS = gql`
-    query send_geojson_query($files: [String!]!, $geojson: GeoJSON!){
-        clipToMask(files: $files, geojson: $geojson){
+    query send_geojson_query($files: [String!]!, $geoJSONs: [GeoJSON!]!){
+        clipToMask(files: $files, geoJSONs: $geoJSONs){
             header,
             message,
             datetime

@@ -1,8 +1,8 @@
 import { useReactiveVar } from '@apollo/client'
 import * as React from 'react'
 import { Link } from 'react-router-dom'
-import { isLoading, sidebar } from './map/rv'
-import { WorkbenchStack } from './WorkbenchStack'
+import { isLoading, sidebar } from '../map/rv'
+import { StackIcon } from './StackIcon'
 
 
 export const NavBar = () => {
@@ -19,16 +19,6 @@ export const NavBar = () => {
             </button>
         
             <div className="collapse navbar-collapse " id="navbarNav">
-                <div className='col-auto text-end'>
-                    {/* <ul className="navbar-nav">
-                        <li className="nav-item">
-                            <a href='/map' onClick={()=>sidebar({show: 'tools'})} className='nav-link active' type='button'>Tools</a>
-                        </li>
-                        <li className="nav-item">
-                            <a href='#/map' onClick={()=>sidebar({show: 'layers'})} className='nav-link active' type='button'>Layers</a>
-                        </li>
-                    </ul> */}
-                </div>
                 <div className='col-auto text-center'>
                     {isLoadingSub && <div className="spinner-grow spinner-grow-sm text-success"><span className="visually-hidden">Loading...</span></div>}
                 </div>
@@ -47,7 +37,7 @@ export const NavBar = () => {
                         </div>
 
                         <div className='col-auto'>
-                            <WorkbenchStack />
+                            <StackIcon />
                         </div>
                         
                     </div>

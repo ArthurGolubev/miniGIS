@@ -1,18 +1,19 @@
 
 
-interface geom {
-    [index: number]: {
-        shape: string
-        outer_vertex: number
-        inner_vertex?: number | undefined
-        text: string,
-        geom: any
-    },
-    poi?: {
-        lat: string,
-        lon: string
-    }
-}
+// interface geom {
+//     layer: any
+//     shape: string
+//     outer_vertex: number
+//     inner_vertex?: number | undefined
+//     text: string,
+//     geom: any
+//     positionInTable: number
+//     // poi?: {
+//     //     lat: string,
+//     //     lon: string
+//     // },
+//     type: string | null
+// }
 
 interface tools {
     setPOI: boolean,
@@ -94,3 +95,15 @@ interface classification {
 interface sidebar {
     show: 'tools' | 'layers'
 }
+
+interface SatelliteImage {
+    layer: any
+    type: string
+    date: string
+    cloud: string
+    positionInTable: number
+}
+
+// export interface LayersType {
+//     [key: string]: SatelliteImage | geom
+// }

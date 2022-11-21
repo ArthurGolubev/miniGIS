@@ -1,9 +1,9 @@
 import { useReactiveVar } from '@apollo/client'
 import * as React from 'react'
-import { imagesStack } from './map/rv'
+import { imagesStack } from '../map/rv'
 
 
-export const WorkbenchStack = () => {
+export const StackIcon = () => {
     const imagesStackSub = useReactiveVar(imagesStack)
 
     let stack = 0

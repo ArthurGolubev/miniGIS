@@ -82,15 +82,15 @@ class FileHandler:
 
 
 
-    def clip_to_mask(self, files: str, mask: GeoJSON) -> ToastMessage:
-        g = mask.geometry["coordinates"]
+    def clip_to_mask(self, files: str, mask: list[GeoJSON]) -> ToastMessage:
+        g = mask[0].geometry["coordinates"]
         d1 = {'col1': ['mask'], 'geometry': [Polygon(g[0])]}
         # gdf = gpd.GeoDataFrame(d1, crs="EPSG:4326")
         gdf = gpd.GeoDataFrame(d1, crs="EPSG:32630")
         for band_path in files:
             band_crs = es.crs_check(band_path)
-            mask = gdf.to_crs(band_crs)
-            clipped = rxr.open_rasterio(band_path, masked=True).rio.clip(mask.geometry, from_disk=True).squeeze()
+            mask[0] = gdf.to_crs(band_crs)
+            clipped = rxr.open_rasterio(band_path, masked=True).rio.clip(mask[0].geometry, from_disk=True).squeeze()
 
             path = band_path.split('/')
             clipped_folder = os.path.join(*path[:-4], 'clipped', *path[-3:-2], *path[-2:-1])
@@ -137,6 +137,7 @@ class FileHandler:
 
         logger.info(f"{bounds=}")
         return {
+            "fileName": file_name,
             "imgUrl": file_path,
             "coordinates": [left_bottom, right_top]
             }
