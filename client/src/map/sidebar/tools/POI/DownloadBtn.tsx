@@ -41,7 +41,6 @@ export const DownloadBtn = () => {
                             show: true,
                             datetime: new Date(data.downloadSentinel.datetime)
                         }})
-                        // set status downloaded
                         imagesStack({...imagesStackSub, sentinel: {
                             ...imagesStackSub.sentinel,
                             [key]: {

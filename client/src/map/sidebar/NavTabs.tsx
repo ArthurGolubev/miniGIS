@@ -32,12 +32,12 @@ export const NavTabs = () => {
                 className={toolsSub.show == 'Classification' ? 'nav-link active' : 'nav-link'}
                 type='button'>Классификация</button>
             </li>
-            <li className='nav-item'>
+            {/* <li className='nav-item'>
                 <button
                 onClick={()=>tools({...toolsSub, show: 'View'})}
                 className={toolsSub.show == 'View' ? 'nav-link active' : 'nav-link'}
                 type='button'>A</button>
-            </li>
+            </li> */}
         </ul>
     </div>
 }

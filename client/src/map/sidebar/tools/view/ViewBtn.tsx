@@ -28,7 +28,8 @@ export const ViewBtn = () => {
                 let mapLayer: MapLayer = {
                     layerType: "result",
                     layer: layer,
-                    positionInTable: Object.keys(layersSub).length + 1
+                    positionInTable: Object.keys(layersSub).length + 1,
+                    resultType: "KMean"
                 }
                 layers({ ...layersSub, [fileName]: mapLayer })
                 layer.addTo(mapObjSub)

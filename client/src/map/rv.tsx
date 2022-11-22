@@ -52,3 +52,4 @@ export const classification = makeVar({} as classification)
 export const selectedFiles = makeVar({} as selectedFiles)
 
 export const layers = makeVar({} as MapLayers)
+export const shapeEdit = makeVar('')

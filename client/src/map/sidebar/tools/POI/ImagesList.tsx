@@ -14,6 +14,7 @@ export const ImagesList = () => {
     const [getImagePreview, {data: data2, loading: loading2, error: error2}] = useLazyQuery(GET_PREVIEW)
     const getImagePreviewHandler = (metadata: any) => {
         isLoading(true)
+        console.log('metadata -> ', metadata)
         getImagePreview({variables: {
             systemIndex: metadata["system:index"],
             sensor: searchImagesSub.sensor
@@ -26,6 +27,7 @@ export const ImagesList = () => {
             let date = metadata.DATE_ACQUIRED ? (metadata.DATE_ACQUIRED) : (new Date(metadata.GENERATION_TIME).toISOString().slice(0, 10))
             let cloud = metadata.CLOUD_COVER ? (metadata.CLOUD_COVER.toFixed(2)) : (metadata.CLOUD_COVERAGE_ASSESSMENT.toFixed(2))
             let mapLayer: MapLayer = {
+                spacecraft: metadata['SPACECRAFT_NAME'] ?? metadata['SPACECRAFT_ID'],
                 layerType: "preview",
                 layer: layer,
                 date: date,

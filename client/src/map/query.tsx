@@ -60,9 +60,13 @@ export const STACK_BANDS = gql`
 export const CLASSIFY_K_MEAN = gql`
     query classify_k_mean_query($filePath: String!, $k: Int!){
         classifyKMean(filePath: $filePath, k: $k){
-            header,
-            message,
+            header
+            message
             datetime
+            fileName
+            imgUrl
+            coordinates
+            k
         }
     }
 `

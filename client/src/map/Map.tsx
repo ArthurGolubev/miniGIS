@@ -50,6 +50,7 @@ export const Map = () => {
                         geom: geom,
                         layer: layer,
                         positionInTable: Object.keys(layers()).length +1,
+                        color: '#fd7e14'
                     }
                 }
                 break;
@@ -60,7 +61,8 @@ export const Map = () => {
                     outer_vertex: geom.geometry.coordinates.length,
                     geom: geom,
                     layer: layer,
-                    positionInTable: Object.keys(layers()).length +1
+                    positionInTable: Object.keys(layers()).length +1,
+                    color: '#fd7e14'
                 }
                 break;
             case "Polygon":
@@ -71,7 +73,8 @@ export const Map = () => {
                     inner_vertex: geom.geometry.coordinates[1] ? geom.geometry.coordinates[0].length -1 : undefined,
                     geom: geom,
                     layer: layer,
-                    positionInTable: Object.keys(layers()).length +1
+                    positionInTable: Object.keys(layers()).length +1,
+                    color: '#fd7e14'
                 }
                 break;
             default:
@@ -94,7 +97,7 @@ export const Map = () => {
             drawCircle: false,  
         })
         map.pm.setPathOptions(
-            { color: 'orange' },
+            { color: '#fd7e14' },
         );
 
         map.on('pm:create', (geom: any) => parsGeom(geom))

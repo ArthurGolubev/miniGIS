@@ -7,15 +7,16 @@ from loguru import logger
 from sklearn import cluster
 from rasterio.plot import reshape_as_image, reshape_as_raster
 from skimage.io import imsave, imread
-from Types import ToastMessage
+from Types import ToastMessageWithClassification
 from datetime import datetime
 from pathlib import Path
+from .FileHandler import FileHandler
 
 
 
 class Classifier:
 
-    def k_mean(self, file_path: str, k: int) -> ToastMessage:
+    def k_mean(self, file_path: str, k: int) -> ToastMessageWithClassification:
         with rasterio.open(file_path) as img:
             meta = img.meta
             meta.update(driver="GTiff")
@@ -26,7 +27,7 @@ class Classifier:
             reshaped_img = reshape_as_image(img.read())
         reshaped_img = reshaped_img.reshape(-1, 3)
         rows, cols = img.shape
-        kmeans_predictions = cluster.KMeans(n_clusters=10, random_state=0).fit(reshaped_img.reshape(-1, 3))
+        kmeans_predictions = cluster.KMeans(n_clusters=k, random_state=0).fit(reshaped_img.reshape(-1, 3))
         kmeans_predictions_2d = kmeans_predictions.labels_.reshape(1, rows, cols)
         # logger.info(f"{kmeans_predictions.labels_=}")
         # logger.info(f"{kmeans_predictions_2d.shape=}")
@@ -36,16 +37,16 @@ class Classifier:
 
 
         # img to show in browser
-        file_name = f"kmean_{path[-1].split('.')[-2]}.png"
+        file_name = f"kmean_{path[-1].split('.')[-2]}_k{k}.png"
         classification_folder = os.path.join(*path[:-4], 'classification', *path[-3:-2], *path[-2:-1], 'show_in_browser')
         Path(classification_folder).mkdir(parents=True, exist_ok=True)
         file_path = os.path.join(classification_folder, file_name)
-
+        
         imsave(file_path, reshape_as_image(kmeans_predictions_2d) )
 
 
         # GTiff img
-        file_name = f"kmean_{path[-1].split('.')[-2]}.tif"
+        file_name = f"kmean_{path[-1].split('.')[-2]}_k{k}.tif"
         classification_folder = os.path.join(*path[:-4], 'classification', *path[-3:-2], *path[-2:-1])
         Path(classification_folder).mkdir(parents=True, exist_ok=True)
         file_path = os.path.join(classification_folder, file_name)
@@ -62,12 +63,14 @@ class Classifier:
                     9: (0, 0, 255, 255)
                 }
             )
+        classification_layer = FileHandler().get_classification_layer(file_path=file_path)
 
-
-        return ToastMessage(
-            header="",
-            message="",
-            datetime=datetime.now()
+        return ToastMessageWithClassification(
+            **classification_layer,
+            k=k,
+            header='header',
+            message='message',
+            datetime=datetime.now(),
         )
 
 

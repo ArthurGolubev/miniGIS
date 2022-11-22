@@ -42,6 +42,13 @@ class ToastMessage:
     message: str
     datetime: datetime
 
+@strawberry.type
+class ToastMessageWithClassification(ToastMessage):
+    k: int
+    fileName: str
+    imgUrl: str
+    coordinates: list[list[float]]
+
 @strawberry.input
 class GeoJSON:
     geometry: JSON

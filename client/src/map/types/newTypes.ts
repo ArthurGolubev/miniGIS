@@ -1,7 +1,7 @@
 interface BasicLayer {
     layer: {
         setOpacity: (n: number) => void
-        setStyle: ({}: {opacity: number, fillOpacity: number}) => void
+        setStyle: ({}: {opacity?: number, fillOpacity?: number, color?: string}) => void
         bringToFront: () => void
         bringToBack: () => void
         
@@ -17,11 +17,13 @@ export interface Shape extends BasicLayer {
     inner_vertex?: number | undefined
     text?: string,
     geom: any
+    color?: string
 }
 
 
 
 export interface GoogleRaster extends BasicLayer {
+    spacecraft: string
     date: string
     cloud: string
 }
@@ -29,7 +31,8 @@ export interface GoogleRaster extends BasicLayer {
 
 
 export interface ResultRaster extends BasicLayer {
-
+    k?: number
+    resultType: string
 }
 
 

@@ -11,7 +11,7 @@ from strawberry.scalars import JSON
 from strawberry.types import Info
 
 
-from Types import Coordinates, LandsatDownload, Period, SentinelDownload, ToastMessage, GeoJSON
+from Types import Coordinates, LandsatDownload, Period, SentinelDownload, ToastMessage, GeoJSON, ToastMessageWithClassification
 from calculation.EarthEngine import EarthEngine
 from calculation.FileHandler import FileHandler
 from calculation.Classifier import Classifier
@@ -80,15 +80,17 @@ class Query:
         return toast_message
 
     @strawberry.field
-    def classify_k_mean(self, file_path: str, k: int) -> ToastMessage:
-        toast_message: ToastMessage = Classifier().k_mean(file_path, k)
+    def classify_k_mean(self, file_path: str, k: int) -> ToastMessageWithClassification:
+        toast_message: ToastMessageWithClassification = Classifier().k_mean(file_path, k)
         return toast_message
 
     @strawberry.field
-    def get_classification_layer(self, file_path: str) -> JSON:
-        res = FileHandler().get_classification_layer(file_path)
-        return res
-
+    def test(self) -> ToastMessageWithClassification:
+        return ToastMessageWithClassification(
+            datetime=datetime.now(),
+            header='header',
+            message='message',
+        )
 
     @strawberry.field
     def test_data(self) -> None:
