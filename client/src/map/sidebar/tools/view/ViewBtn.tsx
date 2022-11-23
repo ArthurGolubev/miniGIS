@@ -1,7 +1,7 @@
 import { useLazyQuery, useQuery, useReactiveVar } from '@apollo/client'
 import * as React from 'react'
 import { AVAILABLE_FILES, GET_CLASSIFICATION_LAYER } from '../../../query'
-import { isLoading, layers, mapObj, selectedFiles, tools } from '../../../rv'
+import { isLoading, layers, mapObj, selectedFiles, toasts, tools } from '../../../rv'
 import * as L from 'leaflet'
 import { MapLayer, MapLayers } from '../../../types/newTypes'
 
@@ -18,7 +18,7 @@ export const ViewBtn = () => {
     const se = () => {
         isLoading(true)
         getClassificationLayer({
-            variables: {filePath: selectedFilesSub.files.View[0]},
+            variables: {filePath: selectedFilesSub.files.Open[0]},
             onCompleted: data => {
                 let coordinates = data.getClassificationLayer.coordinates
                 let imgUrl = data.getClassificationLayer.imgUrl
@@ -33,8 +33,15 @@ export const ViewBtn = () => {
                 }
                 layers({ ...layersSub, [fileName]: mapLayer })
                 layer.addTo(mapObjSub)
+                toasts({[new Date().toLocaleString()]: {
+                    header: data.getClassificationLayer.header,
+                    message: data.getClassificationLayer.message,
+                    show: true,
+                    datetime: new Date(data.getClassificationLayer.datetime),
+                    color: 'text-bg-success'
+                }})
                 isLoading(false)
-            }
+            },
         })
     }
 
@@ -42,7 +49,7 @@ export const ViewBtn = () => {
     return <div className='row justify-content-center'>
         <div className='col-4'>
             <button onClick={()=>console.log(data)} className='btn btn-sm btn-success' type='button'>data</button>
-            { selectedFilesSub.files?.View.length != undefined && <img src={ selectedFilesSub.files?.View[0] } /> }
+            { selectedFilesSub.files?.Open.length != undefined && <img src={ selectedFilesSub.files?.Open[0] } /> }
             <button onClick={()=>se()} className='btn btn-sm btn-success' type='button'>btn</button>
         </div>
     </div>

@@ -30,14 +30,14 @@ export const NavTabs = () => {
                 <button
                 onClick={()=>tools({...toolsSub, show: 'Classification'})}
                 className={toolsSub.show == 'Classification' ? 'nav-link active' : 'nav-link'}
-                type='button'>Классификация</button>
+                type='button'>Classification</button>
             </li>
-            {/* <li className='nav-item'>
+            <li className='nav-item'>
                 <button
-                onClick={()=>tools({...toolsSub, show: 'View'})}
-                className={toolsSub.show == 'View' ? 'nav-link active' : 'nav-link'}
-                type='button'>A</button>
-            </li> */}
+                onClick={()=>tools({...toolsSub, show: 'Open'})}
+                className={toolsSub.show == 'Open' ? 'nav-link active' : 'nav-link'}
+                type='button'>Open</button>
+            </li>
         </ul>
     </div>
 }

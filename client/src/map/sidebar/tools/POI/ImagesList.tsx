@@ -2,7 +2,7 @@ import { useLazyQuery, useReactiveVar } from '@apollo/client'
 import * as React from 'react'
 import { GET_PREVIEW } from '../../../query'
 import * as L from 'leaflet'
-import { isLoading, mapObj, selectedImage, searchImages, layers } from '../../../rv'
+import { isLoading, mapObj, selectedImage, searchImages, layers, toasts } from '../../../rv'
 import { MapLayer, MapLayers } from '../../../types/newTypes'
 
 
@@ -19,10 +19,11 @@ export const ImagesList = () => {
             systemIndex: metadata["system:index"],
             sensor: searchImagesSub.sensor
         },
+        fetchPolicy: 'network-only',
         onCompleted: data => {
             let coordinates = metadata["system:footprint"]["coordinates"]
             L.geoJSON().addTo(mapObjSub).addData({type: 'LineString', coordinates: coordinates} as any)
-            let layer = L.imageOverlay(data.getImagePreview, coordinates.map((point: Array<number>) => [point[1], point[0]]) )
+            let layer = L.imageOverlay(data.getImagePreview.imgUrl, coordinates.map((point: Array<number>) => [point[1], point[0]]) )
 
             let date = metadata.DATE_ACQUIRED ? (metadata.DATE_ACQUIRED) : (new Date(metadata.GENERATION_TIME).toISOString().slice(0, 10))
             let cloud = metadata.CLOUD_COVER ? (metadata.CLOUD_COVER.toFixed(2)) : (metadata.CLOUD_COVERAGE_ASSESSMENT.toFixed(2))
@@ -37,9 +38,15 @@ export const ImagesList = () => {
             layers({ ...layersSub, [metadata["system:index"]]: mapLayer })
             layer.addTo(mapObjSub)
             selectedImage(metadata)
+            toasts({[new Date().toLocaleString()]: {
+                header: data.getImagePreview.header,
+                message: data.getImagePreview.message,
+                show: true,
+                datetime: new Date(data.getImagePreview.datetime),
+                color: 'text-bg-success'
+            }})
             isLoading(false)
-        },
-        fetchPolicy: 'network-only',
+        }
         })
     }
 

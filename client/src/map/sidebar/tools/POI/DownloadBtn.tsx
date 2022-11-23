@@ -35,11 +35,13 @@ export const DownloadBtn = () => {
                         }
                     },
                     onCompleted: data => {
-                        toasts({[key]: {
+                        toasts({[new Date().toLocaleString()]: {
                             header: data.downloadSentinel.header,
                             message: data.downloadSentinel.message,
                             show: true,
-                            datetime: new Date(data.downloadSentinel.datetime)
+                            datetime: new Date(data.downloadSentinel.datetime),
+                            color: 'text-bg-success'
+
                         }})
                         imagesStack({...imagesStackSub, sentinel: {
                             ...imagesStackSub.sentinel,
@@ -49,7 +51,7 @@ export const DownloadBtn = () => {
                             }
                         }})
                         if(!sentinelLoading && !landsatLoading) isLoading(false)
-                }
+                    },
                 })
             })
         }
@@ -72,11 +74,12 @@ export const DownloadBtn = () => {
                         }
                     },
                     onCompleted: data => {
-                        toasts({[key]: {
+                        toasts({[new Date().toLocaleString()]: {
                             header: data.downloadLandsat.header,
                             message: data.downloadLandsat.message,
+                            datetime: new Date(data.downloadLandsat.datetime),
                             show: true,
-                            datetime: new Date(data.downloadLandsat.datetime)
+                            color: 'text-bg-success'
                         }})
                         // set status downloaded
                         imagesStack({...imagesStackSub, sentinel: {
@@ -87,7 +90,7 @@ export const DownloadBtn = () => {
                             }
                         }})
                         if(!sentinelLoading && !landsatLoading) isLoading(false)
-                }
+                    },
                 })
             })
         }

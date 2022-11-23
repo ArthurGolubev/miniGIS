@@ -68,7 +68,7 @@ export const Tools = () => {
             </div>
         }
         {
-            toolsSub.show == 'View' &&
+            toolsSub.show == 'Open' &&
             <div className='row justify-content-center mt-2'>
                 <div className='col-12'>
                     <View />

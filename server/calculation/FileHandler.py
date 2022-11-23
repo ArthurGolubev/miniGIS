@@ -39,6 +39,7 @@ class FileHandler:
 
         Path(stack_folder).mkdir(parents=True, exist_ok=True)
         file_path = os.path.join(stack_folder, file_name)
+
         with rasterio.open(file_path, "w", **meta) as dst:
             for id, layer in enumerate(bands, start=1):
                 with rasterio.open(layer) as src:
@@ -69,14 +70,18 @@ class FileHandler:
         folders_1 = glob( os.path.join(images_path[to], "*") ) 
         for folder_1 in folders_1:
             folders_2 = glob( os.path.join(folder_1, "*") )
+            logger.info(f"{folders_2=}")
+            product = {}
             for folder_2 in folders_2:
                 files = [f for f in glob( os.path.join(folder_2, "*") ) if os.path.isfile(f)]
+                logger.debug(f"{files=}")
                 if to == 'Classification' or to == 'View':
                     layers = {k: v for k, v in [(path.split('/')[-1], path) for path in files]}
                 else:
                     layers = {k: v for k, v in [(path.split('.')[-2].split('_')[-1], path) for path in files]}
-                available[folder_1.split('/')[-1]] = {folder_2.split('/')[-1]: layers}
-        
+                product[folder_2.split('/')[-1]] =  layers
+            available[folder_1.split('/')[-1]] = product
+        logger.info(f"{available=}")
         return available
 
 

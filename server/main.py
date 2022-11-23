@@ -11,7 +11,7 @@ from strawberry.scalars import JSON
 from strawberry.types import Info
 
 
-from Types import Coordinates, LandsatDownload, Period, SentinelDownload, ToastMessage, GeoJSON, ToastMessageWithClassification
+from Types import Coordinates, LandsatDownload, Period, SentinelDownload, ToastMessage, GeoJSON, ClassificationTM, SearchImagesTM, PreviewTM
 from calculation.EarthEngine import EarthEngine
 from calculation.FileHandler import FileHandler
 from calculation.Classifier import Classifier
@@ -43,24 +43,22 @@ async def get_context(
 class Query:
 
     @strawberry.field
-    def search_images(poi: Coordinates, date: Period, sensor: str = 'LC08') -> list[JSON]:
-        images = EarthEngine().search_images(poi, date, sensor)
-        return images
+    def search_images(poi: Coordinates, date: Period, sensor: str = 'LC08') -> SearchImagesTM:
+        toast_message: SearchImagesTM = EarthEngine().search_images(poi, date, sensor)
+        return toast_message
 
     @strawberry.field
-    def get_image_preview(system_index: str, sensor: str) -> str:
-        preview = EarthEngine().show_images_preview(system_index, sensor)
-        return preview
+    def get_image_preview(system_index: str, sensor: str) -> PreviewTM:
+        toast_message: PreviewTM = EarthEngine().show_images_preview(system_index, sensor)
+        return toast_message
 
     @strawberry.field
     def download_sentinel(self, sentinel_meta: SentinelDownload) -> ToastMessage:
-        logger.success("SENTINEL")
         toast_message: ToastMessage = EarthEngine().download_sentinel(sentinel_meta)
         return toast_message
 
     @strawberry.field
     def download_landsat(self, landsat_meta: LandsatDownload) -> ToastMessage:
-        logger.success("LANDSAT")
         toast_message: ToastMessage = EarthEngine().download_landsat(landsat_meta)
         return toast_message
 
@@ -80,17 +78,10 @@ class Query:
         return toast_message
 
     @strawberry.field
-    def classify_k_mean(self, file_path: str, k: int) -> ToastMessageWithClassification:
-        toast_message: ToastMessageWithClassification = Classifier().k_mean(file_path, k)
+    def classify_k_mean(self, file_path: str, k: int) -> ClassificationTM:
+        toast_message: ClassificationTM = Classifier().k_mean(file_path, k)
         return toast_message
 
-    @strawberry.field
-    def test(self) -> ToastMessageWithClassification:
-        return ToastMessageWithClassification(
-            datetime=datetime.now(),
-            header='header',
-            message='message',
-        )
 
     @strawberry.field
     def test_data(self) -> None:

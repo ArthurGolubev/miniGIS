@@ -3,7 +3,7 @@ import ee
 from time import time
 from datetime import datetime, timedelta
 from loguru import logger
-from Types import Coordinates, LandsatDownload, Period, SentinelDownload, ToastMessage
+from Types import Coordinates, LandsatDownload, Period, SentinelDownload, ToastMessage, SearchImagesTM, PreviewTM
 from google.cloud import storage
 from pathlib import Path
 
@@ -41,7 +41,7 @@ class EarthEngine:
 
 
     @time_metr
-    def search_images(self, poi: Coordinates, date: Period,  sensor: str = 'LC08'):
+    def search_images(self, poi: Coordinates, date: Period,  sensor: str = 'LC08') -> SearchImagesTM:
         point = ee.Geometry.Point(poi.lon, poi.lat)
 
         if sensor in self.landsat:
@@ -54,12 +54,17 @@ class EarthEngine:
         img_metadata = []
         for p in images.getInfo()['features']:
             img_metadata.append(p["properties"])
-        return img_metadata
+        return SearchImagesTM(
+            images=img_metadata,
+            header='Поиск снимков',
+            message=f'Найдено {len(img_metadata)} снимков',
+            datetime=datetime.today()
+        )
 
 
 
     @time_metr
-    def show_images_preview(self, system_index: str, sensor: str):
+    def show_images_preview(self, system_index: str, sensor: str) -> PreviewTM:
         if sensor in self.landsat:
             res = ee.Image(f'LANDSAT/LC08/C01/T1/{system_index}')
             parameters = {
@@ -79,7 +84,12 @@ class EarthEngine:
         else:
             logger.error(f"wrong sensor {sensor=}")
 
-        return res.getThumbURL(parameters)
+        return PreviewTM(
+            img_url=res.getThumbURL(parameters),
+            header='Запрос привью',
+            message=f'Сцена {system_index}',
+            datetime=datetime.today()
+        )
 
 
 

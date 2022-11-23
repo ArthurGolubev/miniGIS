@@ -3,7 +3,6 @@ import { Outlet, Route, Router } from 'react-router'
 import { NavBar } from './navbar/Navbar'
 
 import { Toasts } from './map/Toasts'
-import { Map } from './map/Map'
 
 
 export const App = () => {

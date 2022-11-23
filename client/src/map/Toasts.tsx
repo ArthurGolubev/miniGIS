@@ -16,6 +16,7 @@ export const Toasts = () => {
                 autohide
                 onClose={() => toasts({...toastsSub, [key]: {...toastsSub[key], show: false}})}
                 key={key}
+                className={`${toastsSub[key].color} ms-2 mb-3`}
                 >
                 <Toast.Header>
                     <strong className="me-auto">{toastsSub[key].header}</strong>

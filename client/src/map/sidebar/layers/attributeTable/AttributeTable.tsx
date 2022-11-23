@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { layers as la, shapeEdit }  from '../../../rv'
 import { LayerInfo } from './LayerInfo'
-import { MapLayers } from '../../../types/newTypes'
+import { MapLayer, MapLayers, Shape } from '../../../types/newTypes'
 import { useReactiveVar } from '@apollo/client'
 import { ShapeHandler } from './ShapeHandler'
 
@@ -53,6 +53,15 @@ export const AttributeTable = ({mapLayers}: {mapLayers: MapLayers}): JSX.Element
         }
     }
 
+    const isPoint = (layer: MapLayer) => {
+        let isShape = layer.layerType == 'shape' ? layer as Shape : false
+        if(isShape){
+            return isShape.type == 'Точка' ? true : false
+        } else {
+            return false
+        }
+    } 
+
 
     return <div>
         
@@ -88,6 +97,7 @@ export const AttributeTable = ({mapLayers}: {mapLayers: MapLayers}): JSX.Element
                                                 ) : ( 0 )
                                                 )}
                                                 defaultChecked={true}
+                                                disabled={isPoint(layer)}
                                             />
                                         </div>
                                     </td>

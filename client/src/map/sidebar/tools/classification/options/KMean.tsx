@@ -2,7 +2,7 @@ import { useLazyQuery, useReactiveVar } from '@apollo/client'
 import * as React from 'react'
 import * as L from 'leaflet'
 import { CLASSIFY_K_MEAN } from '../../../../query'
-import { classification, isLoading, layers, mapObj, selectedFiles } from '../../../../rv'
+import { classification, isLoading, layers, mapObj, selectedFiles, toasts } from '../../../../rv'
 import { MapLayer } from '../../../../types/newTypes'
 
 
@@ -16,7 +16,9 @@ export const KMean = () => {
     const classifyHandler = () => {
         isLoading(true)
         classify({
-            variables: {filePath: selectedFilesSub.files.Classification[0], k: classificationSub.classes},
+            variables: {
+                filePath: selectedFilesSub.files.Classification[0], k: classificationSub.classes
+            },
             fetchPolicy: 'network-only',
             onCompleted: data => {
                 let coordinates = data.classifyKMean.coordinates
@@ -34,9 +36,15 @@ export const KMean = () => {
                 }
                 layers({ ...layersSub, [fileName]: mapLayer })
                 layer.addTo(mapObjSub)
+                toasts({[new Date().toLocaleString()]: {
+                    header: data.classifyKMean.header,
+                    message: data.classifyKMean.message,
+                    show: true,
+                    datetime: new Date(data.classifyKMean.datetime),
+                    color: 'text-bg-success'
+                }})
                 isLoading(false)
             },
-            onError: () => isLoading(false)
         })
     }
 

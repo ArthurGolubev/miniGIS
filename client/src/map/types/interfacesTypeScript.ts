@@ -17,7 +17,7 @@
 
 interface tools {
     setPOI: boolean,
-    show: "POI" | "Clip" | "Stack" | "Classification" | "View",
+    show: "POI" | "Clip" | "Stack" | "Classification" | "Open",
     title: {
         POI: string
         Clip: string
@@ -72,6 +72,7 @@ interface toasts {
         header: string,
         message: string,
         show: boolean
+        color: string
     }
 }
 
@@ -83,7 +84,7 @@ interface selectedFiles {
         Stack: Array<string>
         Clip: Array<string>
         Classification: Array<string>
-        View: Array<string>
+        Open: Array<string>
     }
 }
 

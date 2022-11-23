@@ -1,7 +1,7 @@
 import { useLazyQuery, useReactiveVar } from '@apollo/client'
 import * as React from 'react'
 import { SEARCH_IMAGES } from '../../../query'
-import { errors, isLoading, mapObj, selectedImage, searchImages, tools, imagesStack } from '../../../rv'
+import { errors, isLoading, mapObj, selectedImage, searchImages, tools, imagesStack, toasts } from '../../../rv'
 import { ImagesList } from './ImagesList'
 import { Metadata } from './Metadata'
 
@@ -36,9 +36,17 @@ export const SearchImages = () => {
                     sensor: searchImagesSub.sensor
                 },
                 onCompleted: data => {
-                    searchImages({...searchImagesSub, images: data.searchImages})
+                    console.log('1 ->', data)
+                    searchImages({...searchImagesSub, images: data.searchImages.images})
+                    toasts({[new Date().toLocaleString()]: {
+                        header: data.searchImages.header,
+                        message: data.searchImages.message,
+                        show: true,
+                        datetime: new Date(data.searchImages.datetime),
+                        color: 'text-bg-success'
+                    }})
                     isLoading(false)
-                }
+                },
             })
         } else {
             errors({...errorsSub, period: true})

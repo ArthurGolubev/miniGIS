@@ -1,25 +1,53 @@
 import * as ReactDOM from "react-dom/client"
 import * as React from 'react'
-import { HttpLink, ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client'
+import { HttpLink, ApolloClient, ApolloProvider, InMemoryCache, from } from '@apollo/client'
+import { onError } from '@apollo/client/link/error'
 import { createHashRouter, RouterProvider } from 'react-router-dom'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import "bootstrap-icons/font/bootstrap-icons.css"
 import { App } from './App'
 import { ErrorPage } from './ErrorPage'
 import { Map } from "./map/Map"
-import { Tools } from "./map/sidebar/tools/Tools"
+import { isLoading, toasts } from "./map/rv"
 
 
 const root = ReactDOM.createRoot(document.querySelector("#root"))
 
 
 const createApolloClient = () => {
-    const link = new HttpLink({
+    const httpLink = new HttpLink({
         uri: '/api/graphql'
     })
 
+    const errorLink = onError(({graphQLErrors, networkError}) => {
+        if(graphQLErrors){
+            graphQLErrors.forEach(({message, locations, path}) => toasts({
+                [new Date().toLocaleString()]: {
+                    header: 'Ошибка GraphQL',
+                    message: `Message: ${message}, Location: ${locations}, Path: ${path}`,
+                    datetime: new Date(),
+                    show: true,
+                    color: 'text-bg-danger'
+                }
+            }))
+            isLoading(false)
+        }
+        if(networkError){
+            toasts({
+                [new Date().toLocaleString()]: {
+                    header: 'Сетевая ошибка',
+                    message: `Message: ${networkError}`,
+                    datetime: new Date(),
+                    show: true,
+                    color: 'text-bg-danger'
+                }
+            })
+            isLoading(false)
+        }
+    })
+
     return new ApolloClient({
-        link,
+        link: from([errorLink,httpLink]),
         cache: new InMemoryCache()
     })
 }

@@ -6,8 +6,8 @@ import os
 from loguru import logger
 from sklearn import cluster
 from rasterio.plot import reshape_as_image, reshape_as_raster
-from skimage.io import imsave, imread
-from Types import ToastMessageWithClassification
+from skimage.io import imsave
+from Types import ClassificationTM
 from datetime import datetime
 from pathlib import Path
 from .FileHandler import FileHandler
@@ -16,7 +16,7 @@ from .FileHandler import FileHandler
 
 class Classifier:
 
-    def k_mean(self, file_path: str, k: int) -> ToastMessageWithClassification:
+    def k_mean(self, file_path: str, k: int) -> ClassificationTM:
         with rasterio.open(file_path) as img:
             meta = img.meta
             meta.update(driver="GTiff")
@@ -65,7 +65,7 @@ class Classifier:
             )
         classification_layer = FileHandler().get_classification_layer(file_path=file_path)
 
-        return ToastMessageWithClassification(
+        return ClassificationTM(
             **classification_layer,
             k=k,
             header='header',

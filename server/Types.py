@@ -3,12 +3,16 @@ from datetime import datetime
 from strawberry.scalars import JSON
 
 
+@strawberry.type
+class ToastMessage:
+    header: str
+    message: str
+    datetime: datetime
 
 @strawberry.input
 class Coordinates:
     lat: float
     lon: float
-
 
 @strawberry.input
 class Period:
@@ -36,18 +40,21 @@ class SentinelDownload:
     granule_id: str
     bands: list[str]
 
-@strawberry.type
-class ToastMessage:
-    header: str
-    message: str
-    datetime: datetime
 
 @strawberry.type
-class ToastMessageWithClassification(ToastMessage):
+class ClassificationTM(ToastMessage):
     k: int
     fileName: str
     imgUrl: str
     coordinates: list[list[float]]
+
+@strawberry.type
+class SearchImagesTM(ToastMessage):
+    images: list[JSON]
+
+@strawberry.type
+class PreviewTM(ToastMessage):
+    img_url: str
 
 @strawberry.input
 class GeoJSON:

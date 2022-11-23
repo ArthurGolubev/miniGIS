@@ -2,13 +2,23 @@ import { gql } from "@apollo/client";
 
 export const SEARCH_IMAGES = gql`
     query search_images_query($poi: Coordinates!, $date: Period!, $sensor: String){
-        searchImages(poi: $poi, date: $date, sensor: $sensor)
+        searchImages(poi: $poi, date: $date, sensor: $sensor){
+            images,
+            header,
+            message,
+            datetime
+        }
     }
 `
 
 export const GET_PREVIEW = gql`
     query get_image_preview_query($systemIndex: String!, $sensor: String!){
-        getImagePreview(systemIndex: $systemIndex, sensor: $sensor)
+        getImagePreview(systemIndex: $systemIndex, sensor: $sensor){
+            imgUrl,
+            header,
+            message,
+            datetime
+        }
     }
 `
 
