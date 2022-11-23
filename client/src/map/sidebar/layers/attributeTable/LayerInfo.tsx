@@ -87,7 +87,10 @@ export const LayerInfo = ({layer, layerKey}: {layer: MapLayer, layerKey: string}
                 })
                 elem.style.color = shape.color
             } else {
-                elem.addEventListener("click", () => shapeEdit(''))
+                elem.addEventListener("click", () => {
+                    shapeEdit('')
+                    tooltip.hide()
+                })
             }
         }
     })
