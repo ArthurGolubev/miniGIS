@@ -21,15 +21,18 @@ const createApolloClient = () => {
 
     const errorLink = onError(({graphQLErrors, networkError}) => {
         if(graphQLErrors){
-            graphQLErrors.forEach(({message, locations, path}) => toasts({
+            graphQLErrors.forEach(({message, path}) => {
+                toasts({
                 [new Date().toLocaleString()]: {
                     header: 'Ошибка GraphQL',
-                    message: `Message: ${message}, Location: ${locations}, Path: ${path}`,
+                    message: `Message: ${message}, Path: ${path}`,
                     datetime: new Date(),
                     show: true,
                     color: 'text-bg-danger'
                 }
-            }))
+            })
+            console.log(message)
+        })
             isLoading(false)
         }
         if(networkError){
@@ -42,6 +45,7 @@ const createApolloClient = () => {
                     color: 'text-bg-danger'
                 }
             })
+            console.log(networkError)
             isLoading(false)
         }
     })

@@ -46,8 +46,8 @@ class FileHandler:
                     dst.write_band(id, src.read(1))
 
         return ToastMessage(
-            header="",
-            message="",
+            header="Объединение слоёв",
+            message=f"слои {bands} объеденены в {file_name}",
             datetime=datetime.now()
             )
 
@@ -90,8 +90,8 @@ class FileHandler:
     def clip_to_mask(self, files: str, mask: list[GeoJSON]) -> ToastMessage:
         g = mask[0].geometry["coordinates"]
         d1 = {'col1': ['mask'], 'geometry': [Polygon(g[0])]}
-        # gdf = gpd.GeoDataFrame(d1, crs="EPSG:4326")
-        gdf = gpd.GeoDataFrame(d1, crs="EPSG:32630")
+        gdf = gpd.GeoDataFrame(d1, crs="EPSG:4326")
+        # gdf = gpd.GeoDataFrame(d1, crs="EPSG:32630")
         for band_path in files:
             band_crs = es.crs_check(band_path)
             mask[0] = gdf.to_crs(band_crs)
