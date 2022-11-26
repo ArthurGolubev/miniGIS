@@ -13,7 +13,7 @@ export const Metadata = () => {
         <div className='col-11 ms-2'>
             <div className='row justify-content-center'>
                 <div className='col-12'>
-                    <button onClick={()=>selectedImage(undefined)} className='btn btn-sm btn-success' type='button'>back to list</button>
+                    <button onClick={()=>selectedImage({metadata: undefined, imgUrl: ''})} className='btn btn-sm btn-success' type='button'>back to list</button>
                     <DownloadBtn />
                     <BandsList />
                 </div>
@@ -29,23 +29,23 @@ export const Metadata = () => {
                         <tbody>
                             <tr>
                                 <th scope='row'>UTM_ZONE</th>
-                                <td>{selectedImageSub.UTM_ZONE}</td>
+                                <td>{selectedImageSub.metadata.UTM_ZONE}</td>
                             </tr>
                             <tr>
                                 <th scope='row'>DATE_ACQUIRED</th>
-                                <td>{selectedImageSub.DATE_ACQUIRED}</td>
+                                <td>{selectedImageSub.metadata.DATE_ACQUIRED}</td>
                             </tr>
                             <tr>
                                 <th scope='row'>CLOUD_COVER</th>
-                                <td>{selectedImageSub.CLOUD_COVER}</td>
+                                <td>{selectedImageSub.metadata.CLOUD_COVER}</td>
                             </tr>
                             <tr>
                                 <th scope='row'>CLOUD_COVER_LAND</th>
-                                <td>{selectedImageSub.CLOUD_COVER_LAND}</td>
+                                <td>{selectedImageSub.metadata.CLOUD_COVER_LAND}</td>
                             </tr>
                             <tr>
                                 <th scope='row'>PROCESSING_LEVEL</th>
-                                <td>{selectedImageSub.DATA_ACQUIRED}</td>
+                                <td>{selectedImageSub.metadata.DATA_ACQUIRED}</td>
                             </tr>
                         </tbody>
                     </table>

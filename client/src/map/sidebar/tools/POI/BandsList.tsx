@@ -18,24 +18,24 @@ export const BandsList = () => {
         if(searchImagesSub.sensor === 'S2'){
             // SENTINEL
             satellite = 'sentinel'
-            date = new Date(selectedImageSub.GENERATION_TIME).toISOString().slice(0, 10)
+            date = new Date(selectedImageSub.metadata.GENERATION_TIME).toISOString().slice(0, 10)
             exist = !!imagesStackSub.sentinel?.[date]
             info = {
-                mgrsTile: selectedImageSub.MGRS_TILE,
-                productId: selectedImageSub.PRODUCT_ID,
-                granuleId: selectedImageSub.GRANULE_ID,
+                mgrsTile: selectedImageSub.metadata.MGRS_TILE,
+                productId: selectedImageSub.metadata.PRODUCT_ID,
+                granuleId: selectedImageSub.metadata.GRANULE_ID,
                 bands: []
             }
         } else {
             // LANDSAT
             satellite = 'landsat'
-            date = selectedImageSub.DATE_ACQUIRED
+            date = selectedImageSub.metadata.DATE_ACQUIRED
             exist = !!imagesStackSub.landsat?.[date]
             info = {
                 sensorId: searchImagesSub.sensor,
-                path: String(selectedImageSub.WRS_PATH),
-                row: String(selectedImageSub.WRS_ROW),
-                productId: selectedImageSub.LANDSAT_PRODUCT_ID,
+                path: String(selectedImageSub.metadata.WRS_PATH),
+                row: String(selectedImageSub.metadata.WRS_ROW),
+                productId: selectedImageSub.metadata.LANDSAT_PRODUCT_ID,
                 bands: []
             }
         }

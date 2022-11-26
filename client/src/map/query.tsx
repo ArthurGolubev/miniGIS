@@ -1,5 +1,6 @@
 import { gql } from "@apollo/client";
 
+
 export const SEARCH_IMAGES = gql`
     query search_images_query($poi: Coordinates!, $date: Period!, $sensor: String){
         searchImages(poi: $poi, date: $date, sensor: $sensor){
@@ -23,8 +24,8 @@ export const GET_PREVIEW = gql`
 `
 
 export const DOWNLOAD_SENTINEL = gql`
-    query download_sentinel_query($sentinelMeta: SentinelDownload!){
-        downloadSentinel(sentinelMeta: $sentinelMeta){
+    query download_sentinel_query($sentinelMeta: SentinelDownload!, $previewUrl: String!, $metadata: String!){
+        downloadSentinel(sentinelMeta: $sentinelMeta, previewUrl: $previewUrl, metadata: $metadata){
             header,
             message,
             datetime
@@ -32,8 +33,8 @@ export const DOWNLOAD_SENTINEL = gql`
     }
 `
 export const DOWNLOAD_LANDSAT = gql`
-    query download_landsat_query($landsatMeta: LandsatDownload!){
-        downloadLandsat(landsatMeta: $landsatMeta){
+    query download_landsat_query($landsatMeta: LandsatDownload!, $previewUrl: String!, $metadata: String!){
+        downloadLandsat(landsatMeta: $landsatMeta, previewUrl: $previewUrl, metadata: $metadata){
             header,
             message,
             datetime
@@ -84,5 +85,23 @@ export const CLASSIFY_K_MEAN = gql`
 export const GET_CLASSIFICATION_LAYER = gql`
     query get_classification_layer_query($filePath: String!){
         getClassificationLayer(filePath: $filePath)
+    }
+`
+
+export const TREE_AVAILABLE_FILES = gql`
+    query tree_available_files_query{
+        treeAvailableFiles
+    }
+` 
+
+export const ADD_LAYER = gql`
+    query add_layer_query($scope: String! $satellite: String! $product: String!){
+        addLayer(scope: $scope, satellite: $satellite, product: $product){
+            header
+            message
+            datetime
+            imgUrl
+            metadata
+        }
     }
 `

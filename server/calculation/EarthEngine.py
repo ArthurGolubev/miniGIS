@@ -94,7 +94,7 @@ class EarthEngine:
 
 
     @time_metr
-    def download_sentinel(self, sentinel_meta: SentinelDownload) -> ToastMessage:
+    def download_sentinel(self, sentinel_meta: SentinelDownload, preview_url: str, metadata: str) -> ToastMessage:
         UTM_ZONE        = sentinel_meta.mgrs_tile[:2]
         LATITUDE_BAND   = sentinel_meta.mgrs_tile[2:3]
         GRID_SQUARE     = sentinel_meta.mgrs_tile[3:]
@@ -111,6 +111,10 @@ class EarthEngine:
                 f"tiles/{UTM_ZONE}/{LATITUDE_BAND}/{GRID_SQUARE}/{PRODUCT_ID}/GRANULE/{GRANULE_ID}/IMG_DATA/{LAYER}",
                 f'./images/raw/Sentinel/{PRODUCT_ID}/{LAYER}'
             )
+
+        with open(f'./images/raw/Sentinel/{PRODUCT_ID}/preview.txt', 'w') as preview:
+            preview.write(preview_url + '\n')
+            preview.write(metadata)
         return ToastMessage(
             header=f'Загрузка завершина - Sentinel',
             message=f"""
@@ -123,7 +127,7 @@ class EarthEngine:
 
 
     @time_metr
-    def download_landsat(self, landsat_download: LandsatDownload) -> ToastMessage:
+    def download_landsat(self, landsat_download: LandsatDownload, preview_url: str, metadata: str) -> ToastMessage:
         SENSOR_ID           = landsat_download.sensor_id
         PATH                = landsat_download.path.zfill(3)
         ROW                 = landsat_download.row.zfill(3)
@@ -139,6 +143,9 @@ class EarthEngine:
                 f"{SENSOR_ID}/01/{PATH}/{ROW}/{PRODUCT_ID}/{PRODUCT_ID_BAND}",
                 f'./images/raw/Landsat/{PRODUCT_ID}/{PRODUCT_ID_BAND}'
             )
+        with open(f'./images/raw/Landsat/{PRODUCT_ID}/preview.txt', 'w') as preview:
+            preview.write(preview_url + '\n')
+            preview.write(metadata)
         return ToastMessage(
             header=f'Загрузка завершина - Landsat',
             message=f"""

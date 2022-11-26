@@ -135,11 +135,11 @@ export const SearchImages = () => {
         <button onClick={()=>console.log(error1)} className='btn btn-sm btn-success' type='button' disabled={loading1}>error</button>
         <button onClick={()=>console.log(imagesStack())} className='btn btn-sm btn-secondary' type='button' disabled={loading1}>imagesStack</button> */}
         {
-            searchImagesSub.images.length > 0 && selectedImageSub == undefined &&
+            searchImagesSub.images.length > 0 && selectedImageSub.metadata == undefined &&
             <ImagesList />
         }
         {
-            selectedImageSub &&
+            selectedImageSub?.metadata &&
             <Metadata />
         }
     </div>

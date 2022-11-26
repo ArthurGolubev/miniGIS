@@ -1,12 +1,13 @@
 import { useLazyQuery, useReactiveVar } from '@apollo/client'
 import * as React from 'react'
 import { DOWNLOAD_LANDSAT, DOWNLOAD_SENTINEL } from '../../../query'
-import { imagesStack, isLoading, toasts } from '../../../rv'
+import { imagesStack, isLoading, selectedImage, toasts } from '../../../rv'
 
 
 export const DownloadBtn = () => {
     const imagesStackSub    = useReactiveVar(imagesStack)
     const isLoadingSub: boolean = useReactiveVar(isLoading)
+    const selectedImageSub =    useReactiveVar(selectedImage)
 
     const [downloadSentinel, {loading: sentinelLoading}] = useLazyQuery(DOWNLOAD_SENTINEL, {fetchPolicy: "network-only"})
     const [downloadLandsat, {loading: landsatLoading}] = useLazyQuery(DOWNLOAD_LANDSAT, {fetchPolicy: "network-only"})
@@ -20,7 +21,6 @@ export const DownloadBtn = () => {
         if(imagesStackSub.hasOwnProperty("sentinel")){
             let keys = Object.keys(imagesStackSub.sentinel)
             keys.map(key => {
-                // set status loading
                 imagesStack({...imagesStackSub, sentinel: {
                     ...imagesStackSub.sentinel,
                     [key]: {
@@ -32,7 +32,9 @@ export const DownloadBtn = () => {
                     variables: {
                         sentinelMeta: {
                             ...imagesStackSub.sentinel[key].meta
-                        }
+                        },
+                        previewUrl: selectedImageSub.imgUrl,
+                        metadata: JSON.stringify(selectedImageSub.metadata)
                     },
                     onCompleted: data => {
                         toasts({[new Date().toLocaleString()]: {
@@ -71,7 +73,9 @@ export const DownloadBtn = () => {
                     variables: {
                         landsatMeta: {
                             ...imagesStackSub.landsat[key].meta
-                        }
+                        },
+                        previewUrl: selectedImageSub.imgUrl,
+                        metadata: JSON.stringify(selectedImageSub.metadata)
                     },
                     onCompleted: data => {
                         toasts({[new Date().toLocaleString()]: {

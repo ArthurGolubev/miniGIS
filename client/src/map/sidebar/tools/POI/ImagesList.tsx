@@ -37,7 +37,7 @@ export const ImagesList = () => {
             }
             layers({ ...layersSub, [metadata["system:index"]]: mapLayer })
             layer.addTo(mapObjSub)
-            selectedImage(metadata)
+            selectedImage({metadata: metadata, imgUrl:data.getImagePreview.imgUrl})
             toasts({[new Date().toLocaleString()]: {
                 header: data.getImagePreview.header,
                 message: data.getImagePreview.message,

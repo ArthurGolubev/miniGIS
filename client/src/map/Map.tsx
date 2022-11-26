@@ -85,7 +85,7 @@ export const Map = () => {
 
 
     React.useEffect(() => {
-        let map: any = L.map('map').setView([51.505, -0.09], 13)
+        let map: any = L.map('map').setView([35.88, -5.3525], 10)
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'

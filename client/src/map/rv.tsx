@@ -4,7 +4,7 @@ import { MapLayers, MapObject } from "./types/newTypes"
 
 // TODO Почистить
 export const imagesStack = makeVar({} as imagesStack)
-export const selectedImage = makeVar(undefined)
+export const selectedImage = makeVar({metadata: undefined, imgUrl: ''})
 export const mapObj = makeVar({} as MapObject)
 export const imagePreview = makeVar([])
 export const isLoading = makeVar(false)

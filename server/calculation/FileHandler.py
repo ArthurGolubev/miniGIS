@@ -10,6 +10,7 @@ from loguru import logger
 from datetime import datetime
 from shapely.geometry import Polygon
 from Types import ToastMessage, GeoJSON
+from Types import AddLayerTM
 from pyproj import Transformer
 
 
@@ -53,7 +54,34 @@ class FileHandler:
 
 
 
+    def tree_available_files(self):
+        start = './images'
+        l1 = glob(os.path.join(start, "*"))
+        result = {}
+        for dirs1 in l1:
+            l2 = glob(os.path.join(dirs1, "*"))
+            for dirs2 in l2:
+                l3 = glob(os.path.join(dirs2, "*"))
+                k = dirs2.split('/')[-1]
+                logger.info(f"{k=}")
+                result[dirs1.split('/')[-1]] = {k: [x.split('/')[-1] for x in l3]}
+            
+        return result
 
+    def add_layer(self, scope, satellite, product) -> AddLayerTM:
+        p = os.path.join('./images', scope, satellite, product)
+        if scope == 'raw':
+            with open(os.path.join(p, 'preview.txt'), 'r') as f:
+                img_url=f.readline()
+                metadata=f.readline()
+        return AddLayerTM(
+            header='h',
+            message='2',
+            datetime=datetime.now(),
+            img_url=img_url,
+            metadata=metadata
+        )
+    
     def available_files(self, to: str) -> dict[str, dict[str, list[str]]]:
         """Возвращает список директорий и доступных в них файлов.
 
@@ -105,7 +133,6 @@ class FileHandler:
             Path(clipped_folder).mkdir(parents=True, exist_ok=True)
             
             clipped.rio.to_raster(os.path.join(clipped_folder, file_name))
-        
 
         return ToastMessage(
             header="Обрезка завершина - output.tif",

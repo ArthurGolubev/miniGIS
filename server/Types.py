@@ -61,3 +61,8 @@ class GeoJSON:
     geometry: JSON
     properties: JSON
     type: str
+
+@strawberry.type
+class AddLayerTM(ToastMessage):
+    img_url: str
+    metadata: str

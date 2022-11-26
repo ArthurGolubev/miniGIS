@@ -8,6 +8,7 @@ import { Stack } from '../tools/stack/Stack'
 import { View } from '../tools/view/View'
 import { tools } from '../../rv'
 import { useReactiveVar } from '@apollo/client'
+import { Open } from './open/Open'
 
 
 export const Tools = () => {
@@ -71,7 +72,7 @@ export const Tools = () => {
             toolsSub.show == 'Open' &&
             <div className='row justify-content-center mt-2'>
                 <div className='col-12'>
-                    <View />
+                    <Open />
                 </div>
             </div>
         }
