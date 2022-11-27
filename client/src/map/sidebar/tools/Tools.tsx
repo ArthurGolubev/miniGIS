@@ -24,6 +24,7 @@ export const Tools = () => {
                             {toolsSub.show == 'Clip' && toolsSub.title.Clip}
                             {toolsSub.show == 'Stack' && toolsSub.title.Stack}
                             {toolsSub.show == 'Classification' && toolsSub.title.Classification}
+                            {toolsSub.show == 'Open' && toolsSub.title.Open}
                         </p>
                     </blockquote>
                     <figcaption className="blockquote-footer">
@@ -31,6 +32,7 @@ export const Tools = () => {
                         {toolsSub.show == 'Clip' && toolsSub.description.Clip}
                         {toolsSub.show == 'Stack' && toolsSub.description.Stack}
                         {toolsSub.show == 'Classification' && toolsSub.description.Classification}
+                        {toolsSub.show == 'Open' && toolsSub.description.Open}
                     </figcaption>
                 </figure>
             </div>

@@ -95,8 +95,8 @@ export const TREE_AVAILABLE_FILES = gql`
 ` 
 
 export const ADD_LAYER = gql`
-    query add_layer_query($scope: String! $satellite: String! $product: String!){
-        addLayer(scope: $scope, satellite: $satellite, product: $product){
+    query add_layer_query($scope: String! $satellite: String! $product: String!, $target: String!){
+        addLayer(scope: $scope, satellite: $satellite, product: $product, target: $target){
             header
             message
             datetime

@@ -4,6 +4,7 @@ import geopandas as gpd
 import rioxarray as rxr
 import earthpy.spatial as es
 
+from json import dumps
 from glob import glob
 from pathlib import Path
 from loguru import logger
@@ -55,33 +56,63 @@ class FileHandler:
 
 
     def tree_available_files(self):
-        start = './images'
-        l1 = glob(os.path.join(start, "*"))
-        result = {}
-        for dirs1 in l1:
-            l2 = glob(os.path.join(dirs1, "*"))
-            for dirs2 in l2:
-                l3 = glob(os.path.join(dirs2, "*"))
-                k = dirs2.split('/')[-1]
-                logger.info(f"{k=}")
-                result[dirs1.split('/')[-1]] = {k: [x.split('/')[-1] for x in l3]}
-            
-        return result
+        # start = './images'
+        # l1 = glob(os.path.join(start, "*"))
+        # result = {}
+        # for dirs1 in l1:
+        #     l2 = glob(os.path.join(dirs1, "*"))
+        #     for dirs2 in l2:
+        #         l3 = glob(os.path.join(dirs2, "*"))
+        #         k = dirs2.split('/')[-1]
+        #         logger.info(f"{k=}")
+        #         result[dirs1.split('/')[-1]] = {k: [x.split('/')[-1] for x in l3]}
+        raw = {}
+        classification = {}
+        for sattelite in glob(os.path.join('./images/classification', "*")):
+            s = sattelite.split('/')[-1]
+            classification[s] = {}
+            for product in glob(os.path.join(sattelite, "*")):
+                p = product.split('/')[-1]
+                classification[s][p] = [x.split('/')[-1] for x in glob(os.path.join(product, "*")) if os.path.isfile(x)]
+        for sattelite in glob(os.path.join('./images/raw', "*")):
+            s = sattelite.split('/')[-1]
+            raw[s] = {}
+            for product in glob(os.path.join(sattelite, "*")):
+                p = product.split('/')[-1]
+                raw[s][p] = None
 
-    def add_layer(self, scope, satellite, product) -> AddLayerTM:
+        return {
+            "raw": raw,
+            "classification": classification
+        }
+
+
+
+
+
+    def add_layer(self, scope, satellite, product, target) -> AddLayerTM:
         p = os.path.join('./images', scope, satellite, product)
         if scope == 'raw':
             with open(os.path.join(p, 'preview.txt'), 'r') as f:
                 img_url=f.readline()
                 metadata=f.readline()
+        elif scope == 'classification':
+            res = self.get_classification_layer(p + f'/{target}')
+            logger.info(f"{res=}")
+            img_url=res["imgUrl"]
+            metadata=dumps(res["metadata"])
         return AddLayerTM(
-            header='h',
-            message='2',
+            header='Добавлен слой',
+            message=f'',
             datetime=datetime.now(),
             img_url=img_url,
             metadata=metadata
         )
     
+
+
+
+
     def available_files(self, to: str) -> dict[str, dict[str, list[str]]]:
         """Возвращает список директорий и доступных в них файлов.
 
@@ -140,36 +171,30 @@ class FileHandler:
             datetime=datetime.now()
         )
 
-    
+
 
 
     def get_classification_layer(self, file_path):
         logger.info(f"{file_path=}")
         with rasterio.open(file_path) as f:
             bounds = f.bounds
-            crs_from = f.crs.to_epsg()
-        logger.info(f"{file_path=}")
-        logger.info(f"{bounds=}")
-        logger.info(f"{crs_from=}")
-
-        # my_proj = Proj(f"+init={crs_from}")
-        # left_bottom     = my_proj(bounds[0], bounds[1], inverse=True)
-        # right_top       = my_proj(bounds[2], bounds[3], inverse=True)
 
         transformer = Transformer.from_crs(32630, 4326, always_xy=True)
         left_bottom = transformer.transform(bounds[0], bounds[1])
         right_top = transformer.transform(bounds[2], bounds[3])
 
-        logger.info(f"{left_bottom=}")
-        logger.info(f"{right_top=}")
         file_path = file_path.split('/')
         path = os.path.join(*file_path[:-1], 'show_in_browser')
+        # path = os.path.join(file_path, 'show_in_browser')
         file_name = file_path[-1].split('.')[0] + ".png"
         file_path = os.path.join(path, file_name)
 
-        logger.info(f"{bounds=}")
         return {
             "fileName": file_name,
             "imgUrl": file_path,
-            "coordinates": [left_bottom, right_top]
+            "metadata": {
+                "system:footprint": {
+                    "coordinates": [left_bottom, right_top]
+                }
+            }
             }

@@ -23,12 +23,14 @@ interface tools {
         Clip: string
         Stack: string
         Classification: string
+        Open: string
     }
     description: {
         POI: string
         Clip: string
         Stack: string
         Classification: string
+        Open: string
     }
 }
 

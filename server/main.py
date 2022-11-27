@@ -96,8 +96,8 @@ class Query:
         return FileHandler().tree_available_files()
 
     @strawberry.field
-    def add_layer(self, scope: str, satellite: str, product: str) -> AddLayerTM:
-        toast_message: AddLayerTM = FileHandler().add_layer(scope, satellite, product)
+    def add_layer(self, scope: str, satellite: str, product: str, target: str) -> AddLayerTM:
+        toast_message: AddLayerTM = FileHandler().add_layer(scope, satellite, product, target)
         return toast_message
 
     @strawberry.field

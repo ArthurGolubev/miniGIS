@@ -78,7 +78,7 @@ export const Map = () => {
                 }
                 break;
             default:
-                console.log('DEFAULT case from Map.tsx')
+                console.log('DEFAULT case from Map.tsx ->', geom.geometry.type)
             }
             if(data != undefined) layers({ ...layers(), [id]: data })
     }
