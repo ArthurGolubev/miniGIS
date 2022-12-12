@@ -55,3 +55,14 @@ export const selectedFiles = makeVar({} as selectedFiles)
 
 export const layers = makeVar({} as MapLayers)
 export const shapeEdit = makeVar('')
+
+export const selectedVecLay = makeVar('')
+export const mapLayerControl = makeVar('')
+
+export const showToggle = makeVar({
+    LayerList: false,
+    DetailVec: false,
+    DetailPrev: false,
+    DetailResult: false,
+
+})

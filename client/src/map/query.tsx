@@ -105,3 +105,21 @@ export const ADD_LAYER = gql`
         }
     }
 `
+
+export const SHP_SAVE = gql`
+    query shp_save_query($shpName: String!, $layer: JSON!){
+        shpSave(shpName: $shpName, layer: $layer)
+    }
+`
+
+// export const TEST_SHP = gql`
+//     query test_shp_query{
+//         shpRead
+//     }
+// `
+
+// export const TEST_SHP_2 = gql`
+//     query test_shp_2_query($shpData: String!, $shpName: String!){
+//         shpSave(shpData: $shpData, shpName: $shpName)
+//     }
+// `

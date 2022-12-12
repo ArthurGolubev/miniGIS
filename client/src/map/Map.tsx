@@ -3,22 +3,43 @@ import * as L from 'leaflet'
 import { Sidebar } from './sidebar/Sidebar'
 import '@geoman-io/leaflet-geoman-free'
 import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css'
-import { layers, mapObj, searchImages, tools } from './rv'
+import { layers, mapObj, searchImages, selectedVecLay, tools, mapLayerControl } from './rv'
 import { Shape } from './types/newTypes'
+import { NavBar } from '../navbar/Navbar'
 
 
 export const Map = () => {
 
-    const parsGeom = (geom: any) => {
+
+    const parsGeom = (geom: any, layerControl: any) => {
         console.log(geom)
         console.log('Event ->', geom.type)
+
+        console.log('selectedVecLay() ->', selectedVecLay())
+        console.log('layers() ->', layers())
+        let layerGroup = layers()[selectedVecLay()] as Shape
+        let g = geom.layer
+        g.feature = {}
+        g.feature.type = 'Feature'
+        g.feature.properties = {}
+        Object.keys(layerGroup.properties).map((key: string) => {
+            g.feature.properties[key] = ''
+        })
+        // g.bindPopup('<button class="btn btn-primary">CHeck</button>')
+        // g.on('click', e => console.log('AWESOME CLICK!', e))
+        // TODO Функция, которая будет стучтаться в MapLayer с нужным ключём (айди созданной фигуры)
+        // layers()[selectedVecLay].properties
+        // g.on('click', (e: any) => e.target.pm._layer.bindPopup(`${new Date().toLocaleTimeString()}`))
+        console.log('layerGroup ->', layerGroup)
+        layerGroup.layer.addLayer(g)
+        // vecLayer()[selectedVecLay()].layerGroup.addLayer(geom.layer)
         
         let id: string
         switch (geom.type) {
             case 'pm:create':
                 console.log('case 1')
                 id = geom.layer._leaflet_id
-                geom.layer.on('pm:edit', (geom: any) => parsGeom(geom))
+                geom.layer.on('pm:edit', (geom: any) => parsGeom(geom, layerControl))
                 break
             case 'pm:edit':
                 id = geom.layer._leaflet_id
@@ -43,44 +64,45 @@ export const Map = () => {
                     searchImages({...searchImages(), poi: geom.geometry.coordinates})
                     tools({...tools(), setPOI: false})
                 } else {
-                    data = {
-                        layerType: 'shape',
-                        type: 'Точка',
-                        outer_vertex: 1,
-                        geom: geom,
-                        layer: layer,
-                        positionInTable: Object.keys(layers()).length +1,
-                        color: '#fd7e14'
-                    }
+                    // data = {
+                    //     layerType: 'shape',
+                    //     type: 'Точка',
+                    //     outer_vertex: 1,
+                    //     geom: geom,
+                    //     layer: layer,
+                    //     positionInTable: Object.keys(layers()).length +1,
+                    //     color: '#fd7e14'
+                    // }
                 }
                 break;
             case "LineString":
-                data = {
-                    layerType: 'shape',
-                    type: 'Полилиния',
-                    outer_vertex: geom.geometry.coordinates.length,
-                    geom: geom,
-                    layer: layer,
-                    positionInTable: Object.keys(layers()).length +1,
-                    color: '#fd7e14'
-                }
+                // data = {
+                //     layerType: 'shape',
+                //     type: 'Полилиния',
+                //     outer_vertex: geom.geometry.coordinates.length,
+                //     geom: geom,
+                //     layer: layer,
+                //     positionInTable: Object.keys(layers()).length +1,
+                //     color: '#fd7e14'
+                // }
                 break;
             case "Polygon":
-                data = {
-                    layerType: 'shape',
-                    type: 'Полигон',
-                    outer_vertex: geom.geometry.coordinates[0].length -1,
-                    inner_vertex: geom.geometry.coordinates[1] ? geom.geometry.coordinates[0].length -1 : undefined,
-                    geom: geom,
-                    layer: layer,
-                    positionInTable: Object.keys(layers()).length +1,
-                    color: '#fd7e14'
-                }
+                // data = {
+                //     layerType: 'shape',
+                //     type: 'Полигон',
+                //     outer_vertex: geom.geometry.coordinates[0].length -1,
+                //     inner_vertex: geom.geometry.coordinates[1] ? geom.geometry.coordinates[0].length -1 : undefined,
+                //     geom: geom,
+                //     layer: layer,
+                //     positionInTable: Object.keys(layers()).length +1,
+                //     color: '#fd7e14'
+                // }
                 break;
             default:
                 console.log('DEFAULT case from Map.tsx ->', geom.geometry.type)
             }
-            if(data != undefined) layers({ ...layers(), [id]: data })
+
+            // if(data != undefined) layers({ ...layers(), [id]: data })
     }
 
 
@@ -93,26 +115,34 @@ export const Map = () => {
         map.pm.addControls({  
             position: 'topleft',
             drawCircleMarker: false,
+            // drawPolygon: false,
+            // drawPolyline: false,
             drawRectangle: false,
             drawCircle: false,  
         })
         map.pm.setPathOptions(
-            { color: '#fd7e14' },
+            // { color: '#fd7e14' },
         );
 
-        map.on('pm:create', (geom: any) => parsGeom(geom))
-        map.on('pm:cut', (geom: any) => parsGeom(geom))
+        var layerControl = L.control.layers().addTo(map) as any
+        mapLayerControl(layerControl)
+        map.on('pm:create', (geom: any) => parsGeom(geom, layerControl))
+        map.on('pm:cut', (geom: any) => parsGeom(geom, layerControl))
         mapObj(map)
+
+
         
     })
 
 
 
     return <div className='row justify-content-center g-0'>
+        <NavBar />
         <div className='col-9'>
-            <div id='map' style={{height: '945px', width: '100%'}}></div>
+            {/* <div id='map' style={{height: '95vh', width: '30vw'}}></div> */}
+            <div id='map' style={{height: '95vh', width: '100%'}}></div>
         </div>
-        <div className='col'>
+        <div className='col-3'>
             <Sidebar />
         </div>
     </div>

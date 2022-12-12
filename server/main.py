@@ -100,6 +100,19 @@ class Query:
         toast_message: AddLayerTM = FileHandler().add_layer(scope, satellite, product, target)
         return toast_message
 
+
+    @strawberry.field
+    def shp_write(self, shp_name: str, layer: JSON) -> None:
+        FileHandler().save_shp(shp_name, layer)
+    
+    @strawberry.field
+    def shp_read(self) -> JSON:
+        return FileHandler().shp_read()
+
+    @strawberry.field
+    def shp_save(self, shp_name: str, layer: JSON) -> None:
+        FileHandler().shp_save(shp_name, layer)
+
     @strawberry.field
     def test_data(self) -> None:
         EarthEngine().test_data()

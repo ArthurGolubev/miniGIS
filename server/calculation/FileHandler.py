@@ -3,8 +3,9 @@ import rasterio
 import geopandas as gpd
 import rioxarray as rxr
 import earthpy.spatial as es
+import shapefile
+import json
 
-from json import dumps
 from glob import glob
 from pathlib import Path
 from loguru import logger
@@ -18,6 +19,62 @@ from pyproj import Transformer
 
 
 class FileHandler:
+
+
+    def shp_save(self, shp_name, layer):
+        """
+        шейпфайл будет состоять из списка геометрий geoJSON
+        1. Если в списке одна геометрия - один geoJSON, то создаётся один шейп с одной геометрией
+        2. Если в списке несколько геометрий - несколько geo............
+        """
+        c = json.loads(layer)
+        logger.info(f"{json.loads(layer)=}")
+        Path('./images/vector').mkdir(parents=True, exist_ok=True)
+        file_path = f'./images/vector/{"".join([x for x in shp_name.title() if x.isalpha()])}'
+
+        dt = datetime.now().strftime("%Y%m%d_%H%M%S")
+        with shapefile.Writer(
+            file_path + '.shp' if not os.path.exists(file_path + '.shp') else f"{file_path}_{dt}.shp"
+            ) as shp:
+            for attr in c.get('features', [])[0].get('properties').keys():
+                attr_name, attr_type = attr.split('_')
+                shp.field(attr_name, attr_type)
+            for shape in c.get('features', []):
+                c = shape.get('properties').values()
+                shp.record(*shape.get('properties').values())
+                geom = shape['geometry']
+                logger.info(f"{geom['type']=}")
+                if geom['type'] == 'Point':
+                    shp.point(geom['coordinates'][0], geom['coordinates'][1])
+                elif geom['type'] == 'LineString':
+                    logger.info(f"{geom['coordinates']=}")
+                    shp.line([geom['coordinates']])
+                elif geom['type'] == 'Polygon':
+                    shp.poly(geom['coordinates'])
+
+
+
+
+    def shp_write(self):
+        Path('./test').mkdir(parents=True, exist_ok=True)
+        with shapefile.Writer('./test/shp1', shapeType=shapefile.POINT) as shp:
+            shp.field('name_C', 'C')
+            shp.field('count_N', 'N')
+            shp.field('count_F', 'F', decimal=3)
+            shp.field('Dt_D', 'D')
+            shp.record('Красноярск', 9, 3.141, datetime.now())
+            shp.point(92.887295, 56.015339)
+
+    def shp_read(self):
+        with shapefile.Reader('./test/shp1') as shp:
+            # logger.info(shp)
+            # logger.info(shp.bbox)
+            # logger.info(shp.shape().__geo_interface__['type'])
+            # logger.info(shp.record())
+            geojson = shp.__geo_interface__
+            # logger.debug(geojson.bbox)
+        return geojson
+
 
     def stack_bands(self, files: list[str]) -> ToastMessage:
         bands = sorted(files)
@@ -100,7 +157,7 @@ class FileHandler:
             res = self.get_classification_layer(p + f'/{target}')
             logger.info(f"{res=}")
             img_url=res["imgUrl"]
-            metadata=dumps(res["metadata"])
+            metadata=json.dumps(res["metadata"])
         return AddLayerTM(
             header='Добавлен слой',
             message=f'',

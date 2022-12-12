@@ -1,15 +1,15 @@
 import { useReactiveVar } from '@apollo/client'
 import * as React from 'react'
 import { Link } from 'react-router-dom'
-import { isLoading, sidebar } from '../map/rv'
+import { isLoading, showToggle, sidebar } from '../map/rv'
 import { StackIcon } from './StackIcon'
 
 
 export const NavBar = () => {
     const isLoadingSub = useReactiveVar(isLoading)
+    const showToggleSub = useReactiveVar(showToggle)
     
-    
-    return <nav className='navbar navbar-expand-sm bg-light'>
+    return <nav className='navbar navbar-expand-sm bg-light' style={{height: '5vh'}}>
         <div className='container-fluid'>
             <Link className='navbar-brand' to={'/'}>
                 miniGIS
@@ -31,7 +31,10 @@ export const NavBar = () => {
                                     <a href='#/map' onClick={()=>sidebar({show: 'tools'})} className='nav-link active' type='button'>Tools</a>
                                 </li>
                                 <li className="nav-item">
-                                    <a href='#/map' onClick={()=>sidebar({show: 'layers'})} className='nav-link active' type='button'>Layers</a>
+                                    <a href='#/map' onClick={()=>{
+                                        sidebar({show: 'layers'})
+                                        showToggle({...showToggleSub, LayerList: true})
+                                        }} className='nav-link active' type='button'>Layers</a>
                                 </li>
                             </ul>
                         </div>

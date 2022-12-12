@@ -766,6 +766,14 @@ python-versions = ">=3.8"
 certifi = "*"
 
 [[package]]
+name = "pyshp"
+version = "2.3.1"
+description = "Pure Python read/write support for ESRI Shapefile format"
+category = "main"
+optional = false
+python-versions = ">=2.7"
+
+[[package]]
 name = "python-dateutil"
 version = "2.8.2"
 description = "Extensions to the standard Python datetime module"
@@ -1232,7 +1240,7 @@ viz = ["matplotlib", "seaborn", "nc-time-axis"]
 [metadata]
 lock-version = "1.1"
 python-versions = "~3.10"
-content-hash = "91dad46534b76629e9971de460a473d89acdf14b3b394eaa05cb210f1e526dd6"
+content-hash = "60c3d782de1aed39f082b55276945ff740a275b7ccf9419f6c51e6e06825b570"
 
 [metadata.files]
 affine = []
@@ -1322,6 +1330,7 @@ pyparsing = [
     {file = "pyparsing-3.0.9.tar.gz", hash = "sha256:2b020ecf7d21b687f219b71ecad3631f644a47f01403fa1d1036b0c6416d70fb"},
 ]
 pyproj = []
+pyshp = []
 python-dateutil = []
 python-dotenv = []
 python-multipart = [

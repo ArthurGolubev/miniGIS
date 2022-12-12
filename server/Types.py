@@ -65,4 +65,4 @@ class GeoJSON:
 @strawberry.type
 class AddLayerTM(ToastMessage):
     img_url: str
-    metadata: str
+    metadata: JSON

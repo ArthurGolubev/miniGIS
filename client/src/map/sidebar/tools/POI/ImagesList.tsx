@@ -23,7 +23,7 @@ export const ImagesList = () => {
         onCompleted: data => {
             let coordinates = metadata["system:footprint"]["coordinates"]
             L.geoJSON().addTo(mapObjSub).addData({type: 'LineString', coordinates: coordinates} as any)
-            let layer = L.imageOverlay(data.getImagePreview.imgUrl, coordinates.map((point: Array<number>) => [point[1], point[0]]) )
+            let layer = L.imageOverlay(data.getImagePreview.imgUrl, coordinates.map((point: Array<number>) => [point[1], point[0]]) ) as any
 
             let date = metadata.DATE_ACQUIRED ? (metadata.DATE_ACQUIRED) : (new Date(metadata.GENERATION_TIME).toISOString().slice(0, 10))
             let cloud = metadata.CLOUD_COVER ? (metadata.CLOUD_COVER.toFixed(2)) : (metadata.CLOUD_COVERAGE_ASSESSMENT.toFixed(2))

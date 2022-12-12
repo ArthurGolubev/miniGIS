@@ -1,7 +1,7 @@
 import { useLazyQuery, useQuery, useReactiveVar } from '@apollo/client'
 import * as React from 'react'
 import * as L from 'leaflet'
-import { ADD_LAYER, TREE_AVAILABLE_FILES } from '../../../query'
+import { ADD_LAYER, TEST_SHP, TEST_SHP_2, TREE_AVAILABLE_FILES } from '../../../query'
 import { layers, mapObj } from '../../../rv'
 import { MapLayer } from '../../../types/newTypes'
 
@@ -10,6 +10,8 @@ import { MapLayer } from '../../../types/newTypes'
 export const Open = () => {
     const {data, loading} = useQuery(TREE_AVAILABLE_FILES, {fetchPolicy: 'network-only'})
     const [addLayer] = useLazyQuery(ADD_LAYER)
+    const [testShp] = useLazyQuery(TEST_SHP, {fetchPolicy: "network-only"})
+    const [testShp2] = useLazyQuery(TEST_SHP_2, {fetchPolicy: "network-only"})
     const mapObjSub = useReactiveVar(mapObj) as any
     const layersSub = useReactiveVar(layers)
 
@@ -20,6 +22,56 @@ export const Open = () => {
         "target": "0"
     })
 
+    const testShpHandler = () => {
+        testShp({
+            onCompleted: data => {
+                console.log(data.shpRead.features)
+                // L.geoJSON(data.shpRead.features).addTo(mapObjSub)
+                /// TEST
+
+                let point1 = L.geoJSON().addData(data.shpRead.features).bindPopup('Test1')
+                let point2 = L.marker([56.019, 92.881]).bindPopup('Test2')
+
+                let group1 = L.layerGroup([point1, point2])
+
+                let c = group1.addTo(mapObjSub) as any
+                let mapLayer: MapLayer
+                mapLayer = {
+                    layerType: 'shape',
+                    layer: c,
+                    type: 'Points',
+                    outer_vertex: 1,
+                    geom: [],
+                    positionInTable: Object.keys(layersSub).length + 1    ,
+                    properties: {}
+                }
+                layers({ ...layersSub, test1: mapLayer })
+                L.control.layers().addOverlay(c, "test1").addTo(mapObjSub)
+
+
+
+
+
+
+
+                ///
+                console.log('case 1 ', mapObjSub.pm.getGeomanLayers())
+                console.log('case 2 ', mapObjSub.pm.getGeomanLayers(true))
+                console.log('case 3 ', mapObjSub.pm.getGeomanLayers(true).toGeoJSON())
+            }
+        })
+    }
+
+    const testShpHandler2 = () => {
+        let fc = mapObjSub.pm.getGeomanLayers(true).toGeoJSON()
+        console.log('case 3 ', fc)
+        testShp2({variables: {
+            shpData: JSON.stringify(fc),
+            shpName: 'Красноярск'
+        } })
+
+    }
+
     const addLayerHandler = () => {
         addLayer({
             variables: {
@@ -29,7 +81,7 @@ export const Open = () => {
                 console.log("data -> ", data)
                 let metadata = JSON.parse(data.addLayer.metadata)
                 L.geoJSON().addTo(mapObjSub).addData({type: 'LineString', coordinates: metadata["system:footprint"]["coordinates"]} as any)
-                let layer = L.imageOverlay(data.addLayer.imgUrl, metadata["system:footprint"]["coordinates"].map((point: Array<number>) => [point[1], point[0]]) )
+                let layer = L.imageOverlay(data.addLayer.imgUrl, metadata["system:footprint"]["coordinates"].map((point: Array<number>) => [point[1], point[0]]) ) as any
                 let mapLayer: MapLayer
                 switch (state.scope) {
                     case "raw":
@@ -64,8 +116,19 @@ export const Open = () => {
         })
     }
 
+    const testShpHandler3 = () => {
+        testShp2({ variables: {
+            shpData: '',
+            shpName: 'geom_from_map'
+            }
+        })
+    }
+
     if(!data || loading) return null
     return <div className='row justify-content-center'>
+        <button onClick={()=>testShpHandler()} className='btn btn-sm btn-success' type='button'>get shape</button>
+        <button onClick={()=>testShpHandler2()} className='btn btn-sm btn-success' type='button'>save shp</button>
+        <button onClick={()=>testShpHandler3()} className='btn btn-sm btn-primary' type='button'>save geom from map</button>
         <div className='col-11'>
             
             <div className='row justify-content-center mb-2'>

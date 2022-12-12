@@ -80,7 +80,7 @@ export const LayerInfo = ({layer, layerKey}: {layer: MapLayer, layerKey: string}
         if(layer.layerType == 'shape'){
             let elem = document.querySelector(`#layer-info-${layerKey}`) as HTMLLinkElement
             let shape = layer as Shape
-            if(shape.type != 'Точка'){
+            if(shape.type != 'Points'){
                 elem.addEventListener("click", ()=>{
                     shapeEdit(layerKey)
                     tooltip.hide()

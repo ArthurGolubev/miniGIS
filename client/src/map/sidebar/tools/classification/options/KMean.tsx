@@ -26,7 +26,7 @@ export const KMean = () => {
                 let k = data.classifyKMean.k
                 let fileName = data.classifyKMean.fileName.slice(0,-4)
                 L.geoJSON().addTo(mapObjSub).addData({type: 'LineString', coordinates: coordinates} as any)
-                let layer = L.imageOverlay(imgUrl, coordinates.map((point: Array<number>) => [point[1], point[0]]) )
+                let layer = L.imageOverlay(imgUrl, coordinates.map((point: Array<number>) => [point[1], point[0]]) ) as any
                 let mapLayer: MapLayer = {
                     k: k,
                     resultType: 'KMean',

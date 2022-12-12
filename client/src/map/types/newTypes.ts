@@ -4,7 +4,17 @@ interface BasicLayer {
         setStyle: ({}: {opacity?: number, fillOpacity?: number, color?: string}) => void
         bringToFront: () => void
         bringToBack: () => void
-        
+        addLayer: (geom: any) => void
+        _layers: {
+            [geomId: string]: {
+                feature: {
+                    properties: {
+                        [attrName: string]: string
+                    }
+                }
+            }
+        }
+        toGeoJSON: () => object
     }
     layerType: 'preview' | 'shape' | 'result'
     positionInTable: number
@@ -12,12 +22,17 @@ interface BasicLayer {
 
 
 export interface Shape extends BasicLayer {
-    type: 'Точка' | 'Полилиния' | 'Полигон'
-    outer_vertex: number
+    type: 'Points' | 'Polylines' | 'Polygones'
+    outer_vertex?: number | undefined
     inner_vertex?: number | undefined
     text?: string,
-    geom: any
+    geom: any | undefined
     color?: string
+    properties: {
+        [propName: string]: {
+            fieldType: string,
+        }
+    },
 }
 
 
@@ -52,5 +67,8 @@ export interface Layer {
 export interface MapObject extends Layer {
     pm: {
         getGeomanLayers: () => Array<Layer>
+        enableDraw: (shapeType: string, {}) => void,
+        disableDraw: () => void,
     }
 }
+

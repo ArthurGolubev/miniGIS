@@ -56,7 +56,7 @@ export const AttributeTable = ({mapLayers}: {mapLayers: MapLayers}): JSX.Element
     const isPoint = (layer: MapLayer) => {
         let isShape = layer.layerType == 'shape' ? layer as Shape : false
         if(isShape){
-            return isShape.type == 'Точка' ? true : false
+            return isShape.type == 'Points' ? true : false
         } else {
             return false
         }

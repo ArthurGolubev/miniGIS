@@ -17,12 +17,30 @@ export const ShapeHandler = () => {
     let shape = layersSub[shapeEditSub] as Shape
     return <div className='row justify-content-start mt-4'>
         <div className='col-11'>
-            {
-                shape.type != 'Точка' && <div>
-                    <p>Цвет фигуры</p>
-                    <input type="color" defaultValue={shape.color} onChange={e => changeColorHandler(shape, e.target.value )}/>
+
+            <div className='row justify-content-center'>
+                <div className='col-12'>
+                    {
+                        shape.type != 'Points' && <div>
+                            <p>Цвет фигуры</p>
+                            <input type="color" defaultValue={shape.color} onChange={e => changeColorHandler(shape, e.target.value )}/>
+                        </div>
+                    }
                 </div>
-            }
+            </div>
+
+            <div className='row justify-content-center'>
+                <div className='col-12'>
+                    <div className="input-group input-group-sm mb-3">
+                        <span className="input-group-text" id="inputGroup-sizing-sm">Small</span>
+                        <input type="text" className="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" />
+                    </div>
+                    <div className="input-group input-group-sm mb-3">
+                        <span className="input-group-text" id="inputGroup-sizing-sm">Small</span>
+                        <input type="text" className="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" />
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 }
