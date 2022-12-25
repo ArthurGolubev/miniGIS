@@ -8,3 +8,6 @@ __pycache__/
 *.tif
 *.png
 *.txt
+*.shp
+*.dbf
+*.shx

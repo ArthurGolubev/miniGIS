@@ -14,6 +14,7 @@ from shapely.geometry import Polygon
 from Types import ToastMessage, GeoJSON
 from Types import AddLayerTM
 from pyproj import Transformer
+from .EarthEngine import EarthEngine
 
 
 
@@ -30,27 +31,40 @@ class FileHandler:
         c = json.loads(layer)
         logger.info(f"{json.loads(layer)=}")
         Path('./images/vector').mkdir(parents=True, exist_ok=True)
-        file_path = f'./images/vector/{"".join([x for x in shp_name.title() if x.isalpha()])}'
+        file_path = f'./images/vector/{"".join([x for x in shp_name.title() if x.isalpha() or x.isdigit()])}'
 
         dt = datetime.now().strftime("%Y%m%d_%H%M%S")
         with shapefile.Writer(
             file_path + '.shp' if not os.path.exists(file_path + '.shp') else f"{file_path}_{dt}.shp"
             ) as shp:
             for attr in c.get('features', [])[0].get('properties').keys():
-                attr_name, attr_type = attr.split('_')
-                shp.field(attr_name, attr_type)
+                _, attr_type = attr.split('_')
+                shp.field(attr, attr_type)
             for shape in c.get('features', []):
-                c = shape.get('properties').values()
-                shp.record(*shape.get('properties').values())
+                props = []
+                for k, v in shape.get('properties').items():
+                    attr_type = k.split('_')[1]
+                    if attr_type == 'D':
+                        if v != '':
+                            d = datetime.strptime(v, '%Y-%m-%d').date()
+                        else:
+                            d = ''
+                        props.append(d)
+                    elif attr_type == 'L':
+                        d = False if v == False or v == '' else True
+                        props.append(d)
+                    else:
+                        logger.info(f"{v=}")
+                        props.append(v)
                 geom = shape['geometry']
-                logger.info(f"{geom['type']=}")
                 if geom['type'] == 'Point':
                     shp.point(geom['coordinates'][0], geom['coordinates'][1])
                 elif geom['type'] == 'LineString':
-                    logger.info(f"{geom['coordinates']=}")
                     shp.line([geom['coordinates']])
                 elif geom['type'] == 'Polygon':
                     shp.poly(geom['coordinates'])
+                shp.record(*props)
+                # shp.record(*props)
 
 
 
@@ -65,8 +79,8 @@ class FileHandler:
             shp.record('Красноярск', 9, 3.141, datetime.now())
             shp.point(92.887295, 56.015339)
 
-    def shp_read(self):
-        with shapefile.Reader('./test/shp1') as shp:
+    def shp_read(self, shp_name: str):
+        with shapefile.Reader(shp_name) as shp:
             # logger.info(shp)
             # logger.info(shp.bbox)
             # logger.info(shp.shape().__geo_interface__['type'])
@@ -113,16 +127,6 @@ class FileHandler:
 
 
     def tree_available_files(self):
-        # start = './images'
-        # l1 = glob(os.path.join(start, "*"))
-        # result = {}
-        # for dirs1 in l1:
-        #     l2 = glob(os.path.join(dirs1, "*"))
-        #     for dirs2 in l2:
-        #         l3 = glob(os.path.join(dirs2, "*"))
-        #         k = dirs2.split('/')[-1]
-        #         logger.info(f"{k=}")
-        #         result[dirs1.split('/')[-1]] = {k: [x.split('/')[-1] for x in l3]}
         raw = {}
         classification = {}
         for sattelite in glob(os.path.join('./images/classification', "*")):
@@ -137,10 +141,12 @@ class FileHandler:
             for product in glob(os.path.join(sattelite, "*")):
                 p = product.split('/')[-1]
                 raw[s][p] = None
+        shapes = [x for x in glob(os.path.join('./images/vector', "*")) if x.endswith('.shp')]
 
         return {
             "raw": raw,
-            "classification": classification
+            "classification": classification,
+            "vector": shapes
         }
 
 
@@ -148,6 +154,7 @@ class FileHandler:
 
 
     def add_layer(self, scope, satellite, product, target) -> AddLayerTM:
+        logger.debug(__name__)
         p = os.path.join('./images', scope, satellite, product)
         if scope == 'raw':
             with open(os.path.join(p, 'preview.txt'), 'r') as f:

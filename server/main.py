@@ -106,8 +106,8 @@ class Query:
         FileHandler().save_shp(shp_name, layer)
     
     @strawberry.field
-    def shp_read(self) -> JSON:
-        return FileHandler().shp_read()
+    def shp_read(self, shp_name: str) -> JSON:
+        return FileHandler().shp_read(shp_name)
 
     @strawberry.field
     def shp_save(self, shp_name: str, layer: JSON) -> None:

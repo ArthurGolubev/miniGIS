@@ -65,6 +65,7 @@ class EarthEngine:
 
     @time_metr
     def show_images_preview(self, system_index: str, sensor: str) -> PreviewTM:
+        logger.debug(__name__)
         if sensor in self.landsat:
             res = ee.Image(f'LANDSAT/LC08/C01/T1/{system_index}')
             parameters = {

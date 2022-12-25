@@ -5,10 +5,10 @@ import { onError } from '@apollo/client/link/error'
 import { createHashRouter, RouterProvider } from 'react-router-dom'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import "bootstrap-icons/font/bootstrap-icons.css"
-import { App } from './App'
+import { App } from './app/App'
 import { ErrorPage } from './ErrorPage'
-import { Map } from "./map/Map"
-import { isLoading, toasts } from "./map/rv"
+import { isLoading, toasts } from "./main/map/rv"
+import { Main } from "./main/Main"
 
 
 const root = ReactDOM.createRoot(document.querySelector("#root"))
@@ -64,8 +64,8 @@ const router = createHashRouter([
         errorElement: <ErrorPage />,
         children: [
             {
-                path: 'map',
-                element: <Map />,
+                path: 'main',
+                element: <Main />,
             },
             {
                 path: 'home',
