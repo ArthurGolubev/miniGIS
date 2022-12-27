@@ -12,6 +12,7 @@ export const errors = makeVar({period: false})
 
 export const sidebar = makeVar({show: 'tools'} as sidebar)
 export const tools = makeVar({
+    setMask: false,
     setPOI: false,
     show: 'POI',
     title: {
@@ -66,5 +67,4 @@ export const showToggle = makeVar({
     DetailResult: false,
 })
 
-export const d = makeVar(undefined)
-export const d1 = makeVar(undefined)
+export const clipMask = makeVar({layer: undefined, mask: {}})

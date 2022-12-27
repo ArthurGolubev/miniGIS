@@ -69,6 +69,7 @@ export interface MapObject extends Layer {
         getGeomanLayers: () => Array<Layer>
         enableDraw: (shapeType: string, {}) => void,
         disableDraw: () => void,
-    }
+    },
+    removeLayer: (layer: any) => void,
 }
 

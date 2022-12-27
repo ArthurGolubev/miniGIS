@@ -1,37 +1,34 @@
 import * as React from 'react'
 import * as L from 'leaflet'
-import { Sidebar } from './sidebar/Sidebar'
 import '@geoman-io/leaflet-geoman-free'
 import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css'
-import { layers, mapObj, searchImages, selectedVecLay, tools, mapLayerControl } from './rv'
+import { layers, mapObj, searchImages, selectedVecLay, tools, mapLayerControl, clipMask } from './rv'
 import { Shape } from './types/newTypes'
-import { NavBar } from '../../app/navbar/Navbar'
 
 
 export const Map = () => {
 
 
-    const parsGeom = (geom: any, layerControl: any) => {
-        console.log(geom)
-        console.log('Event ->', geom.type)
+    const parsGeom = (geom: any, layerControl: any, map: any) => {
 
-        console.log('selectedVecLay() ->', selectedVecLay())
-        console.log('layers() ->', layers())
         let layerGroup = layers()[selectedVecLay()] as Shape
         let g = geom.layer
         g.feature = {}
         g.feature.type = 'Feature'
         g.feature.properties = {}
-        Object.keys(layerGroup.properties).map((key: string) => {
-            g.feature.properties[key] = ''
-        })
+
+        if(!tools().setPOI && !tools().setMask){
+            Object.keys(layerGroup.properties).map((key: string) => {
+                g.feature.properties[key] = ''
+            })
+            console.log('layerGroup ->', layerGroup)
+            layerGroup.layer.addLayer(g)
+        }
         // g.bindPopup('<button class="btn btn-primary">CHeck</button>')
         // g.on('click', e => console.log('AWESOME CLICK!', e))
         // TODO Функция, которая будет стучтаться в MapLayer с нужным ключём (айди созданной фигуры)
         // layers()[selectedVecLay].properties
         // g.on('click', (e: any) => e.target.pm._layer.bindPopup(`${new Date().toLocaleTimeString()}`))
-        console.log('layerGroup ->', layerGroup)
-        layerGroup.layer.addLayer(g)
         // vecLayer()[selectedVecLay()].layerGroup.addLayer(geom.layer)
         
         let id: string
@@ -39,7 +36,7 @@ export const Map = () => {
             case 'pm:create':
                 console.log('case 1')
                 id = geom.layer._leaflet_id
-                geom.layer.on('pm:edit', (geom: any) => parsGeom(geom, layerControl))
+                geom.layer.on('pm:edit', (geom: any) => parsGeom(geom, layerControl, map))
                 break
             case 'pm:edit':
                 id = geom.layer._leaflet_id
@@ -87,6 +84,14 @@ export const Map = () => {
                 // }
                 break;
             case "Polygon":
+                if(tools().setMask){
+                    
+                    clipMask({layer: layer, mask: geom})
+                    let newGroupLayer = new L.FeatureGroup() as any
+                    newGroupLayer.addLayer(layer)
+                    newGroupLayer.addTo(map)
+                    layerControl.addOverlay(newGroupLayer, 'clip mask')
+                }
                 // data = {
                 //     layerType: 'shape',
                 //     type: 'Полигон',
@@ -126,14 +131,17 @@ export const Map = () => {
             // { color: '#fd7e14' },
         );
 
-        var layerControl = L.control.layers().addTo(map) as any
+        let layerControl = L.control.layers().addTo(map) as any
         mapLayerControl(layerControl)
-        map.on('pm:create', (geom: any) => parsGeom(geom, layerControl))
-        map.on('pm:cut', (geom: any) => parsGeom(geom, layerControl))
+        map.on('pm:create', (geom: any) => parsGeom(geom, layerControl, map))
+        map.on('pm:drawstart', () => {
+            if(clipMask().layer != undefined){
+                map.removeLayer(clipMask().layer)
+            }
+        })
+        map.on('pm:cut', (geom: any) => parsGeom(geom, layerControl, map))
         mapObj(map)
 
-
-        
     })
 
 

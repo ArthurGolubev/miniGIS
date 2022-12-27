@@ -16,6 +16,7 @@
 // }
 
 interface tools {
+    setMask: boolean,
     setPOI: boolean,
     show: "POI" | "Clip" | "Stack" | "Classification" | "Open",
     title: {

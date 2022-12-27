@@ -47,7 +47,7 @@ export const OpenVec = ({showLayerAddControl}: {showLayerAddControl: (status: bo
                     case 'LineString':
                         type = 'Polylines'
                         break;
-                    case 'Polygone':
+                    case 'Polygon':
                         type = 'Polygones'
                         break;
                     default:

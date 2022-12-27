@@ -2,7 +2,6 @@ import { useReactiveVar } from '@apollo/client'
 import * as React from 'react'
 import { layers } from '../../../rv'
 import { MapLayers } from '../../../types/newTypes'
-import { AttributeTable } from '../../layers/attributeTable/AttributeTable'
 import { AvailableFiles } from '../AvailableFiles'
 import { ClipBtn } from './ClipBtn'
 
@@ -19,7 +18,7 @@ export const Clip = () => {
         <div className='col-11'>
             <div className='alert alert-primary'>В данным момент вырезка проходит только по первому полигону в списке c opacity &gt; 0</div>
         </div>
-        <AttributeTable mapLayers={shapes}/>
+        {/* <AttributeTable mapLayers={shapes}/> */}
         <ClipBtn />
     </div>
 }

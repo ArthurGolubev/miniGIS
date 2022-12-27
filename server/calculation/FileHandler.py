@@ -14,7 +14,6 @@ from shapely.geometry import Polygon
 from Types import ToastMessage, GeoJSON
 from Types import AddLayerTM
 from pyproj import Transformer
-from .EarthEngine import EarthEngine
 
 
 
@@ -201,7 +200,7 @@ class FileHandler:
                 if to == 'Classification' or to == 'View':
                     layers = {k: v for k, v in [(path.split('/')[-1], path) for path in files]}
                 else:
-                    layers = {k: v for k, v in [(path.split('.')[-2].split('_')[-1], path) for path in files]}
+                    layers = {k: v for k, v in [(path.split('.')[-2].split('_')[-1], path) for path in files if not path.endswith('.txt')]}
                 product[folder_2.split('/')[-1]] =  layers
             available[folder_1.split('/')[-1]] = product
         logger.info(f"{available=}")

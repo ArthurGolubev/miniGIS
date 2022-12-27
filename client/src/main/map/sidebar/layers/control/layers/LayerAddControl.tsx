@@ -1,5 +1,4 @@
 import * as React from 'react'
-import { d1 } from '../../../../rv'
 import { Raster } from '../newLayer/raster/Raster'
 import { NewVec } from '../newLayer/vec/NewVec'
 import { OpenVec } from '../newLayer/vec/OpenVec'
