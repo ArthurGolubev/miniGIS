@@ -6,7 +6,7 @@ import { Classification } from './classification/Classification'
 import { Stack } from './stack/Stack'
 import { tools } from '../../rv'
 import { useReactiveVar } from '@apollo/client'
-import { Open } from './open/Open'
+// import { Open } from './open/Open'
 
 
 export const ProcessingSidebar = () => {
@@ -22,7 +22,7 @@ export const ProcessingSidebar = () => {
                             {toolsSub.show == 'Clip' && toolsSub.title.Clip}
                             {toolsSub.show == 'Stack' && toolsSub.title.Stack}
                             {toolsSub.show == 'Classification' && toolsSub.title.Classification}
-                            {toolsSub.show == 'Open' && toolsSub.title.Open}
+                            {/* {toolsSub.show == 'Open' && toolsSub.title.Open} */}
                         </p>
                     </blockquote>
                     <figcaption className="blockquote-footer">
@@ -30,7 +30,7 @@ export const ProcessingSidebar = () => {
                         {toolsSub.show == 'Clip' && toolsSub.description.Clip}
                         {toolsSub.show == 'Stack' && toolsSub.description.Stack}
                         {toolsSub.show == 'Classification' && toolsSub.description.Classification}
-                        {toolsSub.show == 'Open' && toolsSub.description.Open}
+                        {/* {toolsSub.show == 'Open' && toolsSub.description.Open} */}
                     </figcaption>
                 </figure>
             </div>
@@ -68,13 +68,13 @@ export const ProcessingSidebar = () => {
                 </div>
             </div>
         }
-        {
+        {/* {
             toolsSub.show == 'Open' &&
             <div className='row justify-content-center mt-2'>
                 <div className='col-12'>
                     <Open />
                 </div>
             </div>
-        }
+        } */}
     </div>
 }

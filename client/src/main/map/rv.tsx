@@ -1,10 +1,11 @@
 import { makeVar } from "@apollo/client"
-import { MapLayers, MapObject } from "./types/newTypes"
+import { MapLayers } from "./types/main/LayerTypes"
+import { MapObject } from "./types/main/MapTypes"
 
 
 // TODO Почистить
 export const imagesStack = makeVar({} as imagesStack)
-export const selectedImage = makeVar({metadata: undefined, imgUrl: ''})
+export const selectedImage = makeVar({metadata: undefined, imgUrl: '', sensor: '', systemIndex: ''})
 export const mapObj = makeVar({} as MapObject)
 export const imagePreview = makeVar([])
 export const isLoading = makeVar(false)
@@ -26,7 +27,7 @@ export const tools = makeVar({
         POI: 'поиск спутниковых снимков за указанный период на указанной территории',
         Clip: 'создание векторного слоя для кадрирования',
         Stack: 'создание композитного изображения из нескольких слоёв (объединение нескольких файлов-слоёв в один файл)',
-        Classification: 'классификация (с/без учителя) пикселей на изображении',
+        Classification: 'классификация без учителя пикселей на изображении',
         Open: 'добавить слой на карту. Доступны следующие слои: привью скаченного снимка, шейп файлы, результаты классификации'
     }
 } as tools)
@@ -58,13 +59,13 @@ export const layers = makeVar({} as MapLayers)
 export const shapeEdit = makeVar('')
 
 export const selectedVecLay = makeVar('')
+export const selectedRasterLay = makeVar('')
 export const mapLayerControl = makeVar('')
 
 export const showToggle = makeVar({
     LayerList: false,
     DetailVec: false,
-    DetailPrev: false,
-    DetailResult: false,
+    DetailRaster: false,
 })
 
 export const clipMask = makeVar({layer: undefined, mask: {}})

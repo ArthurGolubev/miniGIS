@@ -58,17 +58,17 @@ class Query:
 
     @strawberry.field
     def get_image_preview(system_index: str, sensor: str) -> PreviewTM:
-        toast_message: PreviewTM = EarthEngine().show_images_preview(system_index, sensor)
+        toast_message: PreviewTM = EarthEngine().show_images_preview(sensor=sensor, system_index=system_index)
         return toast_message
 
     @strawberry.field
-    def download_sentinel(self, sentinel_meta: SentinelDownload, preview_url: str, metadata: str) -> ToastMessage:
-        toast_message: ToastMessage = EarthEngine().download_sentinel(sentinel_meta, preview_url, metadata)
+    def download_sentinel(self, sentinel_meta: SentinelDownload, sensor: str, system_index: str, metadata: str) -> ToastMessage:
+        toast_message: ToastMessage = EarthEngine().download_sentinel(sentinel_meta, sensor=sensor, system_index=system_index, metadata=metadata)
         return toast_message
 
     @strawberry.field
-    def download_landsat(self, landsat_meta: LandsatDownload, preview_url: str, metadata: str) -> ToastMessage:
-        toast_message: ToastMessage = EarthEngine().download_landsat(landsat_meta, preview_url, metadata)
+    def download_landsat(self, landsat_meta: LandsatDownload, sensor: str, system_index:str, metadata: str) -> ToastMessage:
+        toast_message: ToastMessage = EarthEngine().download_landsat(landsat_meta, sensor=sensor, system_index=system_index, metadata=metadata)
         return toast_message
 
     @strawberry.field

@@ -2,7 +2,7 @@ import { useLazyQuery, useReactiveVar } from "@apollo/client"
 import * as React from "react"
 import { CLIP_LAYERS } from "../../../query"
 import { clipMask, isLoading, mapObj, selectedFiles, toasts, tools } from "../../../rv"
-import { MapObject } from "../../../types/newTypes"
+import { MapObject } from "../../../types/main/MapTypes"
 
 
 export const ClipBtn = () => {

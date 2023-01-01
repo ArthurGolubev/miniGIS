@@ -3,7 +3,7 @@ import * as React from 'react'
 import { useLazyQuery, useQuery, useReactiveVar } from '@apollo/client'
 import { SHP_READ, TREE_AVAILABLE_FILES } from '../../../../../query'
 import { layers, mapLayerControl, mapObj } from '../../../../../rv'
-import { Shape } from '../../../../../types/newTypes'
+import { VectorInterface } from '../../../../../types/main/LayerTypes'
 import * as moment from 'moment'
 
 
@@ -54,9 +54,9 @@ export const OpenVec = ({showLayerAddControl}: {showLayerAddControl: (status: bo
                         console.log('Default case from OpenVec.tsx', data.shpRead.features[0].geometry.type)
                         break;
                 }
-                let data1: Shape
+                let data1: VectorInterface
                 data1 = {
-                    layerType: 'shape',
+                    layerType: 'vector',
                     type: type,
                     layer: newGroupLayer,
                     geom: undefined,

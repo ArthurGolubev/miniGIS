@@ -16,6 +16,7 @@ export const DownloadBtn = () => {
     const download = () => {
         console.log(123)
         console.log(imagesStackSub)
+        console.log('selectedImageSub -> ', selectedImageSub.sensor)
         isLoading(true)
 
         if(imagesStackSub.hasOwnProperty("sentinel")){
@@ -33,7 +34,8 @@ export const DownloadBtn = () => {
                         sentinelMeta: {
                             ...imagesStackSub.sentinel[key].meta
                         },
-                        previewUrl: selectedImageSub.imgUrl,
+                        sensor: selectedImageSub.sensor,
+                        systemIndex: selectedImageSub.systemIndex,
                         metadata: JSON.stringify(selectedImageSub.metadata)
                     },
                     onCompleted: data => {
@@ -74,7 +76,8 @@ export const DownloadBtn = () => {
                         landsatMeta: {
                             ...imagesStackSub.landsat[key].meta
                         },
-                        previewUrl: selectedImageSub.imgUrl,
+                        sensor: selectedImageSub.sensor,
+                        systemIndex: selectedImageSub.systemIndex,
                         metadata: JSON.stringify(selectedImageSub.metadata)
                     },
                     onCompleted: data => {

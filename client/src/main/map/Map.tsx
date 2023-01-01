@@ -3,7 +3,7 @@ import * as L from 'leaflet'
 import '@geoman-io/leaflet-geoman-free'
 import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css'
 import { layers, mapObj, searchImages, selectedVecLay, tools, mapLayerControl, clipMask } from './rv'
-import { Shape } from './types/newTypes'
+import { VectorInterface } from './types/main/LayerTypes'
 
 
 export const Map = () => {
@@ -11,7 +11,7 @@ export const Map = () => {
 
     const parsGeom = (geom: any, layerControl: any, map: any) => {
 
-        let layerGroup = layers()[selectedVecLay()] as Shape
+        let layerGroup = layers()[selectedVecLay()] as VectorInterface
         let g = geom.layer
         g.feature = {}
         g.feature.type = 'Feature'
@@ -54,7 +54,7 @@ export const Map = () => {
         geom = geom.layer.toGeoJSON()
         console.log('Geometry ->', geom.geometry.type)
 
-        let data: Shape | undefined = undefined
+        let data: VectorInterface | undefined = undefined
         switch (geom.geometry.type) {
             case "Point":
                 if(tools().setPOI){

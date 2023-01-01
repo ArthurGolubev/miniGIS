@@ -19,22 +19,25 @@ export const GET_PREVIEW = gql`
             header,
             message,
             datetime
+            sensor
+            systemIndex
         }
     }
 `
 
 export const DOWNLOAD_SENTINEL = gql`
-    query download_sentinel_query($sentinelMeta: SentinelDownload!, $previewUrl: String!, $metadata: String!){
-        downloadSentinel(sentinelMeta: $sentinelMeta, previewUrl: $previewUrl, metadata: $metadata){
+    query download_sentinel_query($sentinelMeta: SentinelDownload!, $sensor: String!, $systemIndex: String! $metadata: String!){
+        downloadSentinel(sentinelMeta: $sentinelMeta, sensor: $sensor, systemIndex: $systemIndex, metadata: $metadata){
             header,
             message,
             datetime
         }
     }
 `
+
 export const DOWNLOAD_LANDSAT = gql`
-    query download_landsat_query($landsatMeta: LandsatDownload!, $previewUrl: String!, $metadata: String!){
-        downloadLandsat(landsatMeta: $landsatMeta, previewUrl: $previewUrl, metadata: $metadata){
+    query download_landsat_query($landsatMeta: LandsatDownload!, $sensor: String!, $systemIndex: String! $metadata: String!){
+        downloadLandsat(landsatMeta: $landsatMeta, sensor: $sensor, systemIndex: $systemIndex, metadata: $metadata){
             header,
             message,
             datetime
@@ -117,14 +120,4 @@ export const SHP_READ = gql`
         shpRead(shpName: $shpName)
     }
 `
-// export const TEST_SHP = gql`
-//     query test_shp_query{
-//         shpRead
-//     }
-// `
 
-// export const TEST_SHP_2 = gql`
-//     query test_shp_2_query($shpData: String!, $shpName: String!){
-//         shpSave(shpData: $shpData, shpName: $shpName)
-//     }
-// `

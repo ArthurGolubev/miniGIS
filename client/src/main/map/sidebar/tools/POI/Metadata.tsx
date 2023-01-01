@@ -13,7 +13,7 @@ export const Metadata = () => {
         <div className='col-11 ms-2'>
             <div className='row justify-content-center'>
                 <div className='col-12'>
-                    <button onClick={()=>selectedImage({metadata: undefined, imgUrl: ''})} className='btn btn-sm btn-success' type='button'>back to list</button>
+                    <button onClick={()=>selectedImage({metadata: undefined, imgUrl: '', sensor: '', systemIndex: ''})} className='btn btn-sm btn-success' type='button'>back to list</button>
                     <DownloadBtn />
                     <BandsList />
                 </div>

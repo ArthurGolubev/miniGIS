@@ -19,7 +19,7 @@ export const Classification = () => {
             </select>
             <AvailableFiles />
             {classificationSub.method == 'KMean' && <KMean />}
-            <button onClick={()=>console.log(classificationSub)} className='btn btn-sm btn-success' type='button'>classificationSub</button>
+            {/* <button onClick={()=>console.log(classificationSub)} className='btn btn-sm btn-success' type='button'>classificationSub</button> */}
         </div>
     </div>
 } 

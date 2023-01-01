@@ -55,6 +55,8 @@ class SearchImagesTM(ToastMessage):
 @strawberry.type
 class PreviewTM(ToastMessage):
     img_url: str
+    system_index: str
+    sensor: str
 
 @strawberry.input
 class GeoJSON:

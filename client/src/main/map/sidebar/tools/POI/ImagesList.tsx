@@ -3,7 +3,7 @@ import * as React from 'react'
 import { GET_PREVIEW } from '../../../query'
 import * as L from 'leaflet'
 import { isLoading, mapObj, selectedImage, searchImages, layers, toasts } from '../../../rv'
-import { MapLayer, MapLayers } from '../../../types/newTypes'
+import { MapLayer, MapLayers, PreviewRaster, RasterInterface } from '../../../types/main/LayerTypes'
 
 
 export const ImagesList = () => {
@@ -27,9 +27,10 @@ export const ImagesList = () => {
 
             let date = metadata.DATE_ACQUIRED ? (metadata.DATE_ACQUIRED) : (new Date(metadata.GENERATION_TIME).toISOString().slice(0, 10))
             let cloud = metadata.CLOUD_COVER ? (metadata.CLOUD_COVER.toFixed(2)) : (metadata.CLOUD_COVERAGE_ASSESSMENT.toFixed(2))
-            let mapLayer: MapLayer = {
+            let mapLayer: PreviewRaster = {
+                name: undefined,
                 spacecraft: metadata['SPACECRAFT_NAME'] ?? metadata['SPACECRAFT_ID'],
-                layerType: "preview",
+                layerType: "raster",
                 layer: layer,
                 date: date,
                 cloud: cloud,
@@ -37,7 +38,13 @@ export const ImagesList = () => {
             }
             layers({ ...layersSub, [metadata["system:index"]]: mapLayer })
             layer.addTo(mapObjSub)
-            selectedImage({metadata: metadata, imgUrl:data.getImagePreview.imgUrl})
+            console.log('TEST 123 ->', data)
+            selectedImage({
+                metadata: metadata,
+                imgUrl: data.getImagePreview.imgUrl,
+                sensor: data.getImagePreview.sensor,
+                systemIndex: data.getImagePreview.systemIndex
+            })
             toasts({[new Date().toLocaleString()]: {
                 header: data.getImagePreview.header,
                 message: data.getImagePreview.message,

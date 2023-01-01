@@ -5,6 +5,7 @@ import rioxarray as rxr
 import earthpy.spatial as es
 import shapefile
 import json
+import ee
 
 from glob import glob
 from pathlib import Path
@@ -14,6 +15,7 @@ from shapely.geometry import Polygon
 from Types import ToastMessage, GeoJSON
 from Types import AddLayerTM
 from pyproj import Transformer
+from .EarthEngine import EarthEngine
 
 
 
@@ -155,10 +157,20 @@ class FileHandler:
     def add_layer(self, scope, satellite, product, target) -> AddLayerTM:
         logger.debug(__name__)
         p = os.path.join('./images', scope, satellite, product)
+        try:
+            ee.Initialize()
+        except:
+            logger.error('some problem in __ee_init')
+            ee.Authenticate()
+            ee.Initialize()
+
         if scope == 'raw':
             with open(os.path.join(p, 'preview.txt'), 'r') as f:
-                img_url=f.readline()
-                metadata=f.readline()
+                sensor = f.readline()
+                system_index = f.readline()
+                img_url = EarthEngine().show_images_preview(sensor=sensor, system_index=system_index).img_url
+                logger.success(f'{img_url=}')
+                metadata = f.readline()
         elif scope == 'classification':
             res = self.get_classification_layer(p + f'/{target}')
             logger.info(f"{res=}")

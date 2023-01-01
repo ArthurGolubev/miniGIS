@@ -1,10 +1,8 @@
 import { useReactiveVar } from '@apollo/client'
 import * as React from 'react'
-import { useMap } from 'react-leaflet'
 import { layers } from '../../../../rv'
-import { ShowPrev } from '../show/ShowPrev'
-import { ShowResult } from '../show/ShowResult'
-import { ShowVec } from '../show/ShowVec'
+import { ShowRaster } from '../show/ShowRaster'
+import { ShowVec } from '../show/ShowVector'
 
 
 export const LayerList = () => {
@@ -17,14 +15,12 @@ export const LayerList = () => {
                 {
                     Object.keys(layersSub).map((key: string) => {
                         switch (layersSub[key].layerType) {
-                            case 'preview':
-                                return <ShowPrev key={key} />
-                            case 'shape':
+                            case 'vector':
                                 return <ShowVec key={key} layerKey={key}/>
-                            case 'result':
-                                return <ShowResult key={key} />
+                            case 'raster':
+                                return <ShowRaster key={key} layerKey={key} />
                             default:
-                                console.log("DEFAULT case from Layers.tsx ", layersSub[key].layerType)
+                                console.log('DEFAULT CASE from LayerList.tsx -> ', layersSub[key].layerType)
                                 break;
                         }
                     })

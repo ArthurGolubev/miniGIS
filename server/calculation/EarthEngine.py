@@ -64,8 +64,10 @@ class EarthEngine:
 
 
     @time_metr
-    def show_images_preview(self, system_index: str, sensor: str) -> PreviewTM:
+    def show_images_preview(self, sensor: str, system_index: str) -> PreviewTM:
         logger.debug(__name__)
+        sensor = sensor.strip('\n')
+        system_index = system_index.strip('\n')
         if sensor in self.landsat:
             res = ee.Image(f'LANDSAT/LC08/C01/T1/{system_index}')
             parameters = {
@@ -87,6 +89,8 @@ class EarthEngine:
 
         return PreviewTM(
             img_url=res.getThumbURL(parameters),
+            system_index=system_index,
+            sensor=sensor,
             header='Запрос привью',
             message=f'Сцена {system_index}',
             datetime=datetime.today()
@@ -95,7 +99,7 @@ class EarthEngine:
 
 
     @time_metr
-    def download_sentinel(self, sentinel_meta: SentinelDownload, preview_url: str, metadata: str) -> ToastMessage:
+    def download_sentinel(self, sentinel_meta: SentinelDownload, sensor: str, system_index: str, metadata: str) -> ToastMessage:
         UTM_ZONE        = sentinel_meta.mgrs_tile[:2]
         LATITUDE_BAND   = sentinel_meta.mgrs_tile[2:3]
         GRID_SQUARE     = sentinel_meta.mgrs_tile[3:]
@@ -114,7 +118,8 @@ class EarthEngine:
             )
 
         with open(f'./images/raw/Sentinel/{PRODUCT_ID}/preview.txt', 'w') as preview:
-            preview.write(preview_url + '\n')
+            preview.write(sensor + '\n')
+            preview.write(system_index + '\n')
             preview.write(metadata)
         return ToastMessage(
             header=f'Загрузка завершина - Sentinel',
@@ -128,7 +133,7 @@ class EarthEngine:
 
 
     @time_metr
-    def download_landsat(self, landsat_download: LandsatDownload, preview_url: str, metadata: str) -> ToastMessage:
+    def download_landsat(self, landsat_download: LandsatDownload, sensor: str, system_index: str, metadata: str) -> ToastMessage:
         SENSOR_ID           = landsat_download.sensor_id
         PATH                = landsat_download.path.zfill(3)
         ROW                 = landsat_download.row.zfill(3)
@@ -145,7 +150,8 @@ class EarthEngine:
                 f'./images/raw/Landsat/{PRODUCT_ID}/{PRODUCT_ID_BAND}'
             )
         with open(f'./images/raw/Landsat/{PRODUCT_ID}/preview.txt', 'w') as preview:
-            preview.write(preview_url + '\n')
+            preview.write(sensor + '\n')
+            preview.write(system_index + '\n')
             preview.write(metadata)
         return ToastMessage(
             header=f'Загрузка завершина - Landsat',

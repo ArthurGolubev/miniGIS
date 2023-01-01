@@ -3,6 +3,8 @@ import { Raster } from '../newLayer/raster/Raster'
 import { NewVec } from '../newLayer/vec/NewVec'
 import { OpenVec } from '../newLayer/vec/OpenVec'
 import { Vec } from '../newLayer/vec/Vec'
+import Dropdown from 'react-bootstrap/Dropdown';
+
 
 
 export const LayerAddControl = () => {
@@ -14,8 +16,18 @@ export const LayerAddControl = () => {
         <div className='col-12'>
             
             <div className='row justify-content-center'>
-                <div className='col-auto'>
-                    <div className="dropdown">
+                <div className='col-auto text-center'>
+                    Слои
+                    <div className='row justify-content-between'>
+                        <div className='col-6'>
+                            <button onClick={()=>setState('vec')} className='btn btn-sm btn-success' type='button'>Векторный</button>
+                        </div>
+                        <div className='col-6'>
+                            <button onClick={()=>setState('raster')} className='btn btn-sm btn-success' type='button'>Растровый</button>
+                        </div>
+                    </div>
+
+                    {/* <div className="dropdown">
                         <button className='btn btn-sm btn-primary dropdown-toggle' type='button' data-bs-toggle="dropdown" aria-expanded="false">
                             Создать слой
                         </button>
@@ -27,7 +39,7 @@ export const LayerAddControl = () => {
                                 <button onClick={()=>setState('raster')}  className='dropdown-item' type='button'>Растровый</button>
                             </li>
                         </ul>
-                    </div>
+                    </div> */}
                     
                 </div>
             </div>

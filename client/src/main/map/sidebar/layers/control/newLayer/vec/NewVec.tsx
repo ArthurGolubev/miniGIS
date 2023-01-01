@@ -2,7 +2,7 @@ import * as React from 'react'
 import * as L from 'leaflet'
 import { layers, mapObj } from '../../../../../rv'
 import { useReactiveVar } from '@apollo/client'
-import { Layer, Shape } from '../../../../../types/newTypes'
+import { VectorInterface } from '../../../../../types/main/LayerTypes'
 
 
 
@@ -17,9 +17,9 @@ export const NewVec = ({showLayerAddControl}: {showLayerAddControl: (status: boo
         let newGroupLayer = new L.FeatureGroup() as any
         newGroupLayer.addTo(mapObjSub)
 
-        let data: Shape
+        let data: VectorInterface
         data = {
-            layerType: 'shape',
+            layerType: 'vector',
             type: state.vecType,
             layer: newGroupLayer,
             geom: undefined,
