@@ -1,6 +1,6 @@
 import { useLazyQuery, useReactiveVar } from '@apollo/client'
 import * as React from 'react'
-import { SEARCH_IMAGES } from '../../../query'
+import { SEARCH_IMAGES } from '../../../queries'
 import { errors, isLoading, mapObj, selectedImage, searchImages, tools, imagesStack, toasts } from '../../../rv'
 import { ImagesList } from './ImagesList'
 import { Metadata } from './Metadata'

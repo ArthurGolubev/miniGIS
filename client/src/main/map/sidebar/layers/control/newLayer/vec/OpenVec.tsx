@@ -1,8 +1,8 @@
 import * as L from 'leaflet'
 import * as React from 'react'
 import { useLazyQuery, useQuery, useReactiveVar } from '@apollo/client'
-import { SHP_READ, TREE_AVAILABLE_FILES } from '../../../../../query'
-import { layers, mapLayerControl, mapObj } from '../../../../../rv'
+import { SHP_READ, TREE_AVAILABLE_FILES } from '../../../../../queries'
+import { isLoading, layers, mapLayerControl, mapObj } from '../../../../../rv'
 import { VectorInterface } from '../../../../../types/main/LayerTypes'
 import * as moment from 'moment'
 
@@ -14,9 +14,11 @@ export const OpenVec = ({showLayerAddControl}: {showLayerAddControl: (status: bo
     const mapObjSub = useReactiveVar(mapObj) as any
     const layersSub = useReactiveVar(layers)
     const mapLayerControlSub = useReactiveVar(mapLayerControl) as any
+    const isLoadingSub = useReactiveVar(isLoading)
 
     const shpReadHandler = () => {
         console.log('state -> ', state)
+        isLoading(true)
         shpRead({
             variables: {shpName: state},
             onCompleted: data => {
@@ -99,7 +101,7 @@ export const OpenVec = ({showLayerAddControl}: {showLayerAddControl: (status: bo
                 
                 layers({ ...layersSub, [layerKey]: data1 })
                 mapLayerControlSub.addOverlay(data1.layer, layerKey)
-
+                isLoading(false)
             }
         })
 
@@ -126,7 +128,10 @@ export const OpenVec = ({showLayerAddControl}: {showLayerAddControl: (status: bo
 
             <div className='row justify-content-center'>
                 <div className='col-12'>
-                    <button onClick={()=>shpReadHandler()} className='btn btn-sm btn-success' type='button'>Добавить</button>
+                    <button
+                    onClick={()=>shpReadHandler()}
+                    disabled={isLoadingSub}
+                    className='btn btn-sm btn-success' type='button'>Добавить</button>
                 </div>
             </div>
 

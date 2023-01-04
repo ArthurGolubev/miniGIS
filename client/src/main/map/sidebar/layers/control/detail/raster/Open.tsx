@@ -1,14 +1,14 @@
 import { useLazyQuery, useQuery, useReactiveVar } from '@apollo/client'
 import * as React from 'react'
 import * as L from 'leaflet'
-import { ADD_LAYER, TREE_AVAILABLE_FILES } from '../../../../../query'
+import { ADD_LAYER, TREE_AVAILABLE_FILES } from '../../../../../queries'
 import { isLoading, layers, mapObj, selectedRasterLay } from '../../../../../rv'
 import { ClassificationRaster, PreviewRaster, RasterInterface } from '../../../../../types/main/LayerTypes'
 
 
 
 export const Open = ({showAddImgMenu}: {showAddImgMenu: (key: boolean) => void}) => {
-    const {data, loading} = useQuery(TREE_AVAILABLE_FILES, {fetchPolicy: 'network-only'})
+    const {data, loading} = useQuery(TREE_AVAILABLE_FILES, {fetchPolicy: 'network-only', onCompleted: () => isLoading(false)})
     const [addLayer] = useLazyQuery(ADD_LAYER, {fetchPolicy: "network-only"})
     const mapObjSub = useReactiveVar(mapObj) as any
     const layersSub = useReactiveVar(layers)

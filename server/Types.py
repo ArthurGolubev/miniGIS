@@ -40,14 +40,6 @@ class SentinelDownload:
     granule_id: str
     bands: list[str]
 
-
-@strawberry.type
-class ClassificationTM(ToastMessage):
-    k: int
-    fileName: str
-    imgUrl: str
-    coordinates: list[list[float]]
-
 @strawberry.type
 class SearchImagesTM(ToastMessage):
     images: list[JSON]
@@ -68,3 +60,9 @@ class GeoJSON:
 class AddLayerTM(ToastMessage):
     img_url: str
     metadata: JSON
+
+@strawberry.type
+class ClassificationTM(AddLayerTM):
+    k: int
+    file_name: str
+    coordinates: list[list[float]]

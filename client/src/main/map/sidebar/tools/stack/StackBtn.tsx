@@ -1,12 +1,14 @@
-import { useLazyQuery, useReactiveVar } from '@apollo/client'
+import { useLazyQuery, useMutation, useReactiveVar } from '@apollo/client'
 import * as React from 'react'
-import { STACK_BANDS } from '../../../query'
+import { STACK_BANDS } from '../../../mutations'
+import { AVAILABLE_FILES } from '../../../queries'
 import { isLoading, selectedFiles, toasts } from '../../../rv'
 
 
 export const StackBtn = () => {
+    const isLoadingSub = useReactiveVar(isLoading)
     const selectedFilesSub = useReactiveVar(selectedFiles)
-    const [stack] = useLazyQuery(STACK_BANDS)
+    const [stack] = useMutation(STACK_BANDS, {fetchPolicy: 'network-only'})
 
     const stackHandler = () => {
         isLoading(true)
@@ -23,12 +25,20 @@ export const StackBtn = () => {
                 }})
                 isLoading(false)
             },
+            refetchQueries: [
+                {query: AVAILABLE_FILES, variables: {to: 'Clip'}},
+                {query: AVAILABLE_FILES, variables: {to: 'Stack'}},
+                {query: AVAILABLE_FILES, variables: {to: 'Classification'}},
+            ]
         })
     }
 
     return <div className='row justify-content-center'>
         <div className='col-12'>
-            <button onClick={() => stackHandler()} className='btn btn-sm btn-success' type='button'>Stack</button>
+            <button
+            onClick={() => stackHandler()}
+            disabled={isLoadingSub}
+            className='btn btn-sm btn-success' type='button'>Stack</button>
         </div>
     </div>
 

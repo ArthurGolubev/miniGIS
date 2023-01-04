@@ -1,6 +1,6 @@
 import { useQuery, useReactiveVar } from '@apollo/client'
 import * as React from 'react'
-import { AVAILABLE_FILES } from '../../query'
+import { AVAILABLE_FILES } from '../../queries'
 import { selectedFiles, tools } from '../../rv'
 
 

@@ -1,7 +1,8 @@
-import { useLazyQuery, useReactiveVar } from '@apollo/client'
+import { useLazyQuery, useMutation, useReactiveVar } from '@apollo/client'
 import * as React from 'react'
 import * as L from 'leaflet'
-import { CLASSIFY_K_MEAN } from '../../../../query'
+import { AVAILABLE_FILES } from '../../../../queries'
+import { CLASSIFY_K_MEAN } from '../../../../mutations'
 import { classification, isLoading, layers, mapObj, selectedFiles, toasts } from '../../../../rv'
 import { ClassificationRaster, MapLayer } from '../../../../types/main/LayerTypes'
 
@@ -11,7 +12,7 @@ export const KMean = () => {
     const selectedFilesSub = useReactiveVar(selectedFiles)
     const mapObjSub = useReactiveVar(mapObj) as any
     const layersSub = useReactiveVar(layers)
-    const [classify, {loading}] = useLazyQuery(CLASSIFY_K_MEAN)
+    const [classify, {loading}] = useMutation(CLASSIFY_K_MEAN, {fetchPolicy: 'network-only'})
 
     const classifyHandler = () => {
         isLoading(true)
@@ -46,6 +47,11 @@ export const KMean = () => {
                 }})
                 isLoading(false)
             },
+            refetchQueries: [
+                {query: AVAILABLE_FILES, variables: {to: 'Clip'}},
+                {query: AVAILABLE_FILES, variables: {to: 'Stack'}},
+                {query: AVAILABLE_FILES, variables: {to: 'Classification'}},
+            ]
         })
     }
 

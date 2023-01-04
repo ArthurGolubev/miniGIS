@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { useReactiveVar } from '@apollo/client'
-import { layers, selectedRasterLay, showToggle } from '../../../../rv'
+import { isLoading, layers, selectedRasterLay, showToggle } from '../../../../rv'
 import { RasterInterface } from '../../../../types/main/LayerTypes'
 import { Open } from './raster/Open'
 
@@ -10,6 +10,7 @@ export const DetailRaster = () => {
     const layersSub = useReactiveVar(layers)
     const showToggleSub = useReactiveVar(showToggle)
     const selectedRasterLaySub = useReactiveVar(selectedRasterLay)
+    const isLoadingSub = useReactiveVar(isLoading)
 
     const backToLayerList = () => {
         selectedRasterLay(''),
@@ -20,6 +21,10 @@ export const DetailRaster = () => {
         })
     }
 
+    const addBtnHandler = () => {
+        setState(true)
+        isLoading(true)
+    }
 
     return <div>
 
@@ -94,7 +99,10 @@ export const DetailRaster = () => {
         {/* -------------------------------------------Add-Img-Start------------------------------------------ */}
         <div className='row justify-content-center'>
             <div className='col-11'>
-                <button onClick={()=>setState(true)} className='btn btn-sm btn-success' type='button'>Добавить</button>
+                <button
+                onClick={()=>addBtnHandler()}
+                disabled={isLoadingSub}
+                className='btn btn-sm btn-success' type='button'>Добавить</button>
             </div>
         </div>
 

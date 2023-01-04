@@ -1,11 +1,15 @@
-import gzip
 import ee
+import os
+import gzip
+import yadisk
+
 from time import time
-from datetime import datetime, timedelta
+from io import BytesIO
 from loguru import logger
-from Types import Coordinates, LandsatDownload, Period, SentinelDownload, ToastMessage, SearchImagesTM, PreviewTM
 from google.cloud import storage
-from pathlib import Path
+from datetime import datetime, timedelta
+from .YandexDiskHadler import YandexDiskHandler
+from Types import Coordinates, LandsatDownload, Period, SentinelDownload, ToastMessage, SearchImagesTM, PreviewTM
 
 
 
@@ -19,10 +23,11 @@ def time_metr(func):
 
 
 
-class EarthEngine:
+class EarthEngine(YandexDiskHandler):
     def __init__(self):
         self.landsat = ['LC08']
         self.sentinel = ['S2']
+        super().__init__()
         try:
             ee.Initialize()
         except:
@@ -32,11 +37,12 @@ class EarthEngine:
 
 
 
-    def _download_blob(self, bucket_name, source_blob_name, destination_file_name):
+    def _download_blob(self, bucket_name, source_blob_name):
         storage_client = storage.Client()
         bucket = storage_client.bucket(bucket_name)
         blob = bucket.blob(source_blob_name)
-        blob.download_to_filename(destination_file_name)
+        # blob.download_to_filename(destination_file_name)
+        return BytesIO(blob.download_as_string())
 
 
 
@@ -107,20 +113,23 @@ class EarthEngine:
         GRANULE_ID      = sentinel_meta.granule_id
         bands           = sentinel_meta.bands
 
-        Path(f"./images/raw/Sentinel/{PRODUCT_ID}/").mkdir(parents=True, exist_ok=True)
+        yandex_disk_path = f'/miniGIS/images/raw/Sentinel/{PRODUCT_ID}'
+        self._make_yandex_dir_recursively(yandex_disk_path)
         for band in bands:
             LAYER = f"T{sentinel_meta.mgrs_tile}_{PRODUCT_ID[11:26]}_{band}.jp2"
-            logger.info(f"{UTM_ZONE}/{LATITUDE_BAND}/{GRID_SQUARE}/{PRODUCT_ID}/GRANULE/{GRANULE_ID}/IMG_DATA/{LAYER}")
-            self._download_blob(
+            file_io = self._download_blob(
                 "gcp-public-data-sentinel-2",
                 f"tiles/{UTM_ZONE}/{LATITUDE_BAND}/{GRID_SQUARE}/{PRODUCT_ID}/GRANULE/{GRANULE_ID}/IMG_DATA/{LAYER}",
-                f'./images/raw/Sentinel/{PRODUCT_ID}/{LAYER}'
             )
+            self.y.upload(file_io, yandex_disk_path + f'/{LAYER}', overwrite=True)
 
-        with open(f'./images/raw/Sentinel/{PRODUCT_ID}/preview.txt', 'w') as preview:
-            preview.write(sensor + '\n')
-            preview.write(system_index + '\n')
-            preview.write(metadata)
+        with BytesIO() as preview:
+            preview.write(bytes(sensor + '\n', 'utf-8'))
+            preview.write(bytes(system_index + '\n', 'utf-8'))
+            preview.write(bytes(metadata, 'utf-8'))
+            preview.seek(0)
+            self.y.upload(preview, yandex_disk_path + '/preview.txt', overwrite=True)
+
         return ToastMessage(
             header=f'Загрузка завершина - Sentinel',
             message=f"""
@@ -140,19 +149,23 @@ class EarthEngine:
         bands               = landsat_download.bands
         PRODUCT_ID          = landsat_download.product_id
 
-        Path(f"./images/raw/Landsat/{PRODUCT_ID}/").mkdir(parents=True, exist_ok=True)
+        yandex_disk_path = f'/miniGIS/images/raw/Landsat/{PRODUCT_ID}'
+        self._make_yandex_dir_recursively(yandex_disk_path)
         for band in bands:
             PRODUCT_ID_BAND = f"{PRODUCT_ID}_{band}.TIF"
-            logger.info(f"START_LANDSAT\n{SENSOR_ID}/01/{PATH}/{ROW}/{PRODUCT_ID}/{PRODUCT_ID_BAND}")
-            self._download_blob(
+            file_io = self._download_blob(
                 "gcp-public-data-landsat",
                 f"{SENSOR_ID}/01/{PATH}/{ROW}/{PRODUCT_ID}/{PRODUCT_ID_BAND}",
-                f'./images/raw/Landsat/{PRODUCT_ID}/{PRODUCT_ID_BAND}'
             )
-        with open(f'./images/raw/Landsat/{PRODUCT_ID}/preview.txt', 'w') as preview:
-            preview.write(sensor + '\n')
-            preview.write(system_index + '\n')
-            preview.write(metadata)
+            self.y.upload(file_io, yandex_disk_path + f'/{PRODUCT_ID_BAND}', overwrite=True)
+        
+        with BytesIO() as preview:
+            preview.write(bytes(sensor + '\n', 'utf-8'))
+            preview.write(bytes(system_index + '\n', 'utf-8'))
+            preview.write(bytes(metadata, 'utf-8'))
+            preview.seek(0)
+            self.y.upload(preview, yandex_disk_path + '/preview.txt', overwrite=True)
+
         return ToastMessage(
             header=f'Загрузка завершина - Landsat',
             message=f"""

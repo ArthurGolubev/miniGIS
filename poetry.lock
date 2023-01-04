@@ -1237,10 +1237,21 @@ io = ["netcdf4", "h5netcdf", "scipy", "zarr", "fsspec", "cftime", "rasterio", "c
 parallel = ["dask"]
 viz = ["matplotlib", "seaborn", "nc-time-axis"]
 
+[[package]]
+name = "yadisk"
+version = "1.2.17"
+description = "Библиотека-клиент REST API Яндекс.Диска / Yandex.Disk REST API client library"
+category = "main"
+optional = false
+python-versions = ">=3"
+
+[package.dependencies]
+requests = "*"
+
 [metadata]
 lock-version = "1.1"
 python-versions = "~3.10"
-content-hash = "60c3d782de1aed39f082b55276945ff740a275b7ccf9419f6c51e6e06825b570"
+content-hash = "bc41eaab3294f5dac2ae9954f0f1ff3dc511c024f56808afbc5f6ffc6b1705c3"
 
 [metadata.files]
 affine = []
@@ -1373,3 +1384,4 @@ win32-setctime = [
     {file = "win32_setctime-1.1.0.tar.gz", hash = "sha256:15cf5750465118d6929ae4de4eb46e8edae9a5634350c01ba582df868e932cb2"},
 ]
 xarray = []
+yadisk = []

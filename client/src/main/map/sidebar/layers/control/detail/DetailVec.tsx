@@ -1,12 +1,13 @@
 import * as React from 'react'
 import { useLazyQuery, useReactiveVar } from '@apollo/client'
-import { layers, mapLayerControl, mapObj, selectedVecLay, showToggle } from '../../../../rv'
+import { isLoading, layers, mapLayerControl, mapObj, selectedVecLay, showToggle } from '../../../../rv'
 import { VectorInterface } from '../../../../types/main/LayerTypes'
-import { SHP_SAVE } from '../../../../query'
+import { SHP_SAVE } from '../../../../queries'
 
 
 
 export const DetailVec = () => {
+    const isLoadingSub = useReactiveVar(isLoading)
     const layersSub = useReactiveVar(layers)
     const selectedVecLaySub = useReactiveVar(selectedVecLay)
     const mapObjSub = useReactiveVar(mapObj)
@@ -90,11 +91,13 @@ export const DetailVec = () => {
 
         console.log('layersSub -> ', layersSub)
         console.log('GEO-JSON -> ', layersSub[selectedVecLaySub].layer.toGeoJSON())
+        isLoading(true)
         shpWrite({
             variables: {
                 shpName: selectedVecLaySub,
                 layer: JSON.stringify(layersSub[selectedVecLaySub].layer.toGeoJSON())
-            }
+            },
+            onCompleted: () => isLoading(false)
         })
     }
     
@@ -349,7 +352,10 @@ export const DetailVec = () => {
         {/* -------------------------------------------Save-To-Shape-File-Start------------------------------------------ */}
         <div className='row justify-content-center'>
             <div className='col-auto'>
-                <button onClick={()=>saveToShp()} className='btn btn-sm btn-light' type='button'>Сохранить, как .shp файл</button>
+                <button
+                onClick={()=>saveToShp()}
+                disabled={isLoadingSub}
+                className='btn btn-sm btn-light' type='button'>Сохранить, как .shp файл</button>
             </div>
         </div>
 

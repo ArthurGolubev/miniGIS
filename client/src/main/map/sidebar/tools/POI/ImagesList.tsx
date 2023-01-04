@@ -1,6 +1,6 @@
 import { useLazyQuery, useReactiveVar } from '@apollo/client'
 import * as React from 'react'
-import { GET_PREVIEW } from '../../../query'
+import { GET_PREVIEW } from '../../../queries'
 import * as L from 'leaflet'
 import { isLoading, mapObj, selectedImage, searchImages, layers, toasts } from '../../../rv'
 import { MapLayer, MapLayers, PreviewRaster, RasterInterface } from '../../../types/main/LayerTypes'

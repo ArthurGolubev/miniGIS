@@ -1,6 +1,6 @@
 import { useLazyQuery, useQuery, useReactiveVar } from '@apollo/client'
 import * as React from 'react'
-import { AVAILABLE_FILES, GET_CLASSIFICATION_LAYER } from '../../../query'
+import { AVAILABLE_FILES, GET_CLASSIFICATION_LAYER } from '../../../queries'
 import { isLoading, layers, mapObj, selectedFiles, toasts, tools } from '../../../rv'
 import * as L from 'leaflet'
 import { MapLayer, MapLayers } from '../../../types/newTypes'
