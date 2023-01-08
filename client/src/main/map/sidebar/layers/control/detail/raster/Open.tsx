@@ -1,19 +1,32 @@
 import { useLazyQuery, useQuery, useReactiveVar } from '@apollo/client'
 import * as React from 'react'
 import * as L from 'leaflet'
-import { ADD_LAYER, TREE_AVAILABLE_FILES } from '../../../../../queries'
-import { isLoading, layers, mapObj, selectedRasterLay } from '../../../../../rv'
+import { ADD_LAYER } from '../../../../../restQueries'
+import { TREE_AVAILABLE_FILES } from '../../../../../restQueries'
+import { isLoading, layers, mapObj, selectedRasterLay, treeAvailableFiles } from '../../../../../rv'
 import { ClassificationRaster, PreviewRaster, RasterInterface } from '../../../../../types/main/LayerTypes'
 
 
 
 export const Open = ({showAddImgMenu}: {showAddImgMenu: (key: boolean) => void}) => {
-    const {data, loading} = useQuery(TREE_AVAILABLE_FILES, {fetchPolicy: 'network-only', onCompleted: () => isLoading(false)})
+    const {data, loading} = useQuery(TREE_AVAILABLE_FILES, {
+        fetchPolicy: 'network-only', onCompleted: data => {
+            isLoading(false)
+            let c = {} as any
+            data.treeAvailableFiles.items.map((item: any) => {
+                let key: string = Object.keys(item)[1]
+                if(key != "items"){
+                    c[key] = item[key]
+                }
+            })
+            treeAvailableFiles(c)
+        }})
     const [addLayer] = useLazyQuery(ADD_LAYER, {fetchPolicy: "network-only"})
     const mapObjSub = useReactiveVar(mapObj) as any
     const layersSub = useReactiveVar(layers)
     const selectedRasterLaySub = useReactiveVar(selectedRasterLay)
     const isLoadingSub = useReactiveVar(isLoading)
+    const treeAvailableFilesSub = useReactiveVar(treeAvailableFiles)
     
 
     const [state, setState] = React.useState({
@@ -28,11 +41,13 @@ export const Open = ({showAddImgMenu}: {showAddImgMenu: (key: boolean) => void})
         isLoading(true)
         addLayer({
             variables: {
-                ...state
+                input: {
+                    ...state
+                }
             },
             onCompleted: data => {
                 console.log("data -> ", data)
-                let metadata = JSON.parse(data.addLayer.metadata)
+                let metadata = JSON.parse(data.addLayer.meta)
                 L.geoJSON().addTo(mapObjSub).addData({type: 'LineString', coordinates: metadata["system:footprint"]["coordinates"]} as any)
                 let layer = L.imageOverlay(data.addLayer.imgUrl, metadata["system:footprint"]["coordinates"].map((point: Array<number>) => [point[1], point[0]]) ) as any
                 layer.addTo(mapObjSub)
@@ -97,7 +112,7 @@ export const Open = ({showAddImgMenu}: {showAddImgMenu: (key: boolean) => void})
     }
 
 
-    if(!data || loading) return null
+    if(!treeAvailableFilesSub || loading) return null
     return <div className='row justify-content-center'>
         <div className='col-11'>
             
@@ -107,7 +122,7 @@ export const Open = ({showAddImgMenu}: {showAddImgMenu: (key: boolean) => void})
                     <select className='form-select' onChange={e => setState({scope: e.target.value, satellite: "0", product: "0", target: "0"})} >
                         <option value={"0"}>...</option>
                         {
-                            Object.keys(data.treeAvailableFiles).slice(0,2).map(item => {
+                            Object.keys(treeAvailableFilesSub).slice(0,2).map(item => {
                                 return <option key={item} value={item}>{item}</option>
                             })
                         }
@@ -124,7 +139,7 @@ export const Open = ({showAddImgMenu}: {showAddImgMenu: (key: boolean) => void})
                         <option value={"0"}>...</option>
                         {
                             state.scope != "0" &&
-                            Object.keys(data.treeAvailableFiles[state["scope"]]).map(item => {
+                            Object.keys(treeAvailableFilesSub[state["scope"]]).map(item => {
                                 return <option key={item} value={item}>{item}</option>
                             })
                         }
@@ -143,7 +158,7 @@ export const Open = ({showAddImgMenu}: {showAddImgMenu: (key: boolean) => void})
                                     <option value={"0"}>...</option>
                                     {
                                         state.scope != "0" && state.satellite != "0" &&
-                                        Object.keys(data.treeAvailableFiles[state["scope"]][state["satellite"]]).map((item: string) => {
+                                        Object.keys(treeAvailableFilesSub[state["scope"]][state["satellite"]]).map((item: string) => {
                                             return <option key={item} value={item}>{item}</option>
                                         })
                                     }
@@ -156,7 +171,7 @@ export const Open = ({showAddImgMenu}: {showAddImgMenu: (key: boolean) => void})
                         <div className='row justify-content-center mb-2'>
                             <div className='col-12'>
                                 {
-                                    data.treeAvailableFiles[state["scope"]][state["satellite"]][state["product"]].map((item: string) => {
+                                    treeAvailableFilesSub[state["scope"]][state["satellite"]][state["product"]].map((item: string) => {
                                         return <div className='form-check' key={item}
                                         onChange={() => setState({...state, target: item})}>
                                             <input id={`check-${item}`} className='form-check-input' type={"radio"} />
@@ -172,7 +187,7 @@ export const Open = ({showAddImgMenu}: {showAddImgMenu: (key: boolean) => void})
                         <div className='row justify-content-center mb-2'>
                             <div className='col-12'>
                                 {
-                                    Object.keys(data.treeAvailableFiles[state["scope"]][state["satellite"]]).map((item: string) => {
+                                    Object.keys(treeAvailableFilesSub[state["scope"]][state["satellite"]]).map((item: string) => {
                                         return <div className='form-check mb-1 mt-1' key={item}>
                                             <input id={`check-${item}`} className='form-check-input' type={"radio"} 
                                             onChange={() => setState({...state, product: item, target: item})} />

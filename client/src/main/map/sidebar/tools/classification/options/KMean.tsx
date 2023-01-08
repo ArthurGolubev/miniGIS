@@ -1,8 +1,8 @@
 import { useLazyQuery, useMutation, useReactiveVar } from '@apollo/client'
 import * as React from 'react'
 import * as L from 'leaflet'
-import { AVAILABLE_FILES } from '../../../../queries'
-import { CLASSIFY_K_MEAN } from '../../../../mutations'
+import { AVAILABLE_FILES } from '../../../../restQueries'
+import { CLASSIFY_K_MEAN } from '../../../../restMutations'
 import { classification, isLoading, layers, mapObj, selectedFiles, toasts } from '../../../../rv'
 import { ClassificationRaster, MapLayer } from '../../../../types/main/LayerTypes'
 
@@ -18,10 +18,14 @@ export const KMean = () => {
         isLoading(true)
         classify({
             variables: {
-                filePath: selectedFilesSub.files.Classification[0], k: classificationSub.classes
+                options: {
+                    filePath: selectedFilesSub.files.Classification[0],
+                    k: classificationSub.classes
+                }
             },
             fetchPolicy: 'network-only',
             onCompleted: data => {
+                console.log('SOME SUPER DATA -> ', data)
                 let coordinates = data.classifyKMean.coordinates
                 let imgUrl = data.classifyKMean.imgUrl
                 let k = data.classifyKMean.k

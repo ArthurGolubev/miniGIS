@@ -2,7 +2,7 @@ import * as React from 'react'
 import { useLazyQuery, useReactiveVar } from '@apollo/client'
 import { isLoading, layers, mapLayerControl, mapObj, selectedVecLay, showToggle } from '../../../../rv'
 import { VectorInterface } from '../../../../types/main/LayerTypes'
-import { SHP_SAVE } from '../../../../queries'
+import { SHP_SAVE } from '../../../../restQueries'
 
 
 
@@ -94,8 +94,10 @@ export const DetailVec = () => {
         isLoading(true)
         shpWrite({
             variables: {
-                shpName: selectedVecLaySub,
-                layer: JSON.stringify(layersSub[selectedVecLaySub].layer.toGeoJSON())
+                input: {
+                    shpName: selectedVecLaySub,
+                    layer: JSON.stringify(layersSub[selectedVecLaySub].layer.toGeoJSON())
+                }
             },
             onCompleted: () => isLoading(false)
         })

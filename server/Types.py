@@ -56,13 +56,9 @@ class GeoJSON:
     properties: JSON
     type: str
 
-@strawberry.type
-class AddLayerTM(ToastMessage):
-    img_url: str
-    metadata: JSON
 
-@strawberry.type
-class ClassificationTM(AddLayerTM):
-    k: int
-    file_name: str
-    coordinates: list[list[float]]
+# @strawberry.type
+# class ClassificationTM(AddLayerTM):
+#     k: int
+#     file_name: str
+#     coordinates: list[list[float]]

@@ -24,9 +24,11 @@ export const NavBar = () => {
                 </div>
                 <div className='ms-auto'>
                     <div className='row justify-content-center'>
-                        
                         <div className='col'>
                             <ul className="navbar-nav">
+                                <li className="nav-item">
+                                    <a href='#/registration' onClick={()=>sidebar({show: 'tools'})} className='nav-link active' type='button'>Registration</a>
+                                </li>
                                 <li className="nav-item">
                                     <a href='#/main' onClick={()=>sidebar({show: 'tools'})} className='nav-link active' type='button'>Tools</a>
                                 </li>

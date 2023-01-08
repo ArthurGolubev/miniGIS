@@ -1,6 +1,6 @@
 import { useLazyQuery, useReactiveVar } from '@apollo/client'
 import * as React from 'react'
-import { SEARCH_IMAGES } from '../../../queries'
+import { SEARCH_PREVIEW } from '../../../restQueries'
 import { errors, isLoading, mapObj, selectedImage, searchImages, tools, imagesStack, toasts } from '../../../rv'
 import { ImagesList } from './ImagesList'
 import { Metadata } from './Metadata'
@@ -12,7 +12,7 @@ export const SearchImages = () => {
     const selectedImageSub = useReactiveVar(selectedImage)
     const searchImagesSub = useReactiveVar(searchImages)
     const mapObjSub = useReactiveVar(mapObj) as any
-    const [searchImagesQuery, {data: data1, loading: loading1, error: error1}] = useLazyQuery(SEARCH_IMAGES, {fetchPolicy: "network-only"})
+    const [searchImagesQuery, {data: data1, loading: loading1, error: error1}] = useLazyQuery(SEARCH_PREVIEW, {fetchPolicy: "network-only"})
     
 
     const setPOI = () => {
@@ -31,18 +31,20 @@ export const SearchImages = () => {
             isLoading(true)
             searchImagesQuery({
                 variables: {
-                    poi: {lat: searchImagesSub.poi[1], lon: searchImagesSub.poi[0]},
-                    date: {startDate: searchImagesSub.period.start, endDate: searchImagesSub.period.end},
-                    sensor: searchImagesSub.sensor
+                    input: {
+                        poi: {lat: searchImagesSub.poi[1], lon: searchImagesSub.poi[0]},
+                        date: {startDate: searchImagesSub.period.start, endDate: searchImagesSub.period.end},
+                        sensor: searchImagesSub.sensor
+                    }
                 },
                 onCompleted: data => {
                     console.log('1 ->', data)
-                    searchImages({...searchImagesSub, images: data.searchImages.images})
+                    searchImages({...searchImagesSub, images: data.searchPreview.images})
                     toasts({[new Date().toLocaleString()]: {
-                        header: data.searchImages.header,
-                        message: data.searchImages.message,
+                        header: data.searchPreview.header,
+                        message: data.searchPreview.message,
                         show: true,
-                        datetime: new Date(data.searchImages.datetime),
+                        datetime: new Date(data.searchPreview.datetime),
                         color: 'text-bg-success'
                     }})
                     isLoading(false)

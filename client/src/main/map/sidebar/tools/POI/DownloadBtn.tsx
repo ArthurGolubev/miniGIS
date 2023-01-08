@@ -1,8 +1,8 @@
-import { useLazyQuery, useMutation, useReactiveVar } from '@apollo/client'
+import { useMutation, useReactiveVar } from '@apollo/client'
 import * as React from 'react'
-import { DOWNLOAD_LANDSAT } from '../../../mutations'
-import { DOWNLOAD_SENTINEL } from '../../../mutations'
-import { AVAILABLE_FILES } from '../../../queries'
+import { DOWNLOAD_LANDSAT } from '../../../restMutations'
+import { DOWNLOAD_SENTINEL } from '../../../restMutations'
+import { AVAILABLE_FILES } from '../../../restQueries'
 import { imagesStack, isLoading, selectedImage, toasts } from '../../../rv'
 
 
@@ -33,12 +33,14 @@ export const DownloadBtn = () => {
                 }})
                 downloadSentinel({
                     variables: {
-                        sentinelMeta: {
-                            ...imagesStackSub.sentinel[key].meta
-                        },
-                        sensor: selectedImageSub.sensor,
-                        systemIndex: selectedImageSub.systemIndex,
-                        metadata: JSON.stringify(selectedImageSub.metadata)
+                        input: {
+                            sentinelMeta: {
+                                ...imagesStackSub.sentinel[key].meta
+                            },
+                            sensor: selectedImageSub.sensor,
+                            systemIndex: selectedImageSub.systemIndex,
+                            meta: JSON.stringify(selectedImageSub.metadata)
+                        }
                     },
                     onCompleted: data => {
                         toasts({[new Date().toLocaleString()]: {
@@ -80,12 +82,14 @@ export const DownloadBtn = () => {
                 }})
                 downloadLandsat({
                     variables: {
-                        landsatMeta: {
-                            ...imagesStackSub.landsat[key].meta
-                        },
-                        sensor: selectedImageSub.sensor,
-                        systemIndex: selectedImageSub.systemIndex,
-                        metadata: JSON.stringify(selectedImageSub.metadata)
+                        input: {
+                            landsatMeta: {
+                                ...imagesStackSub.landsat[key].meta
+                            },
+                            sensor: selectedImageSub.sensor,
+                            systemIndex: selectedImageSub.systemIndex,
+                            meta: JSON.stringify(selectedImageSub.metadata)
+                        }
                     },
                     onCompleted: data => {
                         toasts({[new Date().toLocaleString()]: {
@@ -96,10 +100,10 @@ export const DownloadBtn = () => {
                             color: 'text-bg-success'
                         }})
                         // set status downloaded
-                        imagesStack({...imagesStackSub, sentinel: {
-                            ...imagesStackSub.sentinel,
+                        imagesStack({...imagesStackSub, landsat: {
+                            ...imagesStackSub.landsat,
                             [key]: {
-                                ...imagesStackSub.sentinel[key],
+                                ...imagesStackSub.landsat[key],
                                 status: "downloaded"
                             }
                         }})

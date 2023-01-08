@@ -1,5 +1,3 @@
-import spectral
-import numpy as np
 import rasterio
 from glob import glob
 import os
@@ -7,17 +5,14 @@ from loguru import logger
 from sklearn import cluster
 from rasterio.plot import reshape_as_image, reshape_as_raster
 from skimage.io import imsave
-from Types import ClassificationTM
+from models import ClassificationTM
 from datetime import datetime
 from pathlib import Path
 from .FileHandler import FileHandler
 from matplotlib.pyplot import imread
 from matplotlib.pyplot import imsave as matplotlib_imsave
-from matplotlib.pyplot import savefig
-from io import BytesIO
 from matplotlib import colormaps
 from .YandexDiskHadler import YandexDiskHandler
-from matplotlib.colors import NoNorm
 
 
 
@@ -99,10 +94,12 @@ class Classifier(YandexDiskHandler):
         yandex_disk_path = f'/miniGIS/images/classification/{SATELLITE}/{PRODUCT}'
         self._make_yandex_dir_recursively(yandex_disk_path)
         self.y.upload(file_path, yandex_disk_path + f'/{file_name}', overwrite=True)
-        
+
+        logger.warning('STEP 1')
         classification_layer = FileHandler().get_classification_layer(
             satellite=SATELLITE, product=PRODUCT, target=file_name, username=username
             )
+        logger.warning(f'STEP 1\n{classification_layer=}')
 
         return ClassificationTM(
             **classification_layer,

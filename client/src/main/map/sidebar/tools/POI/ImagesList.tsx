@@ -1,9 +1,9 @@
 import { useLazyQuery, useReactiveVar } from '@apollo/client'
 import * as React from 'react'
-import { GET_PREVIEW } from '../../../queries'
+import { GET_PREVIEW } from '../../../restQueries'
 import * as L from 'leaflet'
 import { isLoading, mapObj, selectedImage, searchImages, layers, toasts } from '../../../rv'
-import { MapLayer, MapLayers, PreviewRaster, RasterInterface } from '../../../types/main/LayerTypes'
+import { MapLayers, PreviewRaster, RasterInterface } from '../../../types/main/LayerTypes'
 
 
 export const ImagesList = () => {
@@ -14,7 +14,6 @@ export const ImagesList = () => {
     const [getImagePreview, {data: data2, loading: loading2, error: error2}] = useLazyQuery(GET_PREVIEW)
     const getImagePreviewHandler = (metadata: any) => {
         isLoading(true)
-        console.log('metadata -> ', metadata)
         getImagePreview({variables: {
             systemIndex: metadata["system:index"],
             sensor: searchImagesSub.sensor
@@ -29,7 +28,7 @@ export const ImagesList = () => {
             let cloud = metadata.CLOUD_COVER ? (metadata.CLOUD_COVER.toFixed(2)) : (metadata.CLOUD_COVERAGE_ASSESSMENT.toFixed(2))
             let mapLayer: PreviewRaster = {
                 name: undefined,
-                spacecraft: metadata['SPACECRAFT_NAME'] ?? metadata['SPACECRAFT_ID'],
+                spacecraft: metadata['SPACECRAFT_ID'] ?? metadata['SPACECRAFT_ID'],
                 layerType: "raster",
                 layer: layer,
                 date: date,
@@ -38,7 +37,6 @@ export const ImagesList = () => {
             }
             layers({ ...layersSub, [metadata["system:index"]]: mapLayer })
             layer.addTo(mapObjSub)
-            console.log('TEST 123 ->', data)
             selectedImage({
                 metadata: metadata,
                 imgUrl: data.getImagePreview.imgUrl,
@@ -72,7 +70,7 @@ export const ImagesList = () => {
                                         `
                                         ${item.DATE_ACQUIRED ? (item.DATE_ACQUIRED) : (new Date(item.GENERATION_TIME).toISOString().slice(0, 10))} 
                                         Cloud Cover 
-                                        ${item.CLOUD_COVER ? (item.CLOUD_COVER.toFixed(2)) : (item.CLOUD_COVERAGE_ASSESSMENT.toFixed(2))} %
+                                        ${item.CLOUD_COVER ? (item.CLOUD_COVER.toFixed(2)) : (item.CLOUD_COVER_ASSESSMENT.toFixed(2))} %
                                         `
                                     }
                                 </button>

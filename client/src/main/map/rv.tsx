@@ -69,3 +69,5 @@ export const showToggle = makeVar({
 })
 
 export const clipMask = makeVar({layer: undefined, mask: {}})
+
+export const treeAvailableFiles = makeVar({} as any)

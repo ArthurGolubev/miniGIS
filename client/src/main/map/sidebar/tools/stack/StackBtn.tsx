@@ -1,7 +1,7 @@
 import { useLazyQuery, useMutation, useReactiveVar } from '@apollo/client'
 import * as React from 'react'
-import { STACK_BANDS } from '../../../mutations'
-import { AVAILABLE_FILES } from '../../../queries'
+import { STACK_BANDS } from '../../../restMutations'
+import { AVAILABLE_FILES } from '../../../restQueries'
 import { isLoading, selectedFiles, toasts } from '../../../rv'
 
 

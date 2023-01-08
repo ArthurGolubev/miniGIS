@@ -1,26 +1,43 @@
 import * as L from 'leaflet'
 import * as React from 'react'
 import { useLazyQuery, useQuery, useReactiveVar } from '@apollo/client'
-import { SHP_READ, TREE_AVAILABLE_FILES } from '../../../../../queries'
-import { isLoading, layers, mapLayerControl, mapObj } from '../../../../../rv'
+import { SHP_READ } from '../../../../../restQueries'
+import { TREE_AVAILABLE_FILES } from '../../../../../restQueries'
+import { isLoading, layers, mapLayerControl, mapObj, treeAvailableFiles } from '../../../../../rv'
 import { VectorInterface } from '../../../../../types/main/LayerTypes'
 import * as moment from 'moment'
 
 
 export const OpenVec = ({showLayerAddControl}: {showLayerAddControl: (status: boolean) => void}) => {
     const [state, setState] = React.useState(undefined)
-    const {data, loading, error} = useQuery(TREE_AVAILABLE_FILES)
+    const {data, loading, error} = useQuery(TREE_AVAILABLE_FILES, {
+        onCompleted: data => {
+            isLoading(false)
+            let c = {} as any
+            data.treeAvailableFiles.items.map((item: any) => {
+                let key: string = Object.keys(item)[1]
+                if(key != "items"){
+                    c[key] = item[key]
+                }
+            })
+            treeAvailableFiles(c)
+        }})
     const [shpRead] = useLazyQuery(SHP_READ, {fetchPolicy: "network-only"})
     const mapObjSub = useReactiveVar(mapObj) as any
     const layersSub = useReactiveVar(layers)
     const mapLayerControlSub = useReactiveVar(mapLayerControl) as any
     const isLoadingSub = useReactiveVar(isLoading)
+    const treeAvailableFilesSub = useReactiveVar(treeAvailableFiles)
 
     const shpReadHandler = () => {
         console.log('state -> ', state)
         isLoading(true)
         shpRead({
-            variables: {shpName: state},
+            variables: {
+                input: {
+                    shpName: state
+                }
+            },
             onCompleted: data => {
 
                 console.log('shpRead ->', data)
@@ -97,8 +114,6 @@ export const OpenVec = ({showLayerAddControl}: {showLayerAddControl: (status: bo
                     newGroupLayer.addLayer(shape)
                 })
                 
-
-                
                 layers({ ...layersSub, [layerKey]: data1 })
                 mapLayerControlSub.addOverlay(data1.layer, layerKey)
                 isLoading(false)
@@ -118,7 +133,7 @@ export const OpenVec = ({showLayerAddControl}: {showLayerAddControl: (status: bo
                     className='form-select'>
                         <option value={"0"}>...</option>
                         {
-                            data.treeAvailableFiles.vector.map((item: string) => {
+                            treeAvailableFilesSub.vector.map((item: string) => {
                                 return <option key={item} value={item}>{item}</option>
                             })
                         }

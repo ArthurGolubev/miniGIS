@@ -1,4 +1,6 @@
+import { useReactiveVar } from '@apollo/client'
 import * as React from 'react'
+import { isLoading } from '../../../../../rv'
 import { NewVec } from './NewVec'
 import { OpenVec } from './OpenVec'
 
@@ -6,6 +8,7 @@ import { OpenVec } from './OpenVec'
 
 export const Vec = ({showLayerAddControl}: {showLayerAddControl: (p: boolean) => void}) => {
     const [state, setState] = React.useState(undefined)
+    const isLoadingSub = useReactiveVar(isLoading)
 
     return <div className='row justify-content-center mt-2 mb-2'>
         <div className='col-12'>
@@ -13,7 +16,10 @@ export const Vec = ({showLayerAddControl}: {showLayerAddControl: (p: boolean) =>
             <div className='row justify-content-center'>
                 <div className='col-auto'>
                     <div className='btn-group'>
-                        <button onClick={()=>setState('open')} className='btn btn-sm btn-success' type='button'>Открыть</button>
+                        <button
+                        onClick={()=>setState('open')}
+                        disabled={isLoadingSub}
+                        className='btn btn-sm btn-success' type='button'>Открыть</button>
                         <button onClick={()=>setState('create')} className='btn btn-sm btn-success' type='button'>Создать</button>
                     </div>
                 </div>

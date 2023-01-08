@@ -1,7 +1,7 @@
 import { useLazyQuery, useMutation, useReactiveVar } from "@apollo/client"
 import * as React from "react"
-import { CLIP_TO_MASK } from "../../../mutations"
-import { AVAILABLE_FILES } from "../../../queries"
+import { CLIP_TO_MASK } from "../../../restMutations"
+import { AVAILABLE_FILES } from "../../../restQueries"
 import { clipMask, isLoading, mapObj, selectedFiles, toasts, tools } from "../../../rv"
 import { MapObject } from "../../../types/main/MapTypes"
 
@@ -20,9 +20,10 @@ export const ClipBtn = () => {
         // console.log('debug -> ', maskArray)
         // console.log('debug1 -> ', maskArray.map(item => item.toGeoJSON()))
         sendToServer({variables: {
-            // geoJSONs: maskArray.map(item => item.toGeoJSON()),
-            geoJSONs: clipMaskSub.mask,
-            files: selectedFilesSub.files.Clip
+            input: {
+                mask: clipMaskSub.mask,
+                files: selectedFilesSub.files.Clip
+            }
         },
         onCompleted: data => {
             toasts({[new Date().toLocaleString()]: {

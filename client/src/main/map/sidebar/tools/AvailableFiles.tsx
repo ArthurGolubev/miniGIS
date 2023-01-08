@@ -1,13 +1,29 @@
-import { useQuery, useReactiveVar } from '@apollo/client'
 import * as React from 'react'
-import { AVAILABLE_FILES } from '../../queries'
 import { selectedFiles, tools } from '../../rv'
+import { AVAILABLE_FILES } from '../../restQueries'
+import { useQuery, useReactiveVar } from '@apollo/client'
 
 
 export const AvailableFiles = () => {
     const toolsSub = useReactiveVar(tools)
-    const {data, loading} = useQuery(AVAILABLE_FILES, {variables: {to: toolsSub.show}})
+    const [state, setState] = React.useState({} as any)
+    const {data, loading} = useQuery(AVAILABLE_FILES, {
+        variables: {to: toolsSub.show},
+        onCompleted: data => {
+            let c = {} as any
+            data.availableFiles.items.map((item: any) => {
+                let key: string = Object.keys(item)[1]
+                if(key != "items"){
+                    c[key] = item[key]
+                }
+            })
+            setState(c)
+        }
+    })
     const selectedFilesSub = useReactiveVar(selectedFiles)
+
+
+    console.log('SOME PERERESOVALOS! -> ', data)
 
     return <div className='col-11'>
 
@@ -22,7 +38,7 @@ export const AvailableFiles = () => {
                         }})}>
                         <option>...</option>
                         {
-                            data && !loading && Object.keys(data.availableFiles).map(key => {
+                            state && !loading && Object.keys(state).map(key => {
                                 return <option key={key} value={key}>{key}</option>
                             })
                         }
@@ -39,8 +55,8 @@ export const AvailableFiles = () => {
                         onChange={e => selectedFiles({...selectedFilesSub, product: e.target.value})}>
                         <option>...</option>
                         {
-                            data && !loading && selectedFilesSub?.satellite &&
-                            Object.keys(data.availableFiles[selectedFilesSub.satellite]).map(key => {
+                            state && !loading && selectedFilesSub?.satellite &&
+                            Object.keys(state[selectedFilesSub.satellite]).map(key => {
                                 return <option key={key} value={key}>{key}</option>
                             })
                         }
@@ -53,8 +69,8 @@ export const AvailableFiles = () => {
             <div className='col-12'>
                 <div>Слои</div>
                 {
-                    data && !loading && selectedFilesSub?.product && selectedFilesSub?.satellite && 
-                    Object.entries(data.availableFiles[selectedFilesSub.satellite][selectedFilesSub.product]).map((entry: Array<any>, iter: number) => {
+                    state && !loading && selectedFilesSub?.product && selectedFilesSub?.satellite && 
+                    Object.entries(state[selectedFilesSub.satellite][selectedFilesSub.product]).map((entry: Array<any>, iter: number) => {
                         console.log("key ->", entry[0])
                         return <div className={toolsSub.show == "Classification" ? 'col-12' : 'col-4'} key={iter}>
                             <div className="form-check form-check-inline">
@@ -72,6 +88,12 @@ export const AvailableFiles = () => {
                         </div>
                     })
                 }
+            </div>
+        </div>
+
+        <div className='row justify-content-center'>
+            <div className='col-auto'>
+                <button onClick={()=>console.log('data ->', data)} className='btn btn-sm btn-success' type='button'>data</button>
             </div>
         </div>
 

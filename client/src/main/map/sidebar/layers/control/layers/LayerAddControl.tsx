@@ -1,9 +1,6 @@
 import * as React from 'react'
-import { Raster } from '../newLayer/raster/Raster'
-import { NewVec } from '../newLayer/vec/NewVec'
-import { OpenVec } from '../newLayer/vec/OpenVec'
+import { OpenRaster } from '../newLayer/raster/OpenRaster'
 import { Vec } from '../newLayer/vec/Vec'
-import Dropdown from 'react-bootstrap/Dropdown';
 
 
 
@@ -47,7 +44,7 @@ export const LayerAddControl = () => {
             <div className='row justify-content-center'>
                 <div className='col-12'>
                     {state == 'vec' && <Vec showLayerAddControl={setState} />}
-                    {state == 'raster' && <Raster showLayerAddControl={setState} />}
+                    {state == 'raster' && <OpenRaster showLayerAddControl={setState} />}
                 </div>
             </div>
 

@@ -13,12 +13,14 @@ from pathlib import Path
 from loguru import logger
 from datetime import datetime
 from shapely.geometry import Polygon
-from Types import ToastMessage, GeoJSON
-from Types import AddLayerTM
+from models import ToastMessage, GeoJSON
+from models import AddLayerTM
 from pyproj import Transformer
 from .EarthEngine import EarthEngine
 from .YandexDiskHadler import YandexDiskHandler
 from io import BytesIO
+from fastapi.encoders import jsonable_encoder
+
 
 
 
@@ -218,8 +220,8 @@ class FileHandler(YandexDiskHandler):
             header='Добавлен слой',
             message=f'',
             datetime=datetime.now(),
-            img_url=img_url,
-            metadata=metadata
+            imgUrl=img_url,
+            meta=metadata
         )
     
 
@@ -236,7 +238,6 @@ class FileHandler(YandexDiskHandler):
             "Clip": '/miniGIS/images/raw',
             "Stack": '/miniGIS/images/clipped',
             "Classification": '/miniGIS/images/stack',
-            # "View": "/miniGIS/images/classification/"
         }
         for path in images_path.values():
             self._make_yandex_dir_recursively(path)
@@ -262,8 +263,8 @@ class FileHandler(YandexDiskHandler):
 
 
 
-    def clip_to_mask(self, files: list[str], mask: list[GeoJSON]) -> ToastMessage:
-        g = mask[0].geometry["coordinates"]
+    def clip_to_mask(self, files: list[str], mask: GeoJSON) -> ToastMessage:
+        g = mask.geometry["coordinates"]
         d1 = {'col1': ['mask'], 'geometry': [Polygon(g[0])]}
         gdf = gpd.GeoDataFrame(d1, crs="EPSG:4326")
         # gdf = gpd.GeoDataFrame(d1, crs="EPSG:32630")
@@ -272,8 +273,8 @@ class FileHandler(YandexDiskHandler):
             self.y.download(band_path, temp_file)
             
             band_crs = es.crs_check(temp_file)
-            mask[0] = gdf.to_crs(band_crs)
-            clipped = rxr.open_rasterio(temp_file, masked=True).rio.clip(mask[0].geometry, from_disk=True).squeeze()
+            mask = gdf.to_crs(band_crs)
+            clipped = rxr.open_rasterio(temp_file, masked=True).rio.clip(mask.geometry, from_disk=True).squeeze()
             os.remove(temp_file)
 
             path = band_path.split('/')

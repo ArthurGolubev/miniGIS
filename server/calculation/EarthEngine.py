@@ -47,7 +47,7 @@ class EarthEngine(YandexDiskHandler):
 
 
     @time_metr
-    def search_images(self, poi: Coordinates, date: Period,  sensor: str = 'LC08') -> SearchImagesTM:
+    def search_preview(self, poi: Coordinates, date: Period,  sensor: str = 'LC08') -> SearchImagesTM:
         point = ee.Geometry.Point(poi.lon, poi.lat)
 
         if sensor in self.landsat:
@@ -106,6 +106,7 @@ class EarthEngine(YandexDiskHandler):
 
     @time_metr
     def download_sentinel(self, sentinel_meta: SentinelDownload, sensor: str, system_index: str, metadata: str) -> ToastMessage:
+        logger.debug("HELLO!")
         UTM_ZONE        = sentinel_meta.mgrs_tile[:2]
         LATITUDE_BAND   = sentinel_meta.mgrs_tile[2:3]
         GRID_SQUARE     = sentinel_meta.mgrs_tile[3:]
