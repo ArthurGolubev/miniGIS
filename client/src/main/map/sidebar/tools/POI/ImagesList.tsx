@@ -13,6 +13,7 @@ export const ImagesList = () => {
     
     const [getImagePreview, {data: data2, loading: loading2, error: error2}] = useLazyQuery(GET_PREVIEW)
     const getImagePreviewHandler = (metadata: any) => {
+        console.log('%cok -> ', 'color: green; background: yellow; font-size: 30px')
         isLoading(true)
         getImagePreview({variables: {
             systemIndex: metadata["system:index"],
@@ -64,13 +65,13 @@ export const ImagesList = () => {
                         return <li key={iter} className="mb-1">
                             <div className="d-grid gap-2 col-10 mx-auto">
                                 <button className="btn btn-sm btn-outline-primary"
-                                onClick={()=>getImagePreviewHandler(item)}
+                                onClick={() => getImagePreviewHandler(item)}
                                 disabled={loading2}>
                                     {
                                         `
                                         ${item.DATE_ACQUIRED ? (item.DATE_ACQUIRED) : (new Date(item.GENERATION_TIME).toISOString().slice(0, 10))} 
                                         Cloud Cover 
-                                        ${item.CLOUD_COVER ? (item.CLOUD_COVER.toFixed(2)) : (item.CLOUD_COVER_ASSESSMENT.toFixed(2))} %
+                                        ${item.CLOUD_COVER ? (item.CLOUD_COVER.toFixed(2)) : (item.CLOUD_COVERAGE_ASSESSMENT.toFixed(2))} %
                                         `
                                     }
                                 </button>

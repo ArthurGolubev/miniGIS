@@ -18,7 +18,7 @@ export const AvailableFiles = () => {
                 }
             })
             setState(c)
-        }
+        },
     })
     const selectedFilesSub = useReactiveVar(selectedFiles)
 

@@ -1,38 +1,57 @@
 import { useMutation } from '@apollo/client'
 import * as React from 'react'
-import { REGISTRATION, TEST_REST_API, TEST_REST_API_2, TEST_REST_API_3 } from './mutations'
-
+import { REGISTRATION } from './restMutations'
+import { useNavigate } from "react-router"
+import isEmail from 'validator/lib/isEmail'
+import isStrongPassword from 'validator/lib/isStrongPassword'
 
 
 export const Registration = () => {
     const [registration] = useMutation(REGISTRATION, {fetchPolicy: 'network-only'})
-    const [someTest] = useMutation(TEST_REST_API, {
-        fetchPolicy: 'network-only',
-        onCompleted: data => console.log('someTestData ->', data)
-    })
-    
-    const [someTest2] = useMutation(TEST_REST_API_2, {
-        fetchPolicy: 'network-only',
-    })
-
-    const [someTest3] = useMutation(TEST_REST_API_3, {
-        fetchPolicy: "network-only"
-    })
+    const [state, setState] = React.useState({validPassword: true, validEmal: true, validLogin: true})
+    const redirect = useNavigate()
 
     const registrationHandler = () => {
         let login = (document.querySelector('#input-login') as HTMLInputElement)
-        let password = (document.querySelector('#input-password') as HTMLInputElement)
-        registration({
-            variables: {
-                login: login.value,
-                password: password.value
-            },
-            onCompleted: data => {
-                localStorage.setItem("miniGISToken", data.registration)
-                login.value = ''
-                password.value = ''
-            }
-        })
+        let email = (document.querySelector('#input-email') as HTMLInputElement)
+        let password1 = (document.querySelector('#input-password-1') as HTMLInputElement)
+        let password2 = (document.querySelector('#input-password-2') as HTMLInputElement)
+        
+        let validLogin = login.value.match(/^[A-Za-z1-9]+$/) != null
+        let validPassword = (password1.value == password2.value) && password1.value != '' && password1.value.length > 6
+
+        let validEmal = email.value.includes("@") && email.value.includes(".")
+        if(validEmal){
+            let emailName = email.value.split("@")[0]
+            let emailDomen = email.value.split("@")[1]
+            if(emailName == '' || emailName.length < 2) validEmal = false
+
+            let domenBeforDot = emailDomen.split(".")[0]
+            let domenAfterDot = emailDomen.split(".")[1]
+            if(domenBeforDot == '' || domenBeforDot.length < 2) validEmal = false
+            if(domenAfterDot == '' || domenAfterDot.length < 2 || domenAfterDot.match(/^[1-9]+$/)) validEmal = false
+        }
+
+        setState({ validPassword: validPassword, validEmal: validEmal, validLogin: validLogin })
+        if(validEmal && validPassword && validLogin){
+            registration({
+                variables: {
+                    newUser: {
+                        username: login.value,
+                        email: email.value,
+                        password: password1.value
+                    }
+                },
+                onCompleted: data => {
+                    localStorage.setItem("miniGISToken", data.registration)
+                    login.value = ''
+                    email.value = ''
+                    password1.value = ''
+                    password2.value = ''
+                    redirect("/authorization")
+                }
+            })
+        }
     }
 
     return <div className='row justify-content-center' style={{height: '65vh'}}>
@@ -47,42 +66,42 @@ export const Registration = () => {
                         <div className='row justify-content-center'>
                             <label htmlFor='input-login' className='col-5 col-form-label'>Login:</label>
                             <div className='col'>
-                                <input type='text' id='input-login' className='form-control form-control-sm' />
+                                <input type='text' id='input-login'
+                                className={state.validLogin ? 'form-control form-control-sm' : 'form-control form-control-sm is-invalid'}
+                                />
+                            </div>
+                        </div>
+
+                        <div className='row justify-content-center'>
+                            <label htmlFor='input-email' className='col-5 col-form-label'>Email:</label>
+                            <div className='col'>
+                                <input type='email' id='input-email'
+                                className={state.validEmal ? 'form-control form-control-sm' : 'form-control form-control-sm is-invalid'}
+                                />
                             </div>
                         </div>
                             
                         <div className='row justify-content-center'>
-                            <label htmlFor='input-passowrd' className='col-5 col-form-label'>Password:</label>
+                            <label htmlFor='input-passowrd-1' className='col-5 col-form-label'>Password:</label>
                             <div className='col'>
-                                <input type='password' id='input-password' className='form-control form-control-sm'/>
+                                <input type='password' id='input-password-1' 
+                                className={state.validPassword ? 'form-control form-control-sm' : 'form-control form-control-sm is-invalid'}
+                                />
+                            </div>
+                        </div>
+
+                        <div className='row justify-content-center'>
+                            <label htmlFor='input-passowrd-2' className='col-5 col-form-label'>Password:</label>
+                            <div className='col'>
+                                <input type='password' id='input-password-2'
+                                className={state.validPassword ? 'form-control form-control-sm' : 'form-control form-control-sm is-invalid'}
+                                />
                             </div>
                         </div>
 
                         <div className='row justify-content-center mt-3'>
                             <div className='col-auto'>
                                 <button onClick={()=>registrationHandler()} className='btn btn-sm btn-primary' type='button'>Зарегистрироваться</button>
-                            </div>
-                        </div>
-
-                        <div className='row justify-content-center mt-3'>
-                            <div className='col-auto'>
-                                <button onClick={()=>someTest({variables: {q: '1000'}})} className='btn btn-sm btn-success' type='button'>someRead</button>
-                            </div>
-                        </div>
-
-                        <div className='row justify-content-center mt-3'>
-                            <div className='col-auto'>
-                                <button onClick={()=>someTest2({variables: {id: '1000'}})} className='btn btn-sm btn-success' type='button'>someRead2</button>
-                            </div>
-                        </div>
-
-                        <div className='row justify-content-center mt-3'>
-                            <div className='col-auto'>
-                                <button onClick={()=>someTest3({
-                                    variables: {
-                                        input: {awesome: '1000'}
-                                    }
-                                    })} className='btn btn-sm btn-success' type='button'>someRead3</button>
                             </div>
                         </div>
 

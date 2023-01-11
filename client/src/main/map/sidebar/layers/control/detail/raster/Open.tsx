@@ -10,7 +10,8 @@ import { ClassificationRaster, PreviewRaster, RasterInterface } from '../../../.
 
 export const Open = ({showAddImgMenu}: {showAddImgMenu: (key: boolean) => void}) => {
     const {data, loading} = useQuery(TREE_AVAILABLE_FILES, {
-        fetchPolicy: 'network-only', onCompleted: data => {
+        fetchPolicy: 'network-only',
+        onCompleted: data => {
             isLoading(false)
             let c = {} as any
             data.treeAvailableFiles.items.map((item: any) => {
@@ -20,7 +21,8 @@ export const Open = ({showAddImgMenu}: {showAddImgMenu: (key: boolean) => void})
                 }
             })
             treeAvailableFiles(c)
-        }})
+        },
+    })
     const [addLayer] = useLazyQuery(ADD_LAYER, {fetchPolicy: "network-only"})
     const mapObjSub = useReactiveVar(mapObj) as any
     const layersSub = useReactiveVar(layers)

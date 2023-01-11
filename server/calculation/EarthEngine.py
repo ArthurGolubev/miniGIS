@@ -1,7 +1,5 @@
 import ee
-import os
 import gzip
-import yadisk
 
 from time import time
 from io import BytesIO
@@ -9,7 +7,7 @@ from loguru import logger
 from google.cloud import storage
 from datetime import datetime, timedelta
 from .YandexDiskHadler import YandexDiskHandler
-from Types import Coordinates, LandsatDownload, Period, SentinelDownload, ToastMessage, SearchImagesTM, PreviewTM
+from models import Coordinates, DownloadLandsat, Period, DownloadSentinel, ToastMessage, SearchPreviewTM, PreviewTM
 
 
 
@@ -47,7 +45,7 @@ class EarthEngine(YandexDiskHandler):
 
 
     @time_metr
-    def search_preview(self, poi: Coordinates, date: Period,  sensor: str = 'LC08') -> SearchImagesTM:
+    def search_preview(self, poi: Coordinates, date: Period,  sensor: str = 'LC08') -> SearchPreviewTM:
         point = ee.Geometry.Point(poi.lon, poi.lat)
 
         if sensor in self.landsat:
@@ -60,7 +58,7 @@ class EarthEngine(YandexDiskHandler):
         img_metadata = []
         for p in images.getInfo()['features']:
             img_metadata.append(p["properties"])
-        return SearchImagesTM(
+        return SearchPreviewTM(
             images=img_metadata,
             header='Поиск снимков',
             message=f'Найдено {len(img_metadata)} снимков',
@@ -105,7 +103,7 @@ class EarthEngine(YandexDiskHandler):
 
 
     @time_metr
-    def download_sentinel(self, sentinel_meta: SentinelDownload, sensor: str, system_index: str, metadata: str) -> ToastMessage:
+    def download_sentinel(self, sentinel_meta: DownloadSentinel, sensor: str, system_index: str, metadata: str) -> ToastMessage:
         logger.debug("HELLO!")
         UTM_ZONE        = sentinel_meta.mgrs_tile[:2]
         LATITUDE_BAND   = sentinel_meta.mgrs_tile[2:3]
@@ -143,7 +141,7 @@ class EarthEngine(YandexDiskHandler):
 
 
     @time_metr
-    def download_landsat(self, landsat_download: LandsatDownload, sensor: str, system_index: str, metadata: str) -> ToastMessage:
+    def download_landsat(self, landsat_download: DownloadLandsat, sensor: str, system_index: str, metadata: str) -> ToastMessage:
         SENSOR_ID           = landsat_download.sensor_id
         PATH                = landsat_download.path.zfill(3)
         ROW                 = landsat_download.row.zfill(3)

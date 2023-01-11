@@ -25,6 +25,7 @@ yadisk = "^1.2.17"
 sqlmodel = "^0.0.8"
 python-jose = {extras = ["cryptography"], version = "^3.3.0"}
 passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+pyhumps = "^3.8.0"
 
 [tool.poetry.dev-dependencies]
 

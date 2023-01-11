@@ -1,5 +1,5 @@
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from loguru import logger
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
@@ -26,14 +26,20 @@ from calculation.Classifier import Classifier
 
 
 
-router = APIRouter()
+from auth import get_current_user
+
+
+router = APIRouter(
+    prefix='/workflow',
+    dependencies=[Depends(get_current_user)]
+    )
 
 
 
 
 
 
-@router.post('/workflow/download-sentinel', response_model=ToastMessage)
+@router.post('/download-sentinel', response_model=ToastMessage)
 async def download_sentinel(input: DownloadSentinel):
     
     return EarthEngine().download_sentinel(
@@ -44,7 +50,7 @@ async def download_sentinel(input: DownloadSentinel):
         )
 
 
-@router.post('/workflow/download-landsat', response_model=ToastMessage)
+@router.post('/download-landsat', response_model=ToastMessage)
 async def download_landsat(input: DownloadLandsat):
     
     return EarthEngine().download_landsat(
@@ -55,12 +61,12 @@ async def download_landsat(input: DownloadLandsat):
         )
 
 
-@router.post('/workflow/clip-to-mask', response_model=ToastMessage)
+@router.post('/clip-to-mask', response_model=ToastMessage)
 async def clip_to_mask(input: ClipToMask):
     return FileHandler().clip_to_mask(input.files, mask=input.mask)
 
 
-@router.post('/workflow/stack-bands', response_model=ToastMessage)
+@router.post('/stack-bands', response_model=ToastMessage)
 async def stack_bands(files: list[str]):
     return FileHandler().stack_bands(files)
 
@@ -70,40 +76,40 @@ async def classify_k_mean(options: KMeanOptions):
     return Classifier().k_mean(options.file_path, options.k)
 
 
-@router.post('/workflow/search-preview', response_model=SearchPreviewTM)
+@router.post('/search-preview', response_model=SearchPreviewTM)
 async def search_preview(input: SearchPreview):
     return EarthEngine().search_preview(input.poi, input.date, input.sensor)
 
 
-@router.get('/workflow/get-image-preview/{sensor}/{system_index}', response_model=PreviewTM)
+@router.get('/get-image-preview/{sensor}/{system_index}', response_model=PreviewTM)
 async def get_image_preview(sensor: str, system_index: str):
     return EarthEngine().show_images_preview(sensor=sensor, system_index=system_index)
 
 
-@router.get('/workflow/available-files/{to}')
+@router.get('/available-files/{to}')
 def available_files(to: str):
     c = FileHandler().available_files(to)
     response = jsonable_encoder(c)
     return JSONResponse(content=response)
 
 
-@router.get('/workflow/tree-available-files')
+@router.get('/tree-available-files')
 async def tree_available_files():
     return FileHandler().tree_available_files()
 
 
-@router.post('/workflow/add-layer', response_model=AddLayerTM)
+@router.post('/add-layer', response_model=AddLayerTM)
 async def add_layer(input: AddLayerOptions):
     return FileHandler().add_layer(input.scope, input.satellite, input.product, input.target)
 
 
-@router.post('/workflow/shp-save')
+@router.post('/shp-save')
 async def shp_save(input: ShpSave):
     FileHandler().shp_save(input.shp_name, input.layer)
 
 
 
-@router.post('/workflow/shp-read')
+@router.post('/shp-read')
 def shp_read(input: ShpRead):
     logger.info(f"HELLO FROM SHP_READ!")
     return FileHandler().shp_read(input.shp_name)
