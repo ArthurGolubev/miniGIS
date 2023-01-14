@@ -18,8 +18,8 @@ from .YandexDiskHadler import YandexDiskHandler
 
 
 class Classifier(YandexDiskHandler):
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, user) -> None:
+        super().__init__(user=user)
 
     def k_mean(self, file_path: str, k: int) -> ClassificationTM:
         logger.info(f'{file_path=}')

@@ -8,7 +8,11 @@ export const REGISTRATION = gql`
             path: "/user/create",
             method: "POST",
             bodyKey: "newUser"
-        )
+        ){
+            id
+            username
+            email
+        }
     }
 `
 
@@ -24,5 +28,45 @@ export const AUTHORIZATION = gql`
             accessToken
             tokenType
         }
+    }
+`
+
+export const GET_ME = gql`
+    query get_me_mutation{
+        getMe
+        @rest(
+            type: "getMeType",
+            path: "/user/get-me"
+            method: "GET"
+        ){
+            id
+            username
+            email
+            yandexToken
+        }
+    }
+`
+
+export const GET_YANDEX_DISK_AUTH_URL = gql`
+    query get_yandex_disk_auth_url_query{
+        getYandexDiskAuthUrl
+        @rest(
+            type: "getYandexDiskAuthUrlType"
+            path: "/user/get-yandex-disk-auth-url"
+            method: "GET"
+        ){
+            url
+        }
+    }
+`
+
+export const GET_YANDEX_DISK_TOKEN = gql`
+    query get_yandex_disk_token_query{
+        getYandexDiskToken(code: $code)
+        @rest(
+            type: "getYandexDiskTokenType"
+            path: "/user/get-yandex-disk-token/{args.code}"
+            method: "GET"
+        )
     }
 `

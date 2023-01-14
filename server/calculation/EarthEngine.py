@@ -22,10 +22,10 @@ def time_metr(func):
 
 
 class EarthEngine(YandexDiskHandler):
-    def __init__(self):
+    def __init__(self, user):
         self.landsat = ['LC08']
         self.sentinel = ['S2']
-        super().__init__()
+        super().__init__(user=user)
         try:
             ee.Initialize()
         except:

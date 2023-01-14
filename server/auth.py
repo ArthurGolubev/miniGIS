@@ -72,6 +72,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
 
 
 async def get_current_user(*, token: str = Depends(oauth2_scheme), session: Session = Depends(get_session)):
+    logger.success(123)
     logger.info(f"{token=}")
     credentinal_exeption = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,

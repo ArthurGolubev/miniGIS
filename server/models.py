@@ -171,7 +171,7 @@ class Hero(SQLModel, table=True):
 ''' -------------------------------------------User-Start------------------------------------------ '''
 
 class UserBase(SQLModel):
-    username: str = Field(index=True)
+    username: str = Field(index=True, unique=True)
     email: str = Field(unique=True)
 
 
@@ -192,6 +192,12 @@ class User1Create(UserBase):
 
 class User1Read(UserBase):
     id: int
+    yandex_token: str | None
+
+    class Config:
+        alias_generator = to_camel
+        allow_population_by_field_name = True
+
 
 
 ''' -------------------------------------------User-End-------------------------------------------- '''

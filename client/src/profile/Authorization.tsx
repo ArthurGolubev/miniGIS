@@ -1,21 +1,30 @@
-import { useMutation } from '@apollo/client'
 import * as React from 'react'
 import { useNavigate } from 'react-router'
-import { AUTHORIZATION } from './restMutations'
+import { useMutation, useQuery } from '@apollo/client'
+import { AUTHORIZATION, GET_ME } from './restMutations'
 
 
 
 export const Authorization = () => {
-    const [state, setState] = React.useState({ validPassword: true, validLogin: true })
-    const [login] = useMutation(AUTHORIZATION)
     const redirect = useNavigate()
+    const [state, setState] = React.useState({ validPassword: true, validLogin: true })
+    const [login, {data: token}] = useMutation(AUTHORIZATION, {fetchPolicy: 'network-only'})
+    const {data} = useQuery(GET_ME, {
+        skip: !token?.loginForAccessTokenFromClient?.accessToken,
+        fetchPolicy: "network-only",
+        onCompleted: user => {
+            if(!user.getMe?.yandexToken){
+                redirect("/yandex-authorization")
+            } else {
+                redirect('/main')
+            }
+        }
+    })
 
     
     const authorizationHandler = () => {
         let username = (document.querySelector('#input-login') as HTMLInputElement)
         let password = (document.querySelector('#input-password') as HTMLInputElement)
-        console.log('%cusername.value -> ', 'color: green; background: yellow; font-size: 30px', username.value)
-        console.log('%cpassword.value -> ', 'color: green; background: yellow; font-size: 30px', password.value)
         login({
             variables: {
                 user: {
@@ -25,7 +34,6 @@ export const Authorization = () => {
             },
             onCompleted: data => {
                 localStorage.setItem('miniGISToken', data.loginForAccessTokenFromClient.accessToken)
-                redirect('/main')
             }
         })
     }

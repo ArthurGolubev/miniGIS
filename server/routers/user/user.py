@@ -23,41 +23,48 @@ from models import UserAuthorization
 from database import get_session
 
 
-
-
-
-router = APIRouter()
+from calculation.YandexDiskHadler import YandexDiskHandler
 
 
 
 
-@router.post('/users/me', response_model=User)
+
+router = APIRouter(prefix='/user')
+
+
+
+
+@router.get('/get-me', response_model=User1Read)
 async def read_user_me(current_user: User = Depends(get_current_user)):
-    logger.warning(__name__)
-    logger.info(f"{current_user=}")
-    # не использую
+    logger.debug(__name__)
     return current_user
 
 
 
-@router.get("/users/me/items/")
+
+@router.get("/me/items/")
 async def read_own_items(current_user: User = Depends(get_current_user)):
     # не использую
     return [{"item_id": "Foo", "owner": current_user.username}]
 
 
 
-@router.post('/user/create', response_model=User1Read)
+
+@router.post('/create', response_model=User1Read)
 async def create_user(*, session = Depends(get_session), user: User1Create):
     user.password = get_password_hash(user.password)
     db_user1 = User1.from_orm(user)
     session.add(db_user1)
     session.commit()
+    logger.success('123!')
     session.refresh(db_user1)
+    logger.info(f"{db_user1=}")
     return db_user1
 
 
-@router.get('/user/get-users', response_model=list[User1])
+
+
+@router.get('/get-users', response_model=list[User1])
 async def read_users(session = Depends(get_session)):
     # не использую
     users = session.exec(select(User1)).all()
@@ -65,7 +72,8 @@ async def read_users(session = Depends(get_session)):
 
 
 
-@router.get('/user/{user_id}')
+
+@router.get('/get/{user_id}')
 async def read_user(*, session = Depends(get_session), user_id: int):
     # не использую
     user = session.get(User1, user_id)
@@ -75,13 +83,38 @@ async def read_user(*, session = Depends(get_session), user_id: int):
 
 
 
-@router.post("/user/get-token-from-client", response_model=Token)
+
+@router.get("/get-yandex-disk-auth-url")
+async def get_yandex_disk_auth_url():
+    url = YandexDiskHandler().get_yandex_disk_auth_url()
+    return {"url": url}
+
+
+
+
+@router.get('/get-yandex-disk-token/{code}')
+async def get_yandex_disk_token(code: str, user: User1 = Depends(get_current_user), session: Session = Depends(get_session)):
+    logger.warning('OK!')
+    logger.info(f"{code=}")
+    logger.info(f"{user=}")
+    token = YandexDiskHandler().get_yandex_disk_token(code)
+    if not token:
+        raise HTTPException(
+            status_code=500,
+            detail="Ошибка добавления пользовательского Yandex Disk"
+        )
+    logger.success(f"{token=}")
+    user.yandex_token = token
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+    return user
+
+
+
+
+@router.post("/get-token-from-client", response_model=Token)
 async def login_for_access_token_from_client(*, session = Depends(get_session), user: UserAuthorization):
     return login_for_access_token(user=user, session=session)
 
 
-
-@router.post("/user/test-headers")
-async def test_headers(authorization: str | None = Header(default=None)):
-    logger.info(f"{authorization=}")
-    return None

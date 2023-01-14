@@ -3,7 +3,7 @@ from sqlmodel import SQLModel, create_engine
 
 
 
-sqlite_file_name = "database.db"
+sqlite_file_name = "db.db"
 sqlite_url = f"sqlite:///{sqlite_file_name}"
 
 

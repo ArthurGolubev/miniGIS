@@ -35,10 +35,12 @@ def on_startup():
 
 
 
-@app.post("/token", response_model=Token)
+@app.post("/miniGISToken", response_model=Token)
 async def login_for_access_token_from_api( body: OAuth2PasswordRequestForm = Depends(), session = Depends(get_session)):
     # Почему-то должен быть имено в корне проекта, через APIRouter не работает.
     # Скорее всего связано с OAuth2PasswordRequestForm
+    # Оставил для возможности авторизироваться через форму на /docs
+    # Для обычной авторизации с клиента сделал login_for_access_token_from_client в /routers/user/user
     return login_for_access_token(user=body, session=session)
 
 

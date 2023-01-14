@@ -26,8 +26,8 @@ from fastapi.encoders import jsonable_encoder
 
 class FileHandler(YandexDiskHandler):
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, user=None):
+        super().__init__(user=user)
         self._make_yandex_dir_recursively('/miniGIS/images')
 
     
@@ -345,8 +345,8 @@ class FileHandler(YandexDiskHandler):
 
 
     def get_yandex_disk_token(self):
-        t = os.getenv('YANDEX_TOKEN')
-        logger.success(t)
+        t = os.getenv('YANDEX_DISK_TOKEN_FOR_APP_MINIGIS')
+        # logger.success(t)
 
         y = yadisk.YaDisk(id=os.getenv('YANDEX_API_CLIENT_ID'), secret=os.getenv('YANDEX_API_CLIENT_SECRET'))
         url = y.get_code_url()
@@ -370,11 +370,11 @@ class FileHandler(YandexDiskHandler):
             logger.warning('token not received')
         
         return response
-        # yadisk.YaDisk(os.getenv(f'YANDEX_TOKEN'))
+        # yadisk.YaDisk(os.getenv(f'YANDEX_DISK_TOKEN_FOR_APP_MINIGIS'))
 
 
     def check_yandex_disk_info(self):
-        y = yadisk.YaDisk(token=os.getenv('YANDEX_TOKEN'))
+        y = yadisk.YaDisk(token=os.getenv('YANDEX_DISK_TOKEN_FOR_APP_MINIGIS'))
         response = y.get_disk_info()
 
         logger.info(f"{response=}")

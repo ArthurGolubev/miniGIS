@@ -15,6 +15,7 @@ import { RestLink } from "apollo-link-rest"
 import { snakeCase  as snake_case } from 'snake-case'
 import { Authorization } from "./profile/Authorization"
 import { GraphQLNetworkError } from "./main/map/types/main/GraphQLNetworkErrorType"
+import { YandexAuthorization } from "./profile/YandexAuthorization"
 
 const root = ReactDOM.createRoot(document.querySelector("#root"))
 
@@ -87,18 +88,18 @@ const createApolloClient = () => {
         }
         let err = networkError as unknown as GraphQLNetworkError
         if(err){
-            redirectTo({url: '/authorization'})
+            console.log(networkError)
             toasts({
                 [new Date().toLocaleString()]: {
-                    header: `Ошибка: ${err.response.statusText}`,
-                    message: `Сообщение: ${err.result.detail}`,
+                    header: `Ошибка: ${err.response?.statusText}`,
+                    message: `Сообщение: ${err.result?.detail}`,
                     datetime: new Date(),
                     show: true,
                     color: 'text-bg-danger'
                 }
             })
-            console.log(networkError)
             isLoading(false)
+            if (err?.statusCode == 401) redirectTo({url: '/authorization'})
         }
     })
 
@@ -130,10 +131,14 @@ const router = createHashRouter([
             {
                 path: 'authorization',
                 element: <Authorization />
+            },
+            {
+                path: 'yandex-authorization',
+                element: <YandexAuthorization />
             }
         ]
     },
-]);
+])
 
 root.render(
     <ApolloProvider client={createApolloClient()}>
