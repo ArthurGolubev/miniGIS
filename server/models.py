@@ -74,6 +74,11 @@ class ClassificationTM(ToastMessage):
     coordinates: list[list[float]]
     img_url: str
 
+    class Config:
+        alias_generator = to_camel
+        allow_population_by_field_name = True
+
+
 
 
 class SearchPreviewTM(ToastMessage):
@@ -104,6 +109,10 @@ class PreviewTM(ToastMessage):
     img_url: str
     system_index: str
     sensor: str
+
+    class Config:
+        alias_generator = to_camel
+        allow_population_by_field_name = True
 
 
 

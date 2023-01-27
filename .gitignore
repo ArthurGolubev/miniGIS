@@ -11,3 +11,6 @@ __pycache__/
 *.shp
 *.dbf
 *.shx
+secret.yml
+secret.yaml
+*credential.json

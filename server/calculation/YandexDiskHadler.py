@@ -1,16 +1,13 @@
 import os
 import yadisk
-from pathlib import Path
 
 
-from models import User1
+from server.models import User1
 
 
 class YandexDiskHandler:
-    def __init__(self, user: User1 | None) -> None:
-        self.y = yadisk.YaDisk(token=User1.yandex_token)
-        Path('./cache').mkdir(parents=True, exist_ok=True)
-
+    def __init__(self, user: User1 | None = None) -> None:
+        if user: self.y = yadisk.YaDisk(token=user.yandex_token)
 
 
 

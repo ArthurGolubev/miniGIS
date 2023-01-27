@@ -2,6 +2,7 @@ import { useReactiveVar } from '@apollo/client'
 import * as React from 'react'
 import { Link } from 'react-router-dom'
 import { isLoading, showToggle, sidebar } from '../../main/map/rv'
+import { LoadingStatus } from './LoadingStatus'
 import { StackIcon } from './StackIcon'
 
 
@@ -20,7 +21,7 @@ export const NavBar = () => {
         
             <div className="collapse navbar-collapse " id="navbarNav">
                 <div className='col-auto text-center'>
-                    {isLoadingSub && <div className="spinner-grow spinner-grow-sm text-success"><span className="visually-hidden">Loading...</span></div>}
+                    {isLoadingSub && <LoadingStatus />}
                 </div>
                 <div className='ms-auto'>
                     <div className='row justify-content-center'>

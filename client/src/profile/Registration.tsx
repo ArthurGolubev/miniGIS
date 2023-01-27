@@ -43,7 +43,7 @@ export const Registration = () => {
                     }
                 },
                 onCompleted: data => {
-                    localStorage.setItem("miniGISToken", data.registration)
+                    localStorage.setItem("miniGISToken", data.registration.accessToken)
                     login.value = ''
                     email.value = ''
                     password1.value = ''

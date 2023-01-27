@@ -1,33 +1,33 @@
 
 from fastapi import APIRouter, Depends
 from loguru import logger
+from datetime import datetime
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 
-
-from models import ClassificationTM
-from models import DownloadSentinel
-from models import DownloadLandsat
-from models import ToastMessage
-from models import ClipToMask
-from models import KMeanOptions
-from models import SearchPreviewTM
-from models import SearchPreview
-from models import PreviewTM
-from models import AddLayerTM
-from models import AddLayerOptions
-from models import ShpSave
-from models import ShpRead
-from models import User1
-
-
-from calculation.EarthEngine import EarthEngine
-from calculation.FileHandler import FileHandler
-from calculation.Classifier import Classifier
+from server.models import ClassificationTM
+from server.models import DownloadSentinel
+from server.models import DownloadLandsat
+from server.models import ToastMessage
+from server.models import ClipToMask
+from server.models import KMeanOptions
+from server.models import SearchPreviewTM
+from server.models import SearchPreview
+from server.models import PreviewTM
+from server.models import AddLayerTM
+from server.models import AddLayerOptions
+from server.models import ShpSave
+from server.models import ShpRead
+from server.models import User1
 
 
+from server.calculation.EarthEngine import EarthEngine
+from server.calculation.FileHandler import FileHandler
+from server.calculation.Classifier import Classifier
 
-from auth import get_current_user
+
+
+from server.auth import get_current_user
 
 
 router = APIRouter(
@@ -41,29 +41,17 @@ router = APIRouter(
 
 @router.post('/download-sentinel', response_model=ToastMessage)
 async def download_sentinel(input: DownloadSentinel, user: User1 = Depends(get_current_user)):
-    
-    return EarthEngine(user=user).download_sentinel(
-        input.sentinel_meta,
-        sensor=input.sensor,
-        system_index=input.system_index,
-        metadata=input.meta
-        )
+    return EarthEngine(user=user).download_sentinel(dwld_sentinel=input)
 
 
 @router.post('/download-landsat', response_model=ToastMessage)
 async def download_landsat(input: DownloadLandsat, user: User1 = Depends(get_current_user)):
-    
-    return EarthEngine(user=user).download_landsat(
-        input.landsat_meta,
-        sensor=input.sensor,
-        system_index=input.system_index,
-        metadata=input.meta
-        )
+    return EarthEngine(user=user).download_landsat(landsat_meta=input)
 
 
 @router.post('/clip-to-mask', response_model=ToastMessage)
 async def clip_to_mask(input: ClipToMask, user: User1 = Depends(get_current_user)):
-    return FileHandler(user=user).clip_to_mask(input.files, mask=input.mask)
+    return FileHandler(user=user).clip_to_mask(data=input)
 
 
 @router.post('/stack-bands', response_model=ToastMessage)

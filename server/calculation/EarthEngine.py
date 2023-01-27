@@ -1,14 +1,14 @@
+import os
 import ee
-import gzip
 
 from time import time
 from io import BytesIO
 from loguru import logger
 from google.cloud import storage
 from datetime import datetime, timedelta
-from .YandexDiskHadler import YandexDiskHandler
-from models import Coordinates, DownloadLandsat, Period, DownloadSentinel, ToastMessage, SearchPreviewTM, PreviewTM
 
+from server.calculation.YandexDiskHadler import YandexDiskHandler
+from server.models import Coordinates, DownloadLandsat, Period, DownloadSentinel, ToastMessage, SearchPreviewTM, PreviewTM
 
 
 def time_metr(func):
@@ -26,20 +26,19 @@ class EarthEngine(YandexDiskHandler):
         self.landsat = ['LC08']
         self.sentinel = ['S2']
         super().__init__(user=user)
-        try:
-            ee.Initialize()
-        except:
-            logger.error('some problem in __ee_init')
-            ee.Authenticate()
-            ee.Initialize()
+        
+        ee_creds = ee.ServiceAccountCredentials(
+            email=os.getenv("MINIGIS_EARTH_ENGINE_SERVICE_ACCOUNT_EMAIL"),
+            key_file='/miniGIS/credential/MINIGIS_EARTH_ENGINE_KEY_DATA'
+        )
+        ee.Initialize(ee_creds)
 
 
 
     def _download_blob(self, bucket_name, source_blob_name):
-        storage_client = storage.Client()
+        storage_client = storage.Client(project='minigis-375110')
         bucket = storage_client.bucket(bucket_name)
         blob = bucket.blob(source_blob_name)
-        # blob.download_to_filename(destination_file_name)
         return BytesIO(blob.download_as_string())
 
 
@@ -103,19 +102,21 @@ class EarthEngine(YandexDiskHandler):
 
 
     @time_metr
-    def download_sentinel(self, sentinel_meta: DownloadSentinel, sensor: str, system_index: str, metadata: str) -> ToastMessage:
-        logger.debug("HELLO!")
-        UTM_ZONE        = sentinel_meta.mgrs_tile[:2]
-        LATITUDE_BAND   = sentinel_meta.mgrs_tile[2:3]
-        GRID_SQUARE     = sentinel_meta.mgrs_tile[3:]
-        PRODUCT_ID      = sentinel_meta.product_id + '.SAFE'
-        GRANULE_ID      = sentinel_meta.granule_id
-        bands           = sentinel_meta.bands
+    def download_sentinel(self, dwld_sentinel: DownloadSentinel) -> ToastMessage:
+        UTM_ZONE        = dwld_sentinel.sentinel_meta.mgrs_tile[:2]
+        LATITUDE_BAND   = dwld_sentinel.sentinel_meta.mgrs_tile[2:3]
+        GRID_SQUARE     = dwld_sentinel.sentinel_meta.mgrs_tile[3:]
+        PRODUCT_ID      = dwld_sentinel.sentinel_meta.product_id + '.SAFE'
+        GRANULE_ID      = dwld_sentinel.sentinel_meta.granule_id
+        bands           = dwld_sentinel.sentinel_meta.bands
+        sensor          = dwld_sentinel.sensor
+        system_index    = dwld_sentinel.system_index
+        metadata        = dwld_sentinel.metadata
 
         yandex_disk_path = f'/miniGIS/images/raw/Sentinel/{PRODUCT_ID}'
         self._make_yandex_dir_recursively(yandex_disk_path)
         for band in bands:
-            LAYER = f"T{sentinel_meta.mgrs_tile}_{PRODUCT_ID[11:26]}_{band}.jp2"
+            LAYER = f"T{dwld_sentinel.sentinel_meta.mgrs_tile}_{PRODUCT_ID[11:26]}_{band}.jp2"
             file_io = self._download_blob(
                 "gcp-public-data-sentinel-2",
                 f"tiles/{UTM_ZONE}/{LATITUDE_BAND}/{GRID_SQUARE}/{PRODUCT_ID}/GRANULE/{GRANULE_ID}/IMG_DATA/{LAYER}",
@@ -130,10 +131,10 @@ class EarthEngine(YandexDiskHandler):
             self.y.upload(preview, yandex_disk_path + '/preview.txt', overwrite=True)
 
         return ToastMessage(
-            header=f'Загрузка завершина - Sentinel',
+            header=f'Загрузка завершена - Sentinel',
             message=f"""
                 Продукт {PRODUCT_ID},
-                Скачены слои {bands}
+                Cлои {bands}
             """,
             datetime=datetime.now()
         )
@@ -141,12 +142,15 @@ class EarthEngine(YandexDiskHandler):
 
 
     @time_metr
-    def download_landsat(self, landsat_download: DownloadLandsat, sensor: str, system_index: str, metadata: str) -> ToastMessage:
-        SENSOR_ID           = landsat_download.sensor_id
-        PATH                = landsat_download.path.zfill(3)
-        ROW                 = landsat_download.row.zfill(3)
-        bands               = landsat_download.bands
-        PRODUCT_ID          = landsat_download.product_id
+    def download_landsat(self, dwld_sentinel: DownloadLandsat) -> ToastMessage:
+        SENSOR_ID           = dwld_sentinel.landsat_meta.sensor_id
+        PATH                = dwld_sentinel.landsat_meta.path.zfill(3)
+        ROW                 = dwld_sentinel.landsat_meta.row.zfill(3)
+        bands               = dwld_sentinel.landsat_meta.bands
+        PRODUCT_ID          = dwld_sentinel.landsat_meta.product_id
+        sensor              = dwld_sentinel.sensor
+        system_index        = dwld_sentinel.system_index
+        metadata            = dwld_sentinel.metadata
 
         yandex_disk_path = f'/miniGIS/images/raw/Landsat/{PRODUCT_ID}'
         self._make_yandex_dir_recursively(yandex_disk_path)
@@ -166,36 +170,10 @@ class EarthEngine(YandexDiskHandler):
             self.y.upload(preview, yandex_disk_path + '/preview.txt', overwrite=True)
 
         return ToastMessage(
-            header=f'Загрузка завершина - Landsat',
+            header=f'Загрузка завершена - Landsat',
             message=f"""
                 Продукт {PRODUCT_ID},
-                Скачены слои {bands}
+                Слои {bands}
             """,
             datetime=datetime.now()
         )
-
-
-
-    def test_data(self):
-        granule_ids = {}
-        err = []
-        with gzip.open('sentinel.csv.gz', 'rt') as f:
-            headers = f.readline().split(',')
-            logger.debug(headers)
-            for _ in range(500000):
-                row = f.readline().split(',')
-                # for k, v in zip(headers, row):
-                #     logger.info(f"{k} - {v}")
-                d = granule_ids.get(row[0]+row[1], None)
-                if d:
-                    err.append(d)
-                    err.append(row)
-                else:
-                    granule_ids[row[0]+row[1]] = row
-
-        for e1 in sorted(err):
-            logger.info(f"{e1[1]}")
-            # for v1, v2, h in zip(e1, e2, headers):
-            #     logger.success(f"{v1==v2} {h}")
-            #     logger.info(f"{v1=} - {v2=}")
-            # print()

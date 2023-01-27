@@ -5,22 +5,19 @@ import rioxarray as rxr
 import earthpy.spatial as es
 import shapefile
 import json
-import ee
 import yadisk
 
-from glob import glob
 from pathlib import Path
 from loguru import logger
 from datetime import datetime
 from shapely.geometry import Polygon
-from models import ToastMessage, GeoJSON
-from models import AddLayerTM
 from pyproj import Transformer
-from .EarthEngine import EarthEngine
-from .YandexDiskHadler import YandexDiskHandler
 from io import BytesIO
-from fastapi.encoders import jsonable_encoder
 
+from server.models import ToastMessage, ClipToMask
+from server.models import AddLayerTM
+from server.calculation.EarthEngine import EarthEngine
+from server.calculation.YandexDiskHadler import YandexDiskHandler
 
 
 
@@ -102,9 +99,13 @@ class FileHandler(YandexDiskHandler):
             return shp.__geo_interface__
 
 
+
+
     def stack_bands(self, files: list[str]) -> ToastMessage:
         bands = sorted(files)
         temp_file = f'./cache/temp_username_{bands[0].split("/")[-1]}'
+        file_name = f"stack_{'_'.join(bands_names)}_{'_'.join(path[-1][:-4].split('_')[:-1])}.tif"
+        
         self.y.download(bands[0], temp_file)
         src = rasterio.open(temp_file)
         meta = src.meta
@@ -196,13 +197,7 @@ class FileHandler(YandexDiskHandler):
     def add_layer(self, scope, satellite, product, target) -> AddLayerTM:
         logger.debug(__name__)
         p = os.path.join('/miniGIS/images', scope, satellite, product)
-        try:
-            ee.Initialize()
-        except:
-            logger.error('some problem in __ee_init')
-            ee.Authenticate()
-            ee.Initialize()
-
+        
         if scope == 'raw':
             yandex_disk_path = os.path.join(p, 'preview.txt')
             with BytesIO() as file_io:
@@ -263,7 +258,9 @@ class FileHandler(YandexDiskHandler):
 
 
 
-    def clip_to_mask(self, files: list[str], mask: GeoJSON) -> ToastMessage:
+    def clip_to_mask(self, data: ClipToMask) -> ToastMessage:
+        mask = data.mask
+        files = data.files
         g = mask.geometry["coordinates"]
         d1 = {'col1': ['mask'], 'geometry': [Polygon(g[0])]}
         gdf = gpd.GeoDataFrame(d1, crs="EPSG:4326")
@@ -292,10 +289,9 @@ class FileHandler(YandexDiskHandler):
             self.y.upload(local_path, yandex_disk_path  + f'/{file_name}', overwrite=True)
             os.remove(local_path)
 
-
         return ToastMessage(
-            header="Обрезка завершина - output.tif",
-            message="Обрезка по маске завершина успешно",
+            header="Обрезка завершена - output.tif",
+            message="Обрезка по маске",
             datetime=datetime.now()
         )
 

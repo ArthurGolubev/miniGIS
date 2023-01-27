@@ -9,13 +9,13 @@ from sqlmodel import Session, select
 
 
 
-from models import TokenData
-from models import User
-from models import Token
-from models import User1
-from models import UserAuthorization
+from server.models import TokenData
+from server.models import User
+from server.models import Token
+from server.models import User1
+from server.models import UserAuthorization
 
-from database import get_session
+from server.database import get_session
 
 
 
@@ -67,6 +67,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     else:
         expire = datetime.utcnow() + timedelta(minutes=30000)
     to_encode.update({"exp": expire})
+    logger.warning(f"{to_encode=}")
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
@@ -96,12 +97,13 @@ async def get_current_user(*, token: str = Depends(oauth2_scheme), session: Sess
 
 
 
-def login_for_access_token(session: Session, user: UserAuthorization) -> Token:
+def login_for_access_token(user: UserAuthorization, session: Session) -> Token:
     user = authenticate_user(
         session=session,
         username=user.username,
         password=user.password
         )
+    logger.info(f"{user=}")
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -109,6 +111,7 @@ def login_for_access_token(session: Session, user: UserAuthorization) -> Token:
             headers={"WWW-Authenticate": "Bearer"},
         )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+
     access_token = create_access_token(
         data={"sub": user.username}, expires_delta=access_token_expires
     )

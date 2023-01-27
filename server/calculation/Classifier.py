@@ -1,18 +1,18 @@
 import rasterio
-from glob import glob
 import os
 from loguru import logger
 from sklearn import cluster
 from rasterio.plot import reshape_as_image, reshape_as_raster
 from skimage.io import imsave
-from models import ClassificationTM
 from datetime import datetime
 from pathlib import Path
-from .FileHandler import FileHandler
 from matplotlib.pyplot import imread
 from matplotlib.pyplot import imsave as matplotlib_imsave
 from matplotlib import colormaps
-from .YandexDiskHadler import YandexDiskHandler
+
+from server.models import ClassificationTM
+from server.calculation.FileHandler import FileHandler
+from server.calculation.YandexDiskHadler import YandexDiskHandler
 
 
 

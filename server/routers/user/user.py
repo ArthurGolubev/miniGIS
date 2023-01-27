@@ -1,29 +1,27 @@
 from loguru import logger
-from sqlmodel import SQLModel, Session, select, exists
-from datetime import datetime, timedelta
-from fastapi.security import OAuth2PasswordRequestForm
-from fastapi import APIRouter, Depends, HTTPException, status, Header
+from sqlmodel import Session, select
+from fastapi import APIRouter, Depends, HTTPException
 
 
 
-from auth import get_current_user
-from auth import get_password_hash
-from auth import login_for_access_token
+from server.auth import get_current_user
+from server.auth import get_password_hash
+from server.auth import login_for_access_token
 
 
 
-from models import User
-from models import User1
-from models import Token
-from models import User1Read
-from models import User1Create
-from models import UserAuthorization
+from server.models import User
+from server.models import User1
+from server.models import Token
+from server.models import User1Read
+from server.models import User1Create
+from server.models import UserAuthorization
 
 
-from database import get_session
+from server.database import get_session
 
 
-from calculation.YandexDiskHadler import YandexDiskHandler
+from server.calculation.YandexDiskHadler import YandexDiskHandler
 
 
 

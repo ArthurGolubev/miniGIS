@@ -13,7 +13,7 @@ export const ImagesList = () => {
     
     const [getImagePreview, {data: data2, loading: loading2, error: error2}] = useLazyQuery(GET_PREVIEW)
     const getImagePreviewHandler = (metadata: any) => {
-        console.log('%cok -> ', 'color: green; background: yellow; font-size: 30px')
+        console.log('жмяк')
         isLoading(true)
         getImagePreview({variables: {
             systemIndex: metadata["system:index"],
@@ -22,6 +22,7 @@ export const ImagesList = () => {
         fetchPolicy: 'network-only',
         onCompleted: data => {
             let coordinates = metadata["system:footprint"]["coordinates"]
+            console.log('some data -> ', data)
             L.geoJSON().addTo(mapObjSub).addData({type: 'LineString', coordinates: coordinates} as any)
             let layer = L.imageOverlay(data.getImagePreview.imgUrl, coordinates.map((point: Array<number>) => [point[1], point[0]]) ) as any
 
