@@ -10,7 +10,7 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
 spec:
   rules:
-  - host: minigis.test.info
+  - host: minigis.in-arthurs-apps.space
     http:
       paths:
       - pathType: Prefix
@@ -19,4 +19,4 @@ spec:
           service:
             name: minigis-service-node-port
             port: 
-              number: 8000
+              number: 80

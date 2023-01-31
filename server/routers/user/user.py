@@ -1,6 +1,7 @@
 from loguru import logger
 from sqlmodel import Session, select
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import RedirectResponse
 
 
 
@@ -92,9 +93,7 @@ async def get_yandex_disk_auth_url():
 
 @router.get('/get-yandex-disk-token/{code}')
 async def get_yandex_disk_token(code: str, user: User1 = Depends(get_current_user), session: Session = Depends(get_session)):
-    logger.warning('OK!')
-    logger.info(f"{code=}")
-    logger.info(f"{user=}")
+    logger.warning(f"{code=}")
     token = YandexDiskHandler().get_yandex_disk_token(code)
     if not token:
         raise HTTPException(
@@ -106,7 +105,8 @@ async def get_yandex_disk_token(code: str, user: User1 = Depends(get_current_use
     session.add(user)
     session.commit()
     session.refresh(user)
-    return user
+    # return user
+    return RedirectResponse("minigis.in-arthurs-apps.space/main")
 
 
 

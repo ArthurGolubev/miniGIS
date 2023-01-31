@@ -20,7 +20,7 @@ spec:
       containers:
 
         - name: minigis
-          image: arthurgo/minigis-web:1.2
+          image: arthurgo/minigis-web:1.0
           imagePullPolicy: Always
           resources:
             limits:
