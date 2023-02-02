@@ -1,16 +1,20 @@
 import { useQuery } from '@apollo/client'
 import * as React from 'react'
 import { GET_YANDEX_DISK_AUTH_URL, GET_YANDEX_DISK_TOKEN } from './restMutations'
-import { useSearchParams } from "react-router-dom"
+import { useNavigate, useSearchParams } from "react-router-dom"
 
 
 export const YandexAuthorization = () => {
+    const redirect = useNavigate()
     let [searchParams, setSearchParams] = useSearchParams()
     const {data, loading} = useQuery(GET_YANDEX_DISK_AUTH_URL)
     const {data: data2} = useQuery(GET_YANDEX_DISK_TOKEN, {
         skip: searchParams.toString() == '',
         variables: {
             code: searchParams.values().next().value ?? 123
+        },
+        onCompleted: () => {
+            redirect("/main")
         }
     })
     

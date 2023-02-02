@@ -19,5 +19,5 @@ spec:
         backend:
           service:
             name: minigis-service-node-port
-            port: 
+            port:
               number: 80

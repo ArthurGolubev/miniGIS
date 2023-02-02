@@ -155,28 +155,6 @@ class TokenData(SQLModel):
     username: str | None = None
 
 
-
-class User(SQLModel):
-    username: str
-    email: str | None = None
-    full_name: str | None = None
-    disabled: bool | None = None
-
-
-
-class UserInDB(User):
-    hashed_password: str
-
-
-
-
-class Hero(SQLModel, table=True):
-    id: int | None = Field(default=None, primary_key=True)
-    name: str = Field(index=True)
-    secret_name: str
-    age: int | None = Field(default=None, index=True)
-
-
 ''' -------------------------------------------User-Start------------------------------------------ '''
 
 class UserBase(SQLModel):

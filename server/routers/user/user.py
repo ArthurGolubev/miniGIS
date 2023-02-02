@@ -11,7 +11,6 @@ from server.auth import login_for_access_token
 
 
 
-from server.models import User
 from server.models import User1
 from server.models import Token
 from server.models import User1Read
@@ -34,18 +33,9 @@ router = APIRouter(prefix='/user')
 
 
 @router.get('/get-me', response_model=User1Read)
-async def read_user_me(current_user: User = Depends(get_current_user)):
+async def read_user_me(current_user: User1 = Depends(get_current_user)):
     logger.debug(__name__)
     return current_user
-
-
-
-
-@router.get("/me/items/")
-async def read_own_items(current_user: User = Depends(get_current_user)):
-    # не использую
-    return [{"item_id": "Foo", "owner": current_user.username}]
-
 
 
 
@@ -91,7 +81,7 @@ async def get_yandex_disk_auth_url():
 
 
 
-@router.get('/get-yandex-disk-token/{code}')
+@router.get('/get-yandex-disk-token/{code}', response_class=RedirectResponse, status_code=302)
 async def get_yandex_disk_token(code: int, user: User1 = Depends(get_current_user), session: Session = Depends(get_session)):
     logger.warning(f"{code=}")
     token = YandexDiskHandler().get_yandex_disk_token(code)
@@ -105,13 +95,13 @@ async def get_yandex_disk_token(code: int, user: User1 = Depends(get_current_use
     session.add(user)
     session.commit()
     session.refresh(user)
-    return RedirectResponse("minigis.in-arthurs-apps.space/#/main")
+    return "http://minigis.in-arthurs-apps.space/"
 
 
 
 
-@router.post("/get-token-from-client", response_model=Token)
-async def login_for_access_token_from_client(user, session = Depends(get_session)):
+@router.post("/get-token-from-client", response_model=Token)  # название пути можно изменить на более однозначное
+async def login_for_access_token_from_client(user: UserAuthorization, session = Depends(get_session)):
     return login_for_access_token(user=user, session=session)
 
 

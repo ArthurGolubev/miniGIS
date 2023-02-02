@@ -10,7 +10,6 @@ from sqlmodel import Session, select
 
 
 from server.models import TokenData
-from server.models import User
 from server.models import Token
 from server.models import User1
 from server.models import UserAuthorization
@@ -98,12 +97,12 @@ async def get_current_user(*, token: str = Depends(oauth2_scheme), session: Sess
 
 
 def login_for_access_token(user: UserAuthorization, session: Session) -> Token:
+    logger.info(f"{user=}")
     user = authenticate_user(
         session=session,
         username=user.username,
         password=user.password
         )
-    logger.info(f"{user=}")
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

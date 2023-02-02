@@ -14,10 +14,8 @@ export const Authorization = () => {
         fetchPolicy: "network-only",
         onCompleted: user => {
             if(!user.getMe?.yandexToken){
-                localStorage.setItem('miniGISToken', token.loginForAccessTokenFromClient.accessToken)
                 redirect("/yandex-authorization")
             } else {
-                localStorage.setItem('miniGISToken', token.loginForAccessTokenFromClient.accessToken)
                 redirect('/main')
             }
         }
@@ -34,10 +32,9 @@ export const Authorization = () => {
                     password: password.value
                 }
             },
-            // onCompleted: data => {
-            //     console.log('some data1 -> ', data)
-            //     localStorage.setItem('miniGISToken', data.loginForAccessTokenFromClient.accessToken)
-            // }
+            onCompleted: data => {
+                localStorage.setItem('miniGISToken', data.loginForAccessTokenFromClient.accessToken)
+            }
         })
     }
 
