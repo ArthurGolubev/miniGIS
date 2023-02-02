@@ -43,7 +43,7 @@ spec:
             - name: google-earth-engine-secret
               mountPath: "/minigis/credential"
               readOnly: true
-            - mountPath: /minigis/server/cache
+            - mountPath: /miniGIS/server/cache
               name: minigis-cache
       volumes:
         - name: google-earth-engine-secret

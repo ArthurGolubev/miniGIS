@@ -49,5 +49,5 @@ async def login_for_access_token_from_api( body: OAuth2PasswordRequestForm = Dep
 
 
 app.include_router(main.router, prefix='/api/v2-rest')
-app.mount('/cache', StaticFiles(directory='./server/cache/'), name='images')
+app.mount('/cache', StaticFiles(directory='./cache/'), name='images')
 app.mount('/', StaticFiles(directory='./client', html=True), name='index')
