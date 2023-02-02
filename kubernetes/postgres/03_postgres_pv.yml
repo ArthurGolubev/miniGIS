@@ -6,14 +6,14 @@ metadata:
     type: local
     app: postgres
 spec:
-  storageClassName: postgres-data
+  storageClassName: local-storage
   capacity:
     storage: 5Gi
   volumeMode: Filesystem
   accessModes:
     - ReadWriteMany
   local:
-    path: "/home/arthur/dev/postgres"
+    path: "/home/arthur/dev/postgres-data"
   nodeAffinity:
     required:
       nodeSelectorTerms:

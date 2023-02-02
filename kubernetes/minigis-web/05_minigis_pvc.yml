@@ -5,7 +5,7 @@ metadata:
   labels:
     app: minigis-app
 spec:
-  storageClassName: manual
+  storageClassName: local-storage
   accessModes:
     - ReadWriteOnce
   resources:

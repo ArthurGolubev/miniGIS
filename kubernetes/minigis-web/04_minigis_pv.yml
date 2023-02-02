@@ -6,7 +6,7 @@ metadata:
     type: local
     app: minigis-app
 spec:
-  storageClassName: minigis-cache
+  storageClassName: local-storage
   capacity:
     storage: 5Gi
   volumeMode: Filesystem
