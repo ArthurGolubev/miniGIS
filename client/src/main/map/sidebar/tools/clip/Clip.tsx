@@ -15,9 +15,9 @@ export const Clip = () => {
 
     return <div className='row justify-content-center'>
         <AvailableFiles />
-        <div className='col-11'>
+        {/* <div className='col-11'>
             <div className='alert alert-primary'>В данным момент вырезка проходит только по первому полигону в списке c opacity &gt; 0</div>
-        </div>
+        </div> */}
         {/* <AttributeTable mapLayers={shapes}/> */}
         <ClipBtn />
     </div>

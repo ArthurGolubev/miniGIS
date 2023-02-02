@@ -29,7 +29,7 @@ class EarthEngine(YandexDiskHandler):
         
         ee_creds = ee.ServiceAccountCredentials(
             email=os.getenv("MINIGIS_EARTH_ENGINE_SERVICE_ACCOUNT_EMAIL"),
-            key_file='/miniGIS/credential/MINIGIS_EARTH_ENGINE_KEY_DATA'
+            key_file='/minigis/credential/MINIGIS_EARTH_ENGINE_KEY_DATA'
         )
         ee.Initialize(ee_creds)
 
@@ -111,8 +111,9 @@ class EarthEngine(YandexDiskHandler):
         bands           = dwld_sentinel.sentinel_meta.bands
         sensor          = dwld_sentinel.sensor
         system_index    = dwld_sentinel.system_index
-        metadata        = dwld_sentinel.metadata
+        metadata        = dwld_sentinel.meta
 
+        logger.info(f"{metadata=}")
         yandex_disk_path = f'/miniGIS/images/raw/Sentinel/{PRODUCT_ID}'
         self._make_yandex_dir_recursively(yandex_disk_path)
         for band in bands:
@@ -150,7 +151,7 @@ class EarthEngine(YandexDiskHandler):
         PRODUCT_ID          = dwld_sentinel.landsat_meta.product_id
         sensor              = dwld_sentinel.sensor
         system_index        = dwld_sentinel.system_index
-        metadata            = dwld_sentinel.metadata
+        metadata            = dwld_sentinel.meta
 
         yandex_disk_path = f'/miniGIS/images/raw/Landsat/{PRODUCT_ID}'
         self._make_yandex_dir_recursively(yandex_disk_path)

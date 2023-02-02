@@ -59,7 +59,7 @@ async def stack_bands(files: list[str], user: User1 = Depends(get_current_user))
     return FileHandler(user=user).stack_bands(files)
 
 
-@router.post('/workflow/classification/k-mean', response_model=ClassificationTM)
+@router.post('/classification/k-mean', response_model=ClassificationTM)
 async def classify_k_mean(options: KMeanOptions, user: User1 = Depends(get_current_user)):
     return Classifier(user=user).k_mean(options.file_path, options.k)
 
@@ -83,7 +83,7 @@ async def available_files(to: str, user: User1 = Depends(get_current_user)):
 
 @router.get('/tree-available-files')
 async def tree_available_files(user: User1 = Depends(get_current_user)):
-    return FileHandler().tree_available_files()
+    return FileHandler(user=user).tree_available_files()
 
 
 @router.post('/add-layer', response_model=AddLayerTM)

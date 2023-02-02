@@ -20,6 +20,7 @@ from server.calculation.YandexDiskHadler import YandexDiskHandler
 class Classifier(YandexDiskHandler):
     def __init__(self, user) -> None:
         super().__init__(user=user)
+        self.user = user
 
     def k_mean(self, file_path: str, k: int) -> ClassificationTM:
         logger.info(f'{file_path=}')
@@ -96,7 +97,7 @@ class Classifier(YandexDiskHandler):
         self.y.upload(file_path, yandex_disk_path + f'/{file_name}', overwrite=True)
 
         logger.warning('STEP 1')
-        classification_layer = FileHandler().get_classification_layer(
+        classification_layer = FileHandler(user=self.user).get_classification_layer(
             satellite=SATELLITE, product=PRODUCT, target=file_name, username=username
             )
         logger.warning(f'STEP 1\n{classification_layer=}')

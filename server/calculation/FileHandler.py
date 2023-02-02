@@ -16,6 +16,7 @@ from io import BytesIO
 
 from server.models import ToastMessage, ClipToMask
 from server.models import AddLayerTM
+from server.models import User1
 from server.calculation.EarthEngine import EarthEngine
 from server.calculation.YandexDiskHadler import YandexDiskHandler
 
@@ -23,9 +24,10 @@ from server.calculation.YandexDiskHadler import YandexDiskHandler
 
 class FileHandler(YandexDiskHandler):
 
-    def __init__(self, user=None):
+    def __init__(self, user: User1):
         super().__init__(user=user)
         self._make_yandex_dir_recursively('/miniGIS/images')
+        self.user = user
 
     
     def shp_save(self, shp_name, layer):
@@ -104,7 +106,6 @@ class FileHandler(YandexDiskHandler):
     def stack_bands(self, files: list[str]) -> ToastMessage:
         bands = sorted(files)
         temp_file = f'./cache/temp_username_{bands[0].split("/")[-1]}'
-        file_name = f"stack_{'_'.join(bands_names)}_{'_'.join(path[-1][:-4].split('_')[:-1])}.tif"
         
         self.y.download(bands[0], temp_file)
         src = rasterio.open(temp_file)
@@ -205,7 +206,7 @@ class FileHandler(YandexDiskHandler):
                 file_io_read = file_io.getvalue().decode('utf-8').split('\n')
                 sensor = file_io_read[0].strip()
                 system_index = file_io_read[1].strip()
-                img_url = EarthEngine().show_images_preview(sensor=sensor, system_index=system_index).img_url
+                img_url = EarthEngine(user=self.user).show_images_preview(sensor=sensor, system_index=system_index).img_url
                 metadata = file_io_read[2].strip()
         elif scope == 'classification':
             res = self.get_classification_layer(satellite=satellite, product=product, target=target)

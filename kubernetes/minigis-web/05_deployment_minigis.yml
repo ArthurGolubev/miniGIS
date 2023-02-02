@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: minigis-deployment
 spec:
-  replicas: 1
+  replicas: 2
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -24,27 +24,30 @@ spec:
           imagePullPolicy: Always
           resources:
             limits:
-              memory: 512Mi
-              cpu: "1"
+              memory: 2048Mi
+              cpu: "2"
             requests:
               memory: 256Mi
-              cpu: "0.2"
+              cpu: "0.5"
           ports: 
             - containerPort: 8000
           env:
             - name: POSTGRES_HOST
               value: postgres-service-node-port
             - name: GOOGLE_APPLICATION_CREDENTIALS
-              value: /miniGIS/credential/MINIGIS_EARTH_ENGINE_KEY_DATA
+              value: /minigis/credential/MINIGIS_EARTH_ENGINE_KEY_DATA
           envFrom:
             - secretRef:
                 name: minigis-secret
           volumeMounts:
             - name: google-earth-engine-secret
-              mountPath: "/miniGIS/credential"
+              mountPath: "/minigis/credential"
               readOnly: true
+            - mountPath: /minigis/server/cache
+              name: minigis-cache
       volumes:
         - name: google-earth-engine-secret
           secret:
             secretName: google-earth-engine-secret
             optional: false
+        - name: minigis-cache
