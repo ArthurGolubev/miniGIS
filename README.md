@@ -47,5 +47,4 @@
 
 
 ### Развёртывание
-1. На сервере подребуется создать временный файл ee-minigis-credential.json и скопировать туда JSON payload с разрашением.
-   1. Разрешения получаются по инструкции https://developers.google.com/earth-engine/guides/service_account
+Развёртывание храниться в отдельном приватном репозитории rasasi-kubernetes
