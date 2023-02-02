@@ -111,7 +111,7 @@ async def get_yandex_disk_token(code: int, user: User1 = Depends(get_current_use
 
 
 @router.post("/get-token-from-client", response_model=Token)
-async def login_for_access_token_from_client(*, session = Depends(get_session), user: UserAuthorization):
+async def login_for_access_token_from_client(user, session = Depends(get_session)):
     return login_for_access_token(user=user, session=session)
 
 
