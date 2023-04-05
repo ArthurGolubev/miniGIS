@@ -81,7 +81,7 @@ async def get_yandex_disk_auth_url():
 
 
 
-@router.get('/get-yandex-disk-token/{code}', response_class=RedirectResponse, status_code=302)
+@router.get('/get-yandex-disk-token/{code}')
 async def get_yandex_disk_token(code: int, user: User1 = Depends(get_current_user), session: Session = Depends(get_session)):
     logger.warning(f"{code=}")
     token = YandexDiskHandler().get_yandex_disk_token(code)
@@ -95,7 +95,7 @@ async def get_yandex_disk_token(code: int, user: User1 = Depends(get_current_use
     session.add(user)
     session.commit()
     session.refresh(user)
-    return "http://minigis.in-arthurs-apps.space/"
+    return "ok"
 
 
 
