@@ -5,12 +5,10 @@ from datetime import datetime
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 
-from server.models import ClassificationTM
 from server.models import DownloadSentinel
 from server.models import DownloadLandsat
 from server.models import ToastMessage
 from server.models import ClipToMask
-from server.models import KMeanOptions
 from server.models import SearchPreviewTM
 from server.models import SearchPreview
 from server.models import PreviewTM
@@ -23,18 +21,18 @@ from server.models import User1
 
 from server.calculation.EarthEngine import EarthEngine
 from server.calculation.FileHandler import FileHandler
-from server.calculation.Classifier import Classifier
 
 
 
 from server.auth import get_current_user
+from .classification import classification
 
 
 router = APIRouter(
     prefix='/workflow',
     )
 
-
+router.include_router(classification.router)
 
 
 
@@ -59,9 +57,6 @@ async def stack_bands(files: list[str], user: User1 = Depends(get_current_user))
     return FileHandler(user=user).stack_bands(files)
 
 
-@router.post('/classification/k-mean', response_model=ClassificationTM)
-async def classify_k_mean(options: KMeanOptions, user: User1 = Depends(get_current_user)):
-    return Classifier(user=user).k_mean(options.file_path, options.k)
 
 
 @router.post('/search-preview', response_model=SearchPreviewTM)

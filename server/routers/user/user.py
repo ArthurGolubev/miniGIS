@@ -79,9 +79,21 @@ async def get_yandex_disk_auth_url():
     return {"url": url}
 
 
-
-
-
+@router.get('/get-yandex-disk-token/{code}')
+async def get_yandex_disk_token(code: int, user: User1 = Depends(get_current_user), session: Session = Depends(get_session)):
+    logger.warning(f"{code=}")
+    token = YandexDiskHandler().get_yandex_disk_token(code)
+    if not token:
+        raise HTTPException(
+            status_code=500,
+            detail="Ошибка добавления пользовательского Yandex Disk"
+        )
+    logger.success(f"{token=}")
+    user.yandex_token = token
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+    return "ok"
 
 
 

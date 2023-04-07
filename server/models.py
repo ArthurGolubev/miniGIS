@@ -61,15 +61,21 @@ class ClipToMask(SQLModel):
     mask: GeoJSON
 
 
+class MeanShiftOptions(SQLModel):
+    n_samples: int
 
 class KMeanOptions(SQLModel):
     file_path: str
     k: int
 
+class BisectingKMeanOptions(SQLModel):
+    file_path: str
+    k: int
 
+class GaussianMixtureOptions(SQLModel):
+    n_components: int
 
 class ClassificationTM(ToastMessage):
-    k: int
     file_name: str
     coordinates: list[list[float]]
     img_url: str
