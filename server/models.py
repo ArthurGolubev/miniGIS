@@ -68,11 +68,16 @@ class KMeanOptions(SQLModel):
     file_path: str
     k: int
 
+class MeanShiftOptions(SQLModel):
+    file_path: str
+    n_samples: int
+
 class BisectingKMeanOptions(SQLModel):
     file_path: str
     k: int
 
 class GaussianMixtureOptions(SQLModel):
+    file_path: str
     n_components: int
 
 class ClassificationTM(ToastMessage):

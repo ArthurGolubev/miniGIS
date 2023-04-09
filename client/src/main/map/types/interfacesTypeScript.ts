@@ -18,12 +18,14 @@
 interface tools {
     setMask: boolean,
     setPOI: boolean,
-    show: "POI" | "Clip" | "Stack" | "Classification" | "Open",
+    // show: "POI" | "Clip" | "Stack" | "Classification" | "Open" | "Unsupervised" | "Supervised",
     title: {
         POI: string
         Clip: string
         Stack: string
         Classification: string
+        Unsupervised: string
+        Supervised: string
         Open: string
     }
     description: {
@@ -31,6 +33,8 @@ interface tools {
         Clip: string
         Stack: string
         Classification: string
+        Unsupervised: string
+        Supervised: string
         Open: string
     }
 }
@@ -82,13 +86,16 @@ interface toasts {
 interface selectedFiles {
     satellite: string
     product: string
-    files: {
-        POI: Array<string>
-        Stack: Array<string>
-        Clip: Array<string>
-        Classification: Array<string>
-        Open: Array<string>
-    }
+    // files: {
+    //     POI: Array<string>
+    //     Stack: Array<string>
+    //     Clip: Array<string>
+    //     Classification: Array<string>
+    //     Open: Array<string>
+    //     Unsupervised: Array<string>
+    //     Supervised: Array<string>
+    // }
+    files: any
 }
 
 interface classification {

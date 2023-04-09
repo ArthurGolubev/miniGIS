@@ -28,6 +28,9 @@ export const NavBar = () => {
                         <div className='col'>
                             <ul className="navbar-nav">
                                 <li className="nav-item">
+                                    <a href='#/authorization' onClick={()=>sidebar({show: 'tools'})} className='nav-link active' type='button'>Authorization</a>
+                                </li>
+                                <li className="nav-item">
                                     <a href='#/registration' onClick={()=>sidebar({show: 'tools'})} className='nav-link active' type='button'>Registration</a>
                                 </li>
                                 <li className="nav-item">

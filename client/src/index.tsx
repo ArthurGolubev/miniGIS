@@ -2,20 +2,15 @@ import * as ReactDOM from "react-dom/client"
 import * as React from 'react'
 import { HttpLink, ApolloClient, ApolloProvider, InMemoryCache, from, ApolloLink } from '@apollo/client'
 import { onError } from '@apollo/client/link/error'
-import { createHashRouter, RouterProvider } from 'react-router-dom'
+import { RouterProvider } from 'react-router-dom'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import "bootstrap-icons/font/bootstrap-icons.css"
-import { App } from './app/App'
-import { ErrorPage } from './ErrorPage'
 import { isLoading, redirectTo, toasts } from "./main/map/rv"
-import { Main } from "./main/Main"
-import { Registration } from "./profile/Registration"
 import { RestLink } from "apollo-link-rest"
 // import camelCase from 'camelcase'
 import { snakeCase  as snake_case } from 'snake-case'
-import { Authorization } from "./profile/Authorization"
 import { GraphQLNetworkError } from "./main/map/types/main/GraphQLNetworkErrorType"
-import { YandexAuthorization } from "./profile/YandexAuthorization"
+import { router } from "./Router"
 
 const root = ReactDOM.createRoot(document.querySelector("#root"))
 
@@ -110,35 +105,7 @@ const createApolloClient = () => {
 }
 
 
-const router = createHashRouter([
-    {
-        path: "/",
-        element: <App />,
-        errorElement: <ErrorPage />,
-        children: [
-            {
-                path: 'main',
-                element: <Main />,
-            },
-            {
-                path: 'home',
-                element: <div>Hello world!</div>
-            },
-            {
-                path: 'registration',
-                element: <Registration />
-            },
-            {
-                path: 'authorization',
-                element: <Authorization />
-            },
-            {
-                path: 'yandex-authorization',
-                element: <YandexAuthorization />
-            }
-        ]
-    },
-])
+
 
 root.render(
     <ApolloProvider client={createApolloClient()}>

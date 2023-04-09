@@ -1,16 +1,17 @@
 import * as React from 'react'
-import { selectedFiles, tools } from '../../rv'
+import { selectedFiles } from '../../rv'
 import { AVAILABLE_FILES } from '../../restQueries'
 import { useQuery, useReactiveVar } from '@apollo/client'
 import { LoadingStatus } from '../../../../app/navbar/LoadingStatus'
+import { useLocation } from 'react-router'
 
 
-export const AvailableFiles = () => {
-    const toolsSub = useReactiveVar(tools)
+export const AvailableFiles = ({to = undefined}: {to: string | undefined}) => {
+    let location = useLocation()
     const [state, setState] = React.useState({} as any)
     const {data, loading} = useQuery(AVAILABLE_FILES, {
         fetchPolicy: 'network-only',
-        variables: {to: toolsSub.show},
+        variables: {to: to},
         onCompleted: data => {
             let c = {} as any
             data.availableFiles.items.map((item: any) => {
@@ -39,7 +40,7 @@ export const AvailableFiles = () => {
                         <select className="form-select" id="satellite"
                             onChange={e => selectedFiles({satellite: e.target.value, product: '', files: {
                                 ...selectedFilesSub.files,
-                                [toolsSub.show]: []
+                                [location.pathname]: []
                             }})}>
                             <option>...</option>
                             {
@@ -85,14 +86,14 @@ export const AvailableFiles = () => {
                         state && !loading && selectedFilesSub?.product && selectedFilesSub?.satellite &&
                         Object.entries(state[selectedFilesSub.satellite][selectedFilesSub.product]).map((entry: Array<any>, iter: number) => {
                             console.log("key ->", entry[0])
-                            return <div className={toolsSub.show == "Classification" ? 'col-12' : 'col-4'} key={iter}>
+                            return <div className={location.pathname == "/main/classification" ? 'col-12' : 'col-4'} key={iter}>
                                 <div className="form-check form-check-inline">
                                     <input className='form-check-input' type={"checkbox"} id={`band-${entry[0]}`} defaultChecked={false} value={entry[1]}
                                         onChange={e => selectedFiles({
                                             ...selectedFilesSub,
                                             files: {
                                                 ...selectedFilesSub.files,
-                                                [toolsSub.show]: [...selectedFilesSub.files[toolsSub.show], e.target.value]
+                                                [location.pathname]: [...selectedFilesSub.files[location.pathname], e.target.value]
                                             }
                                             })}
                                     />

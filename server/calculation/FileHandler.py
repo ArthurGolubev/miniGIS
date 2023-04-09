@@ -225,15 +225,17 @@ class FileHandler(YandexDiskHandler):
 
 
     def available_files(self, to: str) -> dict[str, dict[str, list[str]]]:
+        logger.debug(f'{to=}')
         """Возвращает список директорий и доступных в них файлов.
 
         Sentinel -> folder1 -> [band1.tif, band2.tif]
         Landsat -> (folder1, folder2 -> ([band1.tif, band2.tif, band3.tif]) ).
         """
         images_path = {
-            "Clip": '/miniGIS/images/raw',
-            "Stack": '/miniGIS/images/clipped',
-            "Classification": '/miniGIS/images/stack',
+            "clip": '/miniGIS/images/raw',
+            "stack": '/miniGIS/images/clipped',
+            "unsupervised": '/miniGIS/images/stack',
+            "supervised": '/miniGIS/images/stack',
         }
         for path in images_path.values():
             self._make_yandex_dir_recursively(path)
@@ -247,7 +249,7 @@ class FileHandler(YandexDiskHandler):
             for folder_2 in folders_2:
                 files = [f.path.split(':')[1] for f in self.y.listdir(folder_2) if f.type == 'file']
                 # logger.debug(f"{files=}")
-                if to == 'Classification' or to == 'View':
+                if to == 'unsupervised' or to == 'supervised':
                     layers = {k: v for k, v in [(path.split('/')[-1], path) for path in files]}
                 else:
                     layers = {k: v for k, v in [(path.split('.')[-2].split('_')[-1], path) for path in files if not path.endswith('.txt')]}

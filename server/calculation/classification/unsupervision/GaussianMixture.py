@@ -11,7 +11,7 @@ class GaussianMixture:
         self.file_path = file_path
 
     def classify(self, n_components: int):
-        img = ImgHandler(user=self.user, file_path=self.file_path, alg_name='Gaussian Mixture', alg_param=f'n_components{n_components}')
+        img = ImgHandler(user=self.user, file_path=self.file_path, alg_name='GaussianMixture', alg_param=f'n_components{n_components}')
         rows, cols, reshaped_img = img.open_()
 
         gm = mixture.GaussianMixture(n_components=n_components, covariance_type="tied").fit_predict(reshaped_img)

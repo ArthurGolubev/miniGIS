@@ -2,7 +2,7 @@ import { useReactiveVar } from '@apollo/client'
 import * as React from 'react'
 import { classification } from '../../../rv'
 import { AvailableFiles } from '../AvailableFiles'
-import { KMean } from './options/KMean'
+import { KMean } from './unsupervised/KMean'
 
 
 export const Classification = () => {
@@ -17,9 +17,8 @@ export const Classification = () => {
                 <option>...</option>
                 <option value={"KMean"}>k-mean</option>
             </select>
-            <AvailableFiles />
+            <AvailableFiles to='classification'/>
             {classificationSub.method == 'KMean' && <KMean />}
-            {/* <button onClick={()=>console.log(classificationSub)} className='btn btn-sm btn-success' type='button'>classificationSub</button> */}
         </div>
     </div>
 } 

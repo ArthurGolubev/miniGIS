@@ -1,8 +1,8 @@
 from fastapi import APIRouter
-from .unsupervision import unsupervision
+from .unsupervised import unsupervised
 
 router = APIRouter(
-    prefix='/workflow',
+    prefix='/classification',
     )
 
-router.include_router(unsupervision.router)
+router.include_router(unsupervised.router)
