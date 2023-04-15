@@ -97,11 +97,12 @@ async def get_current_user(*, token: str = Depends(oauth2_scheme), session: Sess
     return user
 
 
-async def get_websocket_data(websocket: WebSocket, session: Session):
+# async def get_websocket_data(websocket: WebSocket, session: Session):
+async def get_websocket_data(token, session: Session):
     logger.success('check token from websocket')
-    data = await websocket.receive_json()
-    token = decamelize(data)["token"][7:]
-    logger.debug(f"1000 {token=}")
+    # data = await websocket.receive_json()
+    # token = decamelize(data)["token"][7:]
+    # logger.debug(f"1000 {token=}")
 
     credentinal_exeption = WebSocketDisconnect(
         code=status.WS_1015_TLS_HANDSHAKE,
@@ -120,7 +121,7 @@ async def get_websocket_data(websocket: WebSocket, session: Session):
     user = get_user(session=session, username=token_data.username)
     if user is None:
         raise credentinal_exeption
-    return data, user
+    return user
 
 
 def login_for_access_token(user: UserAuthorization, session: Session) -> Token:

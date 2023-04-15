@@ -10,6 +10,10 @@ import { ws as webSocket } from '../main/map/rv'
 export const App = () => {
     // const ws = new WebSocket('ws://10.152.183.82:80/api/v2-rest/workflow/ws')
     const ws = new WebSocket('wss://minigis.in-arthurs-apps.space/api/v2-rest/workflow/ws')
+    ws.onopen = (e) => console.log('websocket open ->', e.target)
+    ws.onerror = (e) => console.log('websocket error ->', e.target)
+    ws.onclose = (e) => console.log('websocket close ->', e.target)
+    document.cookie = `access_token=${localStorage.getItem("miniGISToken")}`
     // const { sendJsonMessage, lastMessage, readyState } = useWebSocket("wss://minigis.in-arthurs-apps.space/api/v2-rest/ws")
 
     React.useEffect(() => {

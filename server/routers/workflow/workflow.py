@@ -120,10 +120,13 @@ def shp_read(input: ShpRead, user: User1 = Depends(get_current_user)):
 
 @router.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket,  session: Session = Depends(get_session)):
-    await websocket.accept()
+    # await websocket.accept()
+    user = await get_websocket_data(token=websocket.cookies.get('access_token'), session=session)
+    if user: await websocket.accept()
     try:
         while True:
-            data, user = await get_websocket_data(websocket=websocket, session=session)
+            # data, user = await get_websocket_data(websocket=websocket, session=session)
+            data = await websocket.receive_json()
             match decamelize(data)["operation"]:
                 case 'download-sentinel':
                     data = DownloadSentinel.parse_obj(decamelize(data))
@@ -163,4 +166,5 @@ async def websocket_endpoint(websocket: WebSocket,  session: Session = Depends(g
 
 
     except WebSocketDisconnect:
+        logger.info('\n\nWebSocketDisconnect ->', WebSocketDisconnect)
         await websocket.close()
