@@ -103,7 +103,7 @@ class FileHandler(YandexDiskHandler):
 
 
 
-    def stack_bands(self, files: list[str]) -> ToastMessage:
+    async def stack_bands(self, files: list[str]) -> ToastMessage:
         bands = sorted(files)
         temp_file = f'./cache/temp_username_{bands[0].split("/")[-1]}'
         
@@ -149,7 +149,8 @@ class FileHandler(YandexDiskHandler):
         return ToastMessage(
             header="Объединение слоёв",
             message=f"слои {bands} объеденены в {file_name}",
-            datetime=datetime.now()
+            datetime=datetime.now(),
+            operation='stack-bands'
             )
 
 
@@ -217,7 +218,8 @@ class FileHandler(YandexDiskHandler):
             message=f'',
             datetime=datetime.now(),
             imgUrl=img_url,
-            meta=metadata
+            meta=metadata,
+            operation='add-layer'
         )
     
 
@@ -236,6 +238,7 @@ class FileHandler(YandexDiskHandler):
             "stack": '/miniGIS/images/clipped',
             "unsupervised": '/miniGIS/images/stack',
             "supervised": '/miniGIS/images/stack',
+            "classification": '/miniGIS/images/stack',
         }
         for path in images_path.values():
             self._make_yandex_dir_recursively(path)
@@ -261,7 +264,7 @@ class FileHandler(YandexDiskHandler):
 
 
 
-    def clip_to_mask(self, data: ClipToMask) -> ToastMessage:
+    async def clip_to_mask(self, data: ClipToMask) -> ToastMessage:
         mask = data.mask
         files = data.files
         g = mask.geometry["coordinates"]
@@ -295,7 +298,8 @@ class FileHandler(YandexDiskHandler):
         return ToastMessage(
             header="Обрезка завершена - output.tif",
             message="Обрезка по маске",
-            datetime=datetime.now()
+            datetime=datetime.now(),
+            operation='clip-to-mask'
         )
 
 
@@ -326,9 +330,13 @@ class FileHandler(YandexDiskHandler):
             bounds = f.bounds
         os.remove(tif_file_path + f'/{cached_target}.tif')
 
-        transformer = Transformer.from_crs(32630, 4326, always_xy=True)
+        transformer = Transformer.from_crs(32629, 4326, always_xy=True)
         left_bottom = transformer.transform(bounds[0], bounds[1])
         right_top = transformer.transform(bounds[2], bounds[3])
+
+        # left_bottom = [bounds[0], bounds[1]]
+        # right_top = [bounds[2], bounds[3]]
+
 
         return {
             "file_name": target,

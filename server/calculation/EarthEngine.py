@@ -61,7 +61,8 @@ class EarthEngine(YandexDiskHandler):
             images=img_metadata,
             header='Поиск снимков',
             message=f'Найдено {len(img_metadata)} снимков',
-            datetime=datetime.today()
+            datetime=datetime.today(),
+            operation='search-preview'
         )
 
 
@@ -96,13 +97,14 @@ class EarthEngine(YandexDiskHandler):
             sensor=sensor,
             header='Запрос привью',
             message=f'Сцена {system_index}',
-            datetime=datetime.today()
+            datetime=datetime.today(),
+            operation='get-image-preview'
         )
 
 
 
     @time_metr
-    def download_sentinel(self, dwld_sentinel: DownloadSentinel) -> ToastMessage:
+    async def download_sentinel(self, dwld_sentinel: DownloadSentinel) -> ToastMessage:
         UTM_ZONE        = dwld_sentinel.sentinel_meta.mgrs_tile[:2]
         LATITUDE_BAND   = dwld_sentinel.sentinel_meta.mgrs_tile[2:3]
         GRID_SQUARE     = dwld_sentinel.sentinel_meta.mgrs_tile[3:]
@@ -137,21 +139,22 @@ class EarthEngine(YandexDiskHandler):
                 Продукт {PRODUCT_ID},
                 Cлои {bands}
             """,
-            datetime=datetime.now()
+            datetime=datetime.now(),
+            operation='download-sentinel'
         )
 
 
 
     @time_metr
-    def download_landsat(self, dwld_sentinel: DownloadLandsat) -> ToastMessage:
-        SENSOR_ID           = dwld_sentinel.landsat_meta.sensor_id
-        PATH                = dwld_sentinel.landsat_meta.path.zfill(3)
-        ROW                 = dwld_sentinel.landsat_meta.row.zfill(3)
-        bands               = dwld_sentinel.landsat_meta.bands
-        PRODUCT_ID          = dwld_sentinel.landsat_meta.product_id
-        sensor              = dwld_sentinel.sensor
-        system_index        = dwld_sentinel.system_index
-        metadata            = dwld_sentinel.meta
+    async def download_landsat(self, dwld_landsat: DownloadLandsat) -> ToastMessage:
+        SENSOR_ID           = dwld_landsat.landsat_meta.sensor_id
+        PATH                = dwld_landsat.landsat_meta.path.zfill(3)
+        ROW                 = dwld_landsat.landsat_meta.row.zfill(3)
+        bands               = dwld_landsat.landsat_meta.bands
+        PRODUCT_ID          = dwld_landsat.landsat_meta.product_id
+        sensor              = dwld_landsat.sensor
+        system_index        = dwld_landsat.system_index
+        metadata            = dwld_landsat.meta
 
         yandex_disk_path = f'/miniGIS/images/raw/Landsat/{PRODUCT_ID}'
         self._make_yandex_dir_recursively(yandex_disk_path)
@@ -176,5 +179,6 @@ class EarthEngine(YandexDiskHandler):
                 Продукт {PRODUCT_ID},
                 Слои {bands}
             """,
-            datetime=datetime.now()
+            datetime=datetime.now(),
+            operation='download-landsat'
         )

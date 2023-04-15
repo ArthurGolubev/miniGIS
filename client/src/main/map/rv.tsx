@@ -75,3 +75,6 @@ export const clipMask = makeVar({layer: undefined, mask: {}})
 
 export const treeAvailableFiles = makeVar({} as any)
 export const redirectTo = makeVar({url: undefined})
+
+export const ws = makeVar('') as any
+export const websocketMessages = makeVar([])

@@ -11,4 +11,7 @@ docker buildx build --push \
 
 end=$SECONDS
 runtime=$((end - start))
-echo "Завершено за $runtime сек."
+today=`date +"%d-%m-%Y %T"`
+echo -e "\n\n\U1F3F0 Production version"
+echo -e "\n\U1F4C5 $today"
+echo -e "\U231B Завершено за $runtime сек."

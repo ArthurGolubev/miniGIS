@@ -1,10 +1,11 @@
 import os
 from loguru import logger
+from humps import decamelize
+from jose import JWTError, jwt
 from datetime import datetime, timedelta
 from passlib.context import CryptContext
-from jose import JWTError, jwt
 from fastapi.security import OAuth2PasswordBearer
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, WebSocket, WebSocketDisconnect
 from sqlmodel import Session, select
 
 
@@ -13,6 +14,7 @@ from server.models import TokenData
 from server.models import Token
 from server.models import User1
 from server.models import UserAuthorization
+from server.models import DownloadSentinel
 
 from server.database import get_session
 
@@ -94,6 +96,31 @@ async def get_current_user(*, token: str = Depends(oauth2_scheme), session: Sess
         raise credentinal_exeption
     return user
 
+
+async def get_websocket_data(websocket: WebSocket, session: Session):
+    logger.success('check token from websocket')
+    data = await websocket.receive_json()
+    token = decamelize(data)["token"][7:]
+    logger.debug(f"1000 {token=}")
+
+    credentinal_exeption = WebSocketDisconnect(
+        code=status.WS_1015_TLS_HANDSHAKE,
+        reason='invalid JWToken, try login again'
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        logger.debug(__name__)
+        username: str = payload.get("sub")
+        if username is None:
+            raise credentinal_exeption
+        token_data = TokenData(username=username)
+    except JWTError:
+        logger.error('JWT EXCEPTION!')
+        raise credentinal_exeption
+    user = get_user(session=session, username=token_data.username)
+    if user is None:
+        raise credentinal_exeption
+    return data, user
 
 
 def login_for_access_token(user: UserAuthorization, session: Session) -> Token:

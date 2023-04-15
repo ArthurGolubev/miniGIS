@@ -11,7 +11,7 @@ class MeanShift:
         self.user = user
         self.file_path = file_path
 
-    def classify(self, n_samples: int = 10000):
+    async def classify(self, n_samples: int = 10000):
         img = ImgHandler(user=self.user, file_path=self.file_path, alg_name='Mean Shift', alg_param=f'n_samples{n_samples}')
         rows, cols, reshaped_img = img.open_()
         
@@ -26,6 +26,7 @@ class MeanShift:
             header='Классификация',
             message=f'Тип: Mean Shift, n_samples={n_samples}',
             datetime=datetime.now(),
+            operation='/classification/unsupervised/mean-shift'
         )
 
 

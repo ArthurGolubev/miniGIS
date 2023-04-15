@@ -2,12 +2,19 @@
 from datetime import datetime
 from sqlmodel import Field, SQLModel
 
-from humps import camelize
+from humps import camelize, decamelize
 
 def to_camel(string):
     return camelize(string)
 
+def to_snake(string):
+    return decamelize(string)
 
+
+
+class WebSocket(SQLModel):
+    token: str
+    operation: str
 
 class SentinelMeta(SQLModel):
     mgrs_tile: str
@@ -15,13 +22,18 @@ class SentinelMeta(SQLModel):
     granule_id: str
     bands: list[str]
 
+class StackOptions(WebSocket):
+    files: list[str]
 
-
-class DownloadSentinel(SQLModel):
+class DownloadSentinel(WebSocket):
     sentinel_meta: SentinelMeta
     sensor: str
     system_index: str
     meta: str
+    
+    # class Config:
+    #     alias_generator = to_snake
+        # allow_population_by_field_name = True
 
 
 
@@ -46,6 +58,7 @@ class ToastMessage(SQLModel):
     header: str
     message: str
     datetime: datetime
+    operation: str
 
 
 
@@ -64,7 +77,7 @@ class ClipToMask(SQLModel):
 class MeanShiftOptions(SQLModel):
     n_samples: int
 
-class KMeanOptions(SQLModel):
+class KMeanOptions(WebSocket):
     file_path: str
     k: int
 
@@ -72,11 +85,11 @@ class MeanShiftOptions(SQLModel):
     file_path: str
     n_samples: int
 
-class BisectingKMeanOptions(SQLModel):
+class BisectingKMeanOptions(WebSocket):
     file_path: str
     k: int
 
-class GaussianMixtureOptions(SQLModel):
+class GaussianMixtureOptions(WebSocket):
     file_path: str
     n_components: int
 

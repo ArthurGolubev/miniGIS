@@ -10,7 +10,7 @@ class KMean:
         self.user = user
         self.file_path = file_path
 
-    def classify(self, k: int):
+    async def classify(self, k: int):
         img = ImgHandler(user=self.user, file_path=self.file_path, alg_name='KMean', alg_param=f'k{k}')
         rows, cols, reshaped_img = img.open_()
 
@@ -25,6 +25,7 @@ class KMean:
             header='Классификация',
             message=f'Тип: k-mean, k={k}',
             datetime=datetime.now(),
+            operation='/classification/unsupervised/k-mean'
         )
 
 

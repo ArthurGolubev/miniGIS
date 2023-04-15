@@ -34,7 +34,7 @@ export const NavBar = () => {
                                     <a href='#/registration' onClick={()=>sidebar({show: 'tools'})} className='nav-link active' type='button'>Registration</a>
                                 </li>
                                 <li className="nav-item">
-                                    <a href='#/main' onClick={()=>sidebar({show: 'tools'})} className='nav-link active' type='button'>Tools</a>
+                                    <a href='#/main/poi' onClick={()=>sidebar({show: 'tools'})} className='nav-link active' type='button'>Tools</a>
                                 </li>
                                 <li className="nav-item">
                                     <a href='#/main' onClick={()=>{

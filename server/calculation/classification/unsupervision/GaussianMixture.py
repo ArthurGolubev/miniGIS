@@ -10,7 +10,7 @@ class GaussianMixture:
         self.user = user
         self.file_path = file_path
 
-    def classify(self, n_components: int):
+    async def classify(self, n_components: int):
         img = ImgHandler(user=self.user, file_path=self.file_path, alg_name='GaussianMixture', alg_param=f'n_components{n_components}')
         rows, cols, reshaped_img = img.open_()
 
@@ -24,6 +24,7 @@ class GaussianMixture:
             header='Классификация',
             message=f'Тип: Gaussian Mixture, n_components={n_components}',
             datetime=datetime.now(),
+            operation='/classification/unsupervised/gaussian-mixture'
         )
 
 

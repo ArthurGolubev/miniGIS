@@ -1,71 +1,61 @@
-import { useMutation, useReactiveVar } from '@apollo/client'
+import { useLazyQuery, useMutation, useReactiveVar } from '@apollo/client'
 import * as React from 'react'
 import { DOWNLOAD_LANDSAT } from '../../../restMutations'
-import { DOWNLOAD_SENTINEL } from '../../../restMutations'
 import { AVAILABLE_FILES } from '../../../restQueries'
-import { imagesStack, isLoading, selectedImage, toasts } from '../../../rv'
+import { imagesStack, isLoading, selectedImage, toasts, websocketMessages, ws } from '../../../rv'
+import { useWebSocket } from 'react-use-websocket/dist/lib/use-websocket'
 
 
 export const DownloadBtn = () => {
     const imagesStackSub    = useReactiveVar(imagesStack)
     const isLoadingSub: boolean = useReactiveVar(isLoading)
     const selectedImageSub =    useReactiveVar(selectedImage)
+    const wsSub = useReactiveVar(ws) as WebSocket
+    const websocketMessagesSub = useReactiveVar(websocketMessages)
 
-    const [downloadSentinel, {loading: sentinelLoading}] = useMutation(DOWNLOAD_SENTINEL, {fetchPolicy: "network-only"})
-    const [downloadLandsat, {loading: landsatLoading}] = useMutation(DOWNLOAD_LANDSAT, {fetchPolicy: "network-only"})
 
+
+    React.useEffect(() => {
+        if(!wsSub) return
+        wsSub.onmessage = (e: any) => {
+            const message = JSON.parse(e.data)
+            websocketMessages([...websocketMessagesSub, message])
+            if(message.operation == 'download-sentinel' || message.operation == 'download-landsat'){
+                isLoading(false)
+                toasts({[new Date().toLocaleString()]: {
+                    header: message.header,
+                    message: message.message,
+                    show: true,
+                    datetime: new Date(message.datetime),
+                    color: 'text-bg-success'
+                }})
+                call1()
+                call2()
+                call3()
+            }
+        }
+    })
+
+    const [call1] =useLazyQuery(AVAILABLE_FILES, {variables: {to: 'clip'}})
+    const [call2] =useLazyQuery(AVAILABLE_FILES, {variables: {to: 'stack'}})
+    const [call3] =useLazyQuery(AVAILABLE_FILES, {variables: {to: 'classification'}})
 
     const download = () => {
-        console.log(123)
-        console.log(imagesStackSub)
-        console.log('selectedImageSub -> ', selectedImageSub.sensor)
         isLoading(true)
 
         if(imagesStackSub.hasOwnProperty("sentinel")){
             let keys = Object.keys(imagesStackSub.sentinel)
             keys.map(key => {
-                imagesStack({...imagesStackSub, sentinel: {
-                    ...imagesStackSub.sentinel,
-                    [key]: {
-                        ...imagesStackSub.sentinel[key],
-                        status: "loading"
-                    }
-                }})
-                downloadSentinel({
-                    variables: {
-                        input: {
-                            sentinelMeta: {
-                                ...imagesStackSub.sentinel[key].meta
-                            },
-                            sensor: selectedImageSub.sensor,
-                            systemIndex: selectedImageSub.systemIndex,
-                            meta: JSON.stringify(selectedImageSub.metadata)
-                        }
-                    },
-                    onCompleted: data => {
-                        toasts({[new Date().toLocaleString()]: {
-                            header: data.downloadSentinel.header,
-                            message: data.downloadSentinel.message,
-                            show: true,
-                            datetime: new Date(data.downloadSentinel.datetime),
-                            color: 'text-bg-success'
-
-                        }})
-                        imagesStack({...imagesStackSub, sentinel: {
-                            ...imagesStackSub.sentinel,
-                            [key]: {
-                                ...imagesStackSub.sentinel[key],
-                                status: "downloaded"
-                            }
-                        }})
-                        if(!sentinelLoading && !landsatLoading) isLoading(false)
-                    },
-                    refetchQueries: [
-                        {query: AVAILABLE_FILES, variables: {to: 'Clip'}},
-                        {query: AVAILABLE_FILES, variables: {to: 'Stack'}},
-                        {query: AVAILABLE_FILES, variables: {to: 'Classification'}},
-                    ]
-                })
+                wsSub.send(JSON.stringify( {
+                        operation: 'download-sentinel',
+                        token: `Bearer ${localStorage.getItem("miniGISToken")}`,
+                        sentinelMeta: {
+                            ...imagesStackSub.sentinel[key].meta
+                        },
+                        sensor: selectedImageSub.sensor,
+                        systemIndex: selectedImageSub.systemIndex,
+                        meta: JSON.stringify(selectedImageSub.metadata)
+                }))
             })
         }
 
@@ -73,52 +63,21 @@ export const DownloadBtn = () => {
             let keys = Object.keys(imagesStackSub.landsat)
             keys.map(key => {
                 // set status loading
-                imagesStack({...imagesStackSub, landsat: {
-                    ...imagesStackSub.sentinel,
-                    [key]: {
-                        ...imagesStackSub.landsat[key],
-                        status: "loading"
-                    }
-                }})
-                downloadLandsat({
-                    variables: {
-                        input: {
-                            landsatMeta: {
-                                ...imagesStackSub.landsat[key].meta
-                            },
-                            sensor: selectedImageSub.sensor,
-                            systemIndex: selectedImageSub.systemIndex,
-                            meta: JSON.stringify(selectedImageSub.metadata)
-                        }
+                wsSub.send(JSON.stringify( {
+                    operation: 'download-landsat',
+                    token: `Bearer ${localStorage.getItem("miniGISToken")}`,
+                    landsatMeta: {
+                        ...imagesStackSub.landsat[key].meta
                     },
-                    onCompleted: data => {
-                        toasts({[new Date().toLocaleString()]: {
-                            header: data.downloadLandsat.header,
-                            message: data.downloadLandsat.message,
-                            datetime: new Date(data.downloadLandsat.datetime),
-                            show: true,
-                            color: 'text-bg-success'
-                        }})
-                        // set status downloaded
-                        imagesStack({...imagesStackSub, landsat: {
-                            ...imagesStackSub.landsat,
-                            [key]: {
-                                ...imagesStackSub.landsat[key],
-                                status: "downloaded"
-                            }
-                        }})
-                        if(!landsatLoading && !sentinelLoading) isLoading(false)
-                    },
-                    refetchQueries: [
-                        {query: AVAILABLE_FILES, variables: {to: 'Clip'}},
-                        {query: AVAILABLE_FILES, variables: {to: 'Stack'}},
-                        {query: AVAILABLE_FILES, variables: {to: 'Classification'}},
-                    ]
-                })
+                    sensor: selectedImageSub.sensor,
+                    systemIndex: selectedImageSub.systemIndex,
+                    meta: JSON.stringify(selectedImageSub.metadata)
+            }))
             })
         }
     }
 
     return <button onClick={()=>download()} className='btn btn-sm btn-success' type='button' disabled={isLoadingSub}>Скачать</button>
+    
 
 }

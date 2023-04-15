@@ -22,7 +22,7 @@ export const Toasts = () => {
         {Object.keys(toastsSub).map(key => {
             return <Toast 
                 show={toastsSub[key].show}
-                delay={5000}
+                delay={50000}
                 autohide
                 onClose={() => toasts({...toastsSub, [key]: {...toastsSub[key], show: false}})}
                 key={key}

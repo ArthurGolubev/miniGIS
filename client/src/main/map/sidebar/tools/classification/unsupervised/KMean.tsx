@@ -1,76 +1,60 @@
 import { useLazyQuery, useMutation, useReactiveVar } from '@apollo/client'
 import * as React from 'react'
-import * as L from 'leaflet'
 import { AVAILABLE_FILES } from '../../../../restQueries'
-import { CLASSIFY_K_MEAN } from '../../../../restMutations'
-import { classification, isLoading, layers, mapLayerControl, mapObj, selectedFiles, toasts, tools } from '../../../../rv'
-import { ClassificationRaster, MapLayer } from '../../../../types/main/LayerTypes'
-import { MapContainer, TileLayer, useMap, ImageOverlay} from 'react-leaflet'
+import { classification, isLoading, selectedFiles, toasts, websocketMessages, ws } from '../../../../rv'
 import { AvailableFiles } from '../../AvailableFiles'
 import { useLocation } from 'react-router'
-import { ChangeMapView } from '../resultOnMap/ChangeMapView'
 import { ResultOnMap } from '../resultOnMap/ResultOnMap'
+import { BlankMap } from '../resultOnMap/BlankMap'
 
 
 export const KMean = () => {
     const classificationSub = useReactiveVar(classification)
     const selectedFilesSub = useReactiveVar(selectedFiles)
-    const mapObjSub = useReactiveVar(mapObj) as any
-    const layersSub = useReactiveVar(layers)
-    const [classify, {data, loading}] = useMutation(CLASSIFY_K_MEAN, {fetchPolicy: 'network-only'})
     const location = useLocation()
-    console.log('selectedFilesSub.files -> ', selectedFilesSub.files)
+    const wsSub = useReactiveVar(ws) as any
+    const websocketMessagesSub = useReactiveVar(websocketMessages)
+    const [state, setState] = React.useState(undefined)
+    const isLoadingSub = useReactiveVar(isLoading)
     
-    let center = [35.88, -5.3525]
     
+    React.useEffect(() => {
+        if(!wsSub) return
+        wsSub.onmessage = (e: any) => {
+            console.log('123')
+            const message = JSON.parse(e.data)
+            console.log('message -> ', message)
+            websocketMessages([...websocketMessagesSub, message])
+            if(message.operation == '/classification/unsupervised/k-mean'){
+                isLoading(false)
+                toasts({[new Date().toLocaleString()]: {
+                    header: message.header,
+                    message: message.message,
+                    show: true,
+                    datetime: new Date(message.datetime),
+                    color: 'text-bg-success'
+                }})
+                setState(message)
+            call1()
+            call2()
+            call3()
+            }
+        }
+    })
+
     const classifyHandler = () => {
         isLoading(true)
-        classify({
-            variables: {
-                options: {
-                    filePath: selectedFilesSub.files[location.pathname][0],
-                    k: classificationSub.classes
-                }
-            },
-            fetchPolicy: 'network-only',
-            onCompleted: data => {
-                let lng: number = data.classifyKMean.coordinates[0][1]
-                let lat: number = data.classifyKMean.coordinates[0][0] 
-                center = [lng, lat]
-            //     console.log('SOME SUPER DATA -> ', data)
-            //     let coordinates = data.classifyKMean.coordinates
-            //     let imgUrl = data.classifyKMean.imgUrl
-            //     let k = data.classifyKMean.k
-            //     let fileName = data.classifyKMean.fileName.slice(0,-4)
-            //     L.geoJSON().addTo(mapObjSub).addData({type: 'LineString', coordinates: coordinates} as any)
-            //     let layer = L.imageOverlay(imgUrl, coordinates.map((point: Array<number>) => [point[1], point[0]]) ) as any
-            //     let mapLayer: ClassificationRaster = {
-            //         name: fileName,
-            //         k: k,
-            //         resultType: 'KMean',
-            //         layerType: "raster",
-            //         layer: layer,
-            //         positionInTable: Object.keys(layersSub).length + 1
-            //     }
-            //     layers({ ...layersSub, [fileName]: mapLayer })
-            //     layer.addTo(mapObjSub)
-            //     toasts({[new Date().toLocaleString()]: {
-            //         header: data.classifyKMean.header,
-            //         message: data.classifyKMean.message,
-            //         show: true,
-            //         datetime: new Date(data.classifyKMean.datetime),
-            //         color: 'text-bg-success'
-            //     }})
-                isLoading(false)
-            },
-            refetchQueries: [
-                {query: AVAILABLE_FILES, variables: {to: 'clip'}},
-                {query: AVAILABLE_FILES, variables: {to: 'stack'}},
-                {query: AVAILABLE_FILES, variables: {to: 'unsupervised'}},
-                {query: AVAILABLE_FILES, variables: {to: 'supervised'}},
-            ]
-        })
+        wsSub.send(JSON.stringify({
+            operation: '/classification/unsupervised/k-mean',
+            token: `Bearer ${localStorage.getItem("miniGISToken")}`,
+            filePath: selectedFilesSub.files[location.pathname][0],
+            k: classificationSub.classes
+        }))
     }
+
+    const [call1] = useLazyQuery(AVAILABLE_FILES, {variables: {to: 'clip'}})
+    const [call2] = useLazyQuery(AVAILABLE_FILES, {variables: {to: 'stack'}})
+    const [call3] = useLazyQuery(AVAILABLE_FILES, {variables: {to: 'classification'}})
 
 
 
@@ -90,7 +74,7 @@ export const KMean = () => {
 
                         {/* -------------------------------------------Map-Start------------------------------------------ */}
                         <div className='col-6'>
-                            <ResultOnMap data={data?.classifyKMean} loading={loading} center={center}/>
+                            { state !== undefined ? <ResultOnMap data={state} /> : <BlankMap /> }
                         </div>
                         {/* -------------------------------------------Map-End-------------------------------------------- */}
 
@@ -110,7 +94,7 @@ export const KMean = () => {
                             </div>
                             <div className='row justify-content-start mb-2'>
                                 <div className='col-12 text-center'>
-                                    <button onClick={()=>classifyHandler()} className='btn btn-sm btn-success' type='button' disabled={loading}>classify</button>
+                                    <button onClick={()=>classifyHandler()} className='btn btn-sm btn-success' type='button' disabled={isLoadingSub}>classify</button>
                                 </div>
                             </div>
                         </div>

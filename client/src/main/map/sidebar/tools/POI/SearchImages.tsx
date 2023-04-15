@@ -34,7 +34,8 @@ export const SearchImages = () => {
                     input: {
                         poi: {lat: searchImagesSub.poi[1], lon: searchImagesSub.poi[0]},
                         date: {startDate: searchImagesSub.period.start, endDate: searchImagesSub.period.end},
-                        sensor: searchImagesSub.sensor
+                        sensor: searchImagesSub.sensor,
+                        operation: 'search-preview'
                     }
                 },
                 onCompleted: data => {

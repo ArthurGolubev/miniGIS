@@ -10,7 +10,7 @@ class BisectingKMean:
         self.user = user
         self.file_path = file_path
 
-    def classify(self, k: int):
+    async def classify(self, k: int):
         img = ImgHandler(user=self.user, file_path=self.file_path, alg_name='BisectingKMean', alg_param=f'k{k}')
         rows, cols, reshaped_img = img.open_()
 
@@ -24,6 +24,7 @@ class BisectingKMean:
             header='Классификация',
             message=f'Тип: Bisecting KMean, k={k}',
             datetime=datetime.now(),
+            operation='/classification/unsupervised/bisecting-kmean'
         )
 
 

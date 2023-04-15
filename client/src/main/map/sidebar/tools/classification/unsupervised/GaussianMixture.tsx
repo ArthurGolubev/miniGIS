@@ -1,47 +1,59 @@
-import { useMutation, useReactiveVar } from '@apollo/client'
+import { useLazyQuery, useMutation, useReactiveVar } from '@apollo/client'
 import * as React from 'react'
 import { AVAILABLE_FILES } from '../../../../restQueries'
-import { CLASSIFY_GAUSSIAN_MIXTURE } from '../../../../restMutations'
-import { classification, isLoading, selectedFiles } from '../../../../rv'
+import { classification, isLoading, selectedFiles, toasts, websocketMessages, ws } from '../../../../rv'
 import { AvailableFiles } from '../../AvailableFiles'
 import { useLocation } from 'react-router'
 import { ResultOnMap } from '../resultOnMap/ResultOnMap'
+import { BlankMap } from '../resultOnMap/BlankMap'
 
 
 export const GaussianMixture = () => {
     const classificationSub = useReactiveVar(classification)
     const selectedFilesSub = useReactiveVar(selectedFiles)
-    const [classify, {data, loading}] = useMutation(CLASSIFY_GAUSSIAN_MIXTURE, {fetchPolicy: 'network-only'})
     const location = useLocation()
-    console.log('selectedFilesSub.files -> ', selectedFilesSub.files)
-    
-    let center = [35.88, -5.3525]
+    const wsSub = useReactiveVar(ws) as any
+    const websocketMessagesSub = useReactiveVar(websocketMessages)
+    const [state, setState] = React.useState()
+    const isLoadingSub = useReactiveVar(isLoading)    
+
+
+    React.useEffect(() => {
+        if(!wsSub) return
+        wsSub.onmessage = (e: any) => {
+            const message = JSON.parse(e.data)
+            console.log('message -> ', message)
+            websocketMessages([...websocketMessagesSub, message])
+            if(message.operation == '/classification/unsupervised/gaussian-mixture'){
+                isLoading(false)
+                toasts({[new Date().toLocaleString()]: {
+                    header: message.header,
+                    message: message.message,
+                    show: true,
+                    datetime: new Date(message.datetime),
+                    color: 'text-bg-success'
+                }})
+                setState(message)
+            call1()
+            call2()
+            call3()
+            }
+        }
+    })
     
     const classifyHandler = () => {
         isLoading(true)
-        classify({
-            variables: {
-                options: {
-                    filePath: selectedFilesSub.files[location.pathname][0],
-                    n_components: classificationSub.classes
-                }
-            },
-            fetchPolicy: 'network-only',
-            onCompleted: data => {
-                console.log('some data! -> ', data)
-                let lng: number = data.classifyGaussianMixture.coordinates[0][1]
-                let lat: number = data.classifyGaussianMixture.coordinates[0][0] 
-                center = [lng, lat]
-                isLoading(false)
-            },
-            refetchQueries: [
-                {query: AVAILABLE_FILES, variables: {to: 'clip'}},
-                {query: AVAILABLE_FILES, variables: {to: 'stack'}},
-                {query: AVAILABLE_FILES, variables: {to: 'unsupervised'}},
-                {query: AVAILABLE_FILES, variables: {to: 'supervised'}},
-            ]
-        })
+        wsSub.send(JSON.stringify({
+            operation: '/classification/unsupervised/gaussian-mixture',
+            token: `Bearer ${localStorage.getItem("miniGISToken")}`,
+            filePath: selectedFilesSub.files[location.pathname][0],
+            n_components: classificationSub.classes
+        }))
     }
+
+    const [call1] = useLazyQuery(AVAILABLE_FILES, {variables: {to: 'clip'}})
+    const [call2] = useLazyQuery(AVAILABLE_FILES, {variables: {to: 'stack'}})
+    const [call3] = useLazyQuery(AVAILABLE_FILES, {variables: {to: 'classification'}})
 
 
 
@@ -61,7 +73,7 @@ export const GaussianMixture = () => {
 
                         {/* -------------------------------------------Map-Start------------------------------------------ */}
                         <div className='col-6'>
-                            <ResultOnMap data={data?.classifyGaussianMixture} loading={loading} center={center}/>
+                            { state !== undefined ? <ResultOnMap data={state} /> : <BlankMap /> }
                         </div>
                         {/* -------------------------------------------Map-End-------------------------------------------- */}
 
@@ -81,7 +93,7 @@ export const GaussianMixture = () => {
                             </div>
                             <div className='row justify-content-start mb-2'>
                                 <div className='col-12 text-center'>
-                                    <button onClick={()=>classifyHandler()} className='btn btn-sm btn-success' type='button' disabled={loading}>classify</button>
+                                    <button onClick={()=>classifyHandler()} className='btn btn-sm btn-success' type='button' disabled={isLoadingSub}>classify</button>
                                 </div>
                             </div>
                         </div>
