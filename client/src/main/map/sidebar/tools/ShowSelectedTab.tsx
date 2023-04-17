@@ -34,7 +34,7 @@ export const ShowSelectedTab = () => {
                         {location.pathname == '/main/clip' && toolsSub.description.Clip}
                         {location.pathname == '/main/stack' && toolsSub.description.Stack}
                         {location.pathname == '/main/classification' && toolsSub.description.Classification}
-                        {location.pathname == '/main/classification/unsupervised' && toolsSub.description.Unsupervised}
+                        <span style={{fontSize: '80%'}}>{location.pathname == '/main/classification/unsupervised' && toolsSub.description.Unsupervised}</span>
                         {location.pathname == '/main/classification/supervised' && toolsSub.description.Supervised}
                     </figcaption>
                 </figure>

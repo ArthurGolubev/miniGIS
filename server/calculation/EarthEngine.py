@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 
 from server.calculation.YandexDiskHadler import YandexDiskHandler
 from server.models import Coordinates, DownloadLandsat, Period, DownloadSentinel, ToastMessage, SearchPreviewTM, PreviewTM
+from multiprocessing import Queue
 
 
 def time_metr(func):
@@ -104,7 +105,8 @@ class EarthEngine(YandexDiskHandler):
 
 
     @time_metr
-    async def download_sentinel(self, dwld_sentinel: DownloadSentinel) -> ToastMessage:
+    def download_sentinel(self, q: Queue):
+        dwld_sentinel: DownloadSentinel = q.get()
         UTM_ZONE        = dwld_sentinel.sentinel_meta.mgrs_tile[:2]
         LATITUDE_BAND   = dwld_sentinel.sentinel_meta.mgrs_tile[2:3]
         GRID_SQUARE     = dwld_sentinel.sentinel_meta.mgrs_tile[3:]
@@ -133,7 +135,7 @@ class EarthEngine(YandexDiskHandler):
             preview.seek(0)
             self.y.upload(preview, yandex_disk_path + '/preview.txt', overwrite=True)
 
-        return ToastMessage(
+        q.put(ToastMessage(
             header=f'Загрузка завершена - Sentinel',
             message=f"""
                 Продукт {PRODUCT_ID},
@@ -141,12 +143,13 @@ class EarthEngine(YandexDiskHandler):
             """,
             datetime=datetime.now(),
             operation='download-sentinel'
-        )
+        ))
 
 
 
     @time_metr
-    async def download_landsat(self, dwld_landsat: DownloadLandsat) -> ToastMessage:
+    def download_landsat(self, q: Queue):
+        dwld_landsat: DownloadLandsat = q.get()
         SENSOR_ID           = dwld_landsat.landsat_meta.sensor_id
         PATH                = dwld_landsat.landsat_meta.path.zfill(3)
         ROW                 = dwld_landsat.landsat_meta.row.zfill(3)
@@ -173,7 +176,7 @@ class EarthEngine(YandexDiskHandler):
             preview.seek(0)
             self.y.upload(preview, yandex_disk_path + '/preview.txt', overwrite=True)
 
-        return ToastMessage(
+        q.put(ToastMessage(
             header=f'Загрузка завершена - Landsat',
             message=f"""
                 Продукт {PRODUCT_ID},
@@ -181,4 +184,4 @@ class EarthEngine(YandexDiskHandler):
             """,
             datetime=datetime.now(),
             operation='download-landsat'
-        )
+        ))

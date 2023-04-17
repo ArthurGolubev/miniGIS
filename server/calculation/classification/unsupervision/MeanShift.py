@@ -5,13 +5,15 @@ from datetime import datetime
 
 from server.models import ClassificationTM
 from server.calculation.classification.unsupervision.ImgHandler import ImgHandler
+from multiprocessing import Queue
 
 class MeanShift:
     def __init__(self, user, file_path: str) -> None:
         self.user = user
         self.file_path = file_path
 
-    async def classify(self, n_samples: int = 10000):
+    def classify(self, q: Queue):
+        n_samples = q.get()
         img = ImgHandler(user=self.user, file_path=self.file_path, alg_name='Mean Shift', alg_param=f'n_samples{n_samples}')
         rows, cols, reshaped_img = img.open_()
         
@@ -21,12 +23,12 @@ class MeanShift:
 
         classification_layer = img.save_(mean_shift_2d)
 
-        return ClassificationTM(
+        q.put(ClassificationTM(
             **classification_layer,
             header='Классификация',
             message=f'Тип: Mean Shift, n_samples={n_samples}',
             datetime=datetime.now(),
             operation='/classification/unsupervised/mean-shift'
-        )
+        ))
 
 

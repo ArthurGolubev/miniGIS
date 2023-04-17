@@ -4,13 +4,15 @@ from datetime import datetime
 
 from server.models import ClassificationTM
 from server.calculation.classification.unsupervision.ImgHandler import ImgHandler
+from multiprocessing import Queue
 
 class GaussianMixture:
     def __init__(self, user, file_path: str) -> None:
         self.user = user
         self.file_path = file_path
 
-    async def classify(self, n_components: int):
+    def classify(self, q: Queue):
+        n_components = q.get()
         img = ImgHandler(user=self.user, file_path=self.file_path, alg_name='GaussianMixture', alg_param=f'n_components{n_components}')
         rows, cols, reshaped_img = img.open_()
 
@@ -19,12 +21,12 @@ class GaussianMixture:
 
         classification_layer = img.save_(gaussian_mixture_predictions_2d)
 
-        return ClassificationTM(
+        q.put(ClassificationTM(
             **classification_layer,
             header='Классификация',
             message=f'Тип: Gaussian Mixture, n_components={n_components}',
             datetime=datetime.now(),
             operation='/classification/unsupervised/gaussian-mixture'
-        )
+        ))
 
 

@@ -4,13 +4,15 @@ from datetime import datetime
 
 from server.models import ClassificationTM
 from server.calculation.classification.unsupervision.ImgHandler import ImgHandler
+from multiprocessing import Queue
 
 class KMean:
     def __init__(self, user, file_path: str) -> None:
         self.user = user
         self.file_path = file_path
 
-    async def classify(self, k: int):
+    def classify(self, q: Queue):
+        k = q.get()
         img = ImgHandler(user=self.user, file_path=self.file_path, alg_name='KMean', alg_param=f'k{k}')
         rows, cols, reshaped_img = img.open_()
 
@@ -20,12 +22,12 @@ class KMean:
 
         classification_layer = img.save_(kmeans_predictions_2d)
 
-        return ClassificationTM(
+        q.put(ClassificationTM(
             **classification_layer,
             header='Классификация',
             message=f'Тип: k-mean, k={k}',
             datetime=datetime.now(),
             operation='/classification/unsupervised/k-mean'
-        )
-
+        ))
+        
 

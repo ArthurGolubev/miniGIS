@@ -1,61 +1,32 @@
-import { useLazyQuery, useMutation, useReactiveVar } from '@apollo/client'
 import * as React from 'react'
-import { AVAILABLE_FILES } from '../../../../restQueries'
-import { classification, isLoading, selectedFiles, toasts, websocketMessages, ws } from '../../../../rv'
-import { AvailableFiles } from '../../AvailableFiles'
 import { useLocation } from 'react-router'
-import { ResultOnMap } from '../resultOnMap/ResultOnMap'
+import { useReactiveVar } from '@apollo/client'
 import { BlankMap } from '../resultOnMap/BlankMap'
-
+import { AvailableFiles } from '../../AvailableFiles'
+import { socket } from '../../../../../../app/socket'
+import { ResultOnMap } from '../resultOnMap/ResultOnMap'
+import { ClassificationResultsType } from '../../../../types/interfacesTypeScript'
+import { classification, isLoading, selectedFiles, classificationResponse } from '../../../../rv'
 
 export const KMean = () => {
     const classificationSub = useReactiveVar(classification)
     const selectedFilesSub = useReactiveVar(selectedFiles)
     const location = useLocation()
-    const wsSub = useReactiveVar(ws) as any
-    const websocketMessagesSub = useReactiveVar(websocketMessages)
-    const [state, setState] = React.useState(undefined)
     const isLoadingSub = useReactiveVar(isLoading)
+    const classificationResponseSub = useReactiveVar(classificationResponse) as ClassificationResultsType
     
     
-    React.useEffect(() => {
-        if(!wsSub) return
-        wsSub.onmessage = (e: any) => {
-            console.log('123')
-            const message = JSON.parse(e.data)
-            console.log('message -> ', message)
-            websocketMessages([...websocketMessagesSub, message])
-            if(message.operation == '/classification/unsupervised/k-mean'){
-                isLoading(false)
-                toasts({[new Date().toLocaleString()]: {
-                    header: message.header,
-                    message: message.message,
-                    show: true,
-                    datetime: new Date(message.datetime),
-                    color: 'text-bg-success'
-                }})
-                setState(message)
-            call1()
-            call2()
-            call3()
-            }
-        }
-    })
-
     const classifyHandler = () => {
+        console.log('KMean start!')
         isLoading(true)
-        wsSub.send(JSON.stringify({
-            operation: '/classification/unsupervised/k-mean',
-            token: `Bearer ${localStorage.getItem("miniGISToken")}`,
-            filePath: selectedFilesSub.files[location.pathname][0],
-            k: classificationSub.classes
-        }))
+        socket.emit(
+            "unsupervised/kmean",
+            {
+                filePath: selectedFilesSub.files[location.pathname][0],
+                k: classificationSub.classes
+            },
+        )
     }
-
-    const [call1] = useLazyQuery(AVAILABLE_FILES, {variables: {to: 'clip'}})
-    const [call2] = useLazyQuery(AVAILABLE_FILES, {variables: {to: 'stack'}})
-    const [call3] = useLazyQuery(AVAILABLE_FILES, {variables: {to: 'classification'}})
-
 
 
     return <div className='row justify-content-center'>
@@ -74,7 +45,11 @@ export const KMean = () => {
 
                         {/* -------------------------------------------Map-Start------------------------------------------ */}
                         <div className='col-6'>
-                            { state !== undefined ? <ResultOnMap data={state} /> : <BlankMap /> }
+                            {
+                                classificationResponseSub?.["unsupervised/kmean"] ?
+                                <ResultOnMap data={classificationResponseSub["unsupervised/kmean"]} /> : 
+                                <BlankMap /> 
+                            }
                         </div>
                         {/* -------------------------------------------Map-End-------------------------------------------- */}
 

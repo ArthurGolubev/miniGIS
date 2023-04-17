@@ -15,6 +15,7 @@ from server.models import Token
 from server.models import User1
 from server.models import UserAuthorization
 from server.models import DownloadSentinel
+from server.database import engine
 
 from server.database import get_session
 
@@ -98,11 +99,8 @@ async def get_current_user(*, token: str = Depends(oauth2_scheme), session: Sess
 
 
 # async def get_websocket_data(websocket: WebSocket, session: Session):
-async def get_websocket_data(token, session: Session):
+async def get_websocket_user(token):
     logger.success('check token from websocket')
-    # data = await websocket.receive_json()
-    # token = decamelize(data)["token"][7:]
-    # logger.debug(f"1000 {token=}")
 
     credentinal_exeption = WebSocketDisconnect(
         code=status.WS_1015_TLS_HANDSHAKE,
@@ -118,7 +116,8 @@ async def get_websocket_data(token, session: Session):
     except JWTError:
         logger.error('JWT EXCEPTION!')
         raise credentinal_exeption
-    user = get_user(session=session, username=token_data.username)
+    with Session(engine) as session:
+        user = get_user(session=session, username=token_data.username)
     if user is None:
         raise credentinal_exeption
     return user

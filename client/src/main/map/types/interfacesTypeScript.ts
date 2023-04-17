@@ -1,21 +1,9 @@
+export interface SioType {
+    on: (event: string, response: (data: string) => void) => void
+    emit: (event: string, payload: {}) => void
+}
 
-
-// interface geom {
-//     layer: any
-//     shape: string
-//     outer_vertex: number
-//     inner_vertex?: number | undefined
-//     text: string,
-//     geom: any
-//     positionInTable: number
-//     // poi?: {
-//     //     lat: string,
-//     //     lon: string
-//     // },
-//     type: string | null
-// }
-
-interface tools {
+export interface ToolsType {
     setMask: boolean,
     setPOI: boolean,
     // show: "POI" | "Clip" | "Stack" | "Classification" | "Open" | "Unsupervised" | "Supervised",
@@ -39,7 +27,7 @@ interface tools {
     }
 }
 
-interface imagesStack {
+export interface ImagesStackType {
     sentinel: {
         [sceneNameId: string]: {
             meta: {
@@ -73,17 +61,30 @@ interface imagesStack {
     }
 }
 
-interface toasts {
-    [key: string]: {
-        datetime: Date,
-        header: string,
-        message: string,
-        show: boolean
-        color: string
-    }
+
+export interface ToastDataType {
+    datetime: Date,
+    header: string,
+    message: string,
+    show: boolean
+    color: string
 }
 
-interface selectedFiles {
+export interface ClassificationResultsType {
+    [key: string]: ToastDataWithImgType
+}
+
+export interface ToastDataWithImgType extends ToastDataType{
+    img_url: string
+    coordinates: Array<number>
+    operation: string
+}
+
+export interface ToastsType {
+    [key: string]: ToastDataType | ToastDataWithImgType
+}
+
+export interface SelectedFilesType {
     satellite: string
     product: string
     // files: {
@@ -98,16 +99,16 @@ interface selectedFiles {
     files: any
 }
 
-interface classification {
+export interface ClassificationType {
     method: string
     classes: number
 }
 
-interface sidebar {
+export interface SidebarType {
     show: 'tools' | 'layers'
 }
 
-interface SatelliteImage {
+export interface SatelliteImageType {
     layer: any
     type: string
     date: string

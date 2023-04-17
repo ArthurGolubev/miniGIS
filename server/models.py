@@ -12,9 +12,6 @@ def to_snake(string):
 
 
 
-class WebSocket(SQLModel):
-    token: str
-    operation: str
 
 class SentinelMeta(SQLModel):
     mgrs_tile: str
@@ -22,10 +19,10 @@ class SentinelMeta(SQLModel):
     granule_id: str
     bands: list[str]
 
-class StackOptions(WebSocket):
+class StackOptions(SQLModel):
     files: list[str]
 
-class DownloadSentinel(WebSocket):
+class DownloadSentinel(SQLModel):
     sentinel_meta: SentinelMeta
     sensor: str
     system_index: str
@@ -77,7 +74,7 @@ class ClipToMask(SQLModel):
 class MeanShiftOptions(SQLModel):
     n_samples: int
 
-class KMeanOptions(WebSocket):
+class KMeanOptions(SQLModel):
     file_path: str
     k: int
 
@@ -85,11 +82,11 @@ class MeanShiftOptions(SQLModel):
     file_path: str
     n_samples: int
 
-class BisectingKMeanOptions(WebSocket):
+class BisectingKMeanOptions(SQLModel):
     file_path: str
     k: int
 
-class GaussianMixtureOptions(WebSocket):
+class GaussianMixtureOptions(SQLModel):
     file_path: str
     n_components: int
 

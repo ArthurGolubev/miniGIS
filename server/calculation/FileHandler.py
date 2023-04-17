@@ -20,6 +20,7 @@ from server.models import User1
 from server.calculation.EarthEngine import EarthEngine
 from server.calculation.YandexDiskHadler import YandexDiskHandler
 
+from multiprocessing import Queue
 
 
 class FileHandler(YandexDiskHandler):
@@ -103,7 +104,8 @@ class FileHandler(YandexDiskHandler):
 
 
 
-    async def stack_bands(self, files: list[str]) -> ToastMessage:
+    def stack_bands(self,q: Queue):
+        files: list[str] = q.get()
         bands = sorted(files)
         temp_file = f'./cache/temp_username_{bands[0].split("/")[-1]}'
         
@@ -146,12 +148,12 @@ class FileHandler(YandexDiskHandler):
         self.y.upload(file_path, yandex_disk_path + f'/{file_name}', overwrite=True)
         os.remove(file_path)
 
-        return ToastMessage(
+        q.put(ToastMessage(
             header="Объединение слоёв",
             message=f"слои {bands} объеденены в {file_name}",
             datetime=datetime.now(),
             operation='stack-bands'
-            )
+        ))
 
 
 
@@ -264,7 +266,8 @@ class FileHandler(YandexDiskHandler):
 
 
 
-    async def clip_to_mask(self, data: ClipToMask) -> ToastMessage:
+    def clip_to_mask(self, q: Queue):
+        data: ClipToMask = q.get()
         mask = data.mask
         files = data.files
         g = mask.geometry["coordinates"]
@@ -295,12 +298,12 @@ class FileHandler(YandexDiskHandler):
             self.y.upload(local_path, yandex_disk_path  + f'/{file_name}', overwrite=True)
             os.remove(local_path)
 
-        return ToastMessage(
+        q.put(ToastMessage(
             header="Обрезка завершена - output.tif",
             message="Обрезка по маске",
             datetime=datetime.now(),
             operation='clip-to-mask'
-        )
+        ))
 
 
 

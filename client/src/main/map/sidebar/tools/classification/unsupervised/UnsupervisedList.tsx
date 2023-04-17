@@ -17,8 +17,8 @@ export const UnsupervisedList = () => {
                 <Accordion.Item eventKey='0'>
                     <Accordion.Header>KMean1</Accordion.Header>
                         <Accordion.Body>
-                            <div className='row justify-content-center'>
-                                <div className='col-12'>
+                            <div className='row justify-content-center overflow-auto' style={{maxHeight: "20vh"}}>
+                                <div className='col-12' style={{fontSize: '80%'}}>
                                     Алгоритм KMeans группирует данные, пытаясь разделить выборки на n групп с одинаковой дисперсией, сводя к минимуму критерий,
                                     известный как инерция или сумма квадратов внутри кластера (см. ниже). Этот алгоритм требует указания количества кластеров.
                                     Он хорошо масштабируется для большого количества образцов и используется в самых разных областях применения в самых
@@ -44,9 +44,9 @@ export const UnsupervisedList = () => {
                 <Accordion.Item eventKey='1'>
                     <Accordion.Header>Bisecting KMean</Accordion.Header>
                     <Accordion.Body>
-                        <div className='row justify-content-center'>
-                            <div className='col-12'>
-                                Это BisectingKMeans итеративный вариант KMeans, использующий разделительную иерархическую кластеризацию.
+                        <div className='row justify-content-center overflow-auto' style={{maxHeight: "20vh"}}>
+                            <div className='col-12' style={{fontSize: '80%'}}>
+                                Это <b>BisectingKMeans</b> итеративный вариант <b>KMeans</b>, использующий разделительную иерархическую кластеризацию.
                                 Вместо того, чтобы создавать все центроиды сразу, центроиды выбираются постепенно на основе предыдущей кластеризации:
                                 кластер многократно разбивается на два новых кластера, пока не будет достигнуто целевое количество кластеров.
                                 BisectingKMeans более эффективен, чем KMeans при большом количестве кластеров, поскольку он работает только с
@@ -74,9 +74,9 @@ export const UnsupervisedList = () => {
                 <Accordion.Item eventKey='2'>
                     <Accordion.Header>Gaussian Mixture</Accordion.Header>
                     <Accordion.Body>
-                    <div className='row justify-content-center'>
-                        <div className='col-12'>
-                            Объект GaussianMixture реализует алгоритм максимизации ожидания (EM) для подгонки смешанных гауссовских моделей.
+                    <div className='row justify-content-center overflow-auto' style={{maxHeight: "20vh"}}>
+                        <div className='col-12' style={{fontSize: '80%'}}>
+                            Объект <b>GaussianMixture</b>GaussianMixture реализует алгоритм максимизации ожидания (EM) для подгонки смешанных гауссовских моделей.
                             Он также может рисовать эллипсоиды достоверности для многомерных моделей и вычислять байесовский информационный
                             критерий для оценки количества кластеров в данных. GaussianMixture.fitПредоставляется метод, который изучает гауссовскую
                             модель смеси из данных поезда . Имея тестовые данные, он может присвоить каждой выборке гауссову диаграмму, которой она,
@@ -104,9 +104,9 @@ export const UnsupervisedList = () => {
                 <Accordion.Item eventKey='3'>
                     <Accordion.Header>Mean Shift</Accordion.Header>
                     <Accordion.Body>
-                        <div className='row justify-content-center'>
-                            <div className='col-12'>
-                                MeanShiftкластеризация направлена ​​на обнаружение пятен в равномерной плотности образцов.
+                        <div className='row justify-content-center overflow-auto' style={{maxHeight: "20vh"}}>
+                            <div className='col-12' style={{fontSize: '80%'}}>
+                                <b>MeanShift</b> кластеризация направлена ​​на обнаружение пятен в равномерной плотности образцов.
                                 Это алгоритм, основанный на центроидах, который работает путем обновления кандидатов на центроиды,
                                 чтобы они были средним значением точек в заданной области. Затем эти кандидаты фильтруются на этапе постобработки,
                                 чтобы исключить почти дубликаты и сформировать окончательный набор центроидов.            

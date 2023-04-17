@@ -1,60 +1,32 @@
-import { useLazyQuery, useMutation, useReactiveVar } from '@apollo/client'
+import { useReactiveVar } from '@apollo/client'
 import * as React from 'react'
-import { AVAILABLE_FILES } from '../../../../restQueries'
-import { classification, isLoading, selectedFiles, toasts, websocketMessages, ws } from '../../../../rv'
+import { classification, classificationResponse, isLoading, selectedFiles, } from '../../../../rv'
 import { AvailableFiles } from '../../AvailableFiles'
 import { useLocation } from 'react-router'
 import { ResultOnMap } from '../resultOnMap/ResultOnMap'
 import { BlankMap } from '../resultOnMap/BlankMap'
+import { socket } from '../../../../../../app/socket'
+import { ClassificationResultsType } from '../../../../types/interfacesTypeScript'
 
 
 export const GaussianMixture = () => {
     const classificationSub = useReactiveVar(classification)
     const selectedFilesSub = useReactiveVar(selectedFiles)
     const location = useLocation()
-    const wsSub = useReactiveVar(ws) as any
-    const websocketMessagesSub = useReactiveVar(websocketMessages)
-    const [state, setState] = React.useState()
-    const isLoadingSub = useReactiveVar(isLoading)    
+    const isLoadingSub = useReactiveVar(isLoading) 
+    const classificationResponseSub = useReactiveVar(classificationResponse) as ClassificationResultsType
 
-
-    React.useEffect(() => {
-        if(!wsSub) return
-        wsSub.onmessage = (e: any) => {
-            const message = JSON.parse(e.data)
-            console.log('message -> ', message)
-            websocketMessages([...websocketMessagesSub, message])
-            if(message.operation == '/classification/unsupervised/gaussian-mixture'){
-                isLoading(false)
-                toasts({[new Date().toLocaleString()]: {
-                    header: message.header,
-                    message: message.message,
-                    show: true,
-                    datetime: new Date(message.datetime),
-                    color: 'text-bg-success'
-                }})
-                setState(message)
-            call1()
-            call2()
-            call3()
-            }
-        }
-    })
     
     const classifyHandler = () => {
         isLoading(true)
-        wsSub.send(JSON.stringify({
-            operation: '/classification/unsupervised/gaussian-mixture',
-            token: `Bearer ${localStorage.getItem("miniGISToken")}`,
-            filePath: selectedFilesSub.files[location.pathname][0],
-            n_components: classificationSub.classes
-        }))
+        socket.emit(
+            "unsupervised/gaussian-mixture",
+            {
+                filePath: selectedFilesSub.files[location.pathname][0],
+                n_components: classificationSub.classes
+            }
+        )
     }
-
-    const [call1] = useLazyQuery(AVAILABLE_FILES, {variables: {to: 'clip'}})
-    const [call2] = useLazyQuery(AVAILABLE_FILES, {variables: {to: 'stack'}})
-    const [call3] = useLazyQuery(AVAILABLE_FILES, {variables: {to: 'classification'}})
-
 
 
     return <div className='row justify-content-center'>
@@ -73,7 +45,11 @@ export const GaussianMixture = () => {
 
                         {/* -------------------------------------------Map-Start------------------------------------------ */}
                         <div className='col-6'>
-                            { state !== undefined ? <ResultOnMap data={state} /> : <BlankMap /> }
+                            {
+                                classificationResponseSub?.["unsupervised/gaussian-mixture"] ?
+                                <ResultOnMap data={classificationResponseSub["unsupervised/gaussian-mixture"]} /> : 
+                                <BlankMap /> 
+                            }
                         </div>
                         {/* -------------------------------------------Map-End-------------------------------------------- */}
 

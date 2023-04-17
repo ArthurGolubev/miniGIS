@@ -1,17 +1,18 @@
 import { makeVar } from "@apollo/client"
 import { MapLayers } from "./types/main/LayerTypes"
 import { MapObject } from "./types/main/MapTypes"
+import { ClassificationResultsType, ClassificationType, ImagesStackType, SelectedFilesType, SidebarType, ToastDataType, ToastDataWithImgType, ToastsType, ToolsType } from "./types/interfacesTypeScript"
 
 
 // TODO Почистить
-export const imagesStack = makeVar({} as imagesStack)
+export const imagesStack = makeVar({} as ImagesStackType)
 export const selectedImage = makeVar({metadata: undefined, imgUrl: '', sensor: '', systemIndex: ''})
 export const mapObj = makeVar({} as MapObject)
 export const imagePreview = makeVar([])
 export const isLoading = makeVar(false)
 export const errors = makeVar({period: false})
 
-export const sidebar = makeVar({show: 'tools'} as sidebar)
+export const sidebar = makeVar({show: 'tools'} as SidebarType)
 export const tools = makeVar({
     setMask: false,
     setPOI: false,
@@ -33,7 +34,7 @@ export const tools = makeVar({
         Supervised: 'класс задач обработки данных, в которых для каждого обучающего объекта задаётся «правильный ответ», и требуется найти зависимость между объектами и ответами',
         Open: 'добавить слой на карту. Доступны следующие слои: привью скаченного снимка, шейп файлы, результаты классификации'
     }
-} as tools)
+} as ToolsType)
 
 
 export const searchImages = makeVar({
@@ -54,9 +55,9 @@ export const bands = {
 }
 
 
-export const toasts = makeVar({} as toasts)
-export const classification = makeVar({} as classification)
-export const selectedFiles = makeVar({} as selectedFiles)
+export const toasts = makeVar({} as ToastsType)
+export const classification = makeVar({} as ClassificationType)
+export const selectedFiles = makeVar({} as SelectedFilesType)
 
 export const layers = makeVar({} as MapLayers)
 export const shapeEdit = makeVar('')
@@ -76,5 +77,4 @@ export const clipMask = makeVar({layer: undefined, mask: {}})
 export const treeAvailableFiles = makeVar({} as any)
 export const redirectTo = makeVar({url: undefined})
 
-export const ws = makeVar('') as any
-export const websocketMessages = makeVar([])
+export const classificationResponse = makeVar({} as ClassificationResultsType)

@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { createHashRouter } from "react-router-dom";
+import { createHashRouter, createBrowserRouter } from "react-router-dom";
 import { YandexAuthorization } from "./profile/YandexAuthorization"
 import { KMean } from "./main/map/sidebar/tools/classification/unsupervised/KMean"
 import { SearchImages } from "./main/map/sidebar/tools/POI/SearchImages"
