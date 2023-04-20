@@ -1,6 +1,6 @@
 
 from datetime import datetime
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field, SQLModel, Relationship, ARRAY, Column, Float
 
 from humps import camelize, decamelize
 
@@ -70,9 +70,6 @@ class ClipToMask(SQLModel):
     files: list[str]
     mask: GeoJSON
 
-
-class MeanShiftOptions(SQLModel):
-    n_samples: int
 
 class KMeanOptions(SQLModel):
     file_path: str
@@ -158,7 +155,7 @@ class ShpSave(SQLModel):
 
 
 class ShpRead(SQLModel):
-    shp_name: object
+    shp_name: str
 
 
 
@@ -206,6 +203,16 @@ class User1Read(UserBase):
         alias_generator = to_camel
         allow_population_by_field_name = True
 
+
+# временная реализация хранения алгоритмов. Proof of concept
+class Job(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    user_id: int = Field(default=None, foreign_key="user1.id")
+    poi: str
+    last_file_name: str
+    alg_name: str
+    alg_param: int
+    mask: str                                                                   # yandex disk path_name
 
 
 ''' -------------------------------------------User-End-------------------------------------------- '''

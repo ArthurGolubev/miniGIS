@@ -9,7 +9,7 @@ from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
 
-from server.database import create_db_and_tables
+# from server.database import create_db_and_tables
 from server.database import get_session
 from server.auth import login_for_access_token
 from server.auth import get_websocket_user
@@ -28,9 +28,9 @@ app = FastAPI()
 
 app_socketio = socketio.ASGIApp(socketio_server=sio, socketio_path='workflow')
 
-@app.on_event("startup")
-def on_startup():
-    create_db_and_tables()
+# @app.on_event("startup")
+# def on_startup():
+#     create_db_and_tables()
 
 @sio.event
 async def connect(sid, environ, auth):
