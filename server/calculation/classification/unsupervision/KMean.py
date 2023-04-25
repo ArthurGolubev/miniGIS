@@ -13,14 +13,14 @@ class KMean:
 
     def classify(self, q: Queue):
         k = q.get()
+        yandex_disk_path = q.get()
         img = ImgHandler(user=self.user, file_path=self.file_path, alg_name='KMean', alg_param=f'k{k}')
         rows, cols, reshaped_img = img.open_()
 
         c = cluster.KMeans(n_clusters=k, random_state=0)
         kmeans_predictions = c.fit(reshaped_img)
         kmeans_predictions_2d = kmeans_predictions.labels_.reshape(1, rows, cols)
-
-        classification_layer = img.save_(kmeans_predictions_2d)
+        classification_layer = img.save_(kmeans_predictions_2d, path=yandex_disk_path)
 
         q.put(ClassificationTM(
             **classification_layer,

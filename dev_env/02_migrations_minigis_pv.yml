@@ -1,0 +1,25 @@
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: migrations-minigis-dev-pv
+  labels:
+    type: local
+    app: minigis-app
+    name: migrations-minigis-dev-pv
+spec:
+  storageClassName: migrations-minigis-dev-local-storage
+  capacity:
+    storage: 3Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  local:
+    path: "/home/arthur/dev/miniGIS"     # dev
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - arthur-virtualbox   # dev

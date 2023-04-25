@@ -4,6 +4,7 @@ import '@geoman-io/leaflet-geoman-free'
 import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css'
 import { layers, mapObj, searchImages, selectedVecLay, tools, mapLayerControl, clipMask } from './rv'
 import { VectorInterface } from './types/main/LayerTypes'
+import { Sidebar } from './sidebar/Sidebar'
 
 
 export const Map = () => {
@@ -86,11 +87,19 @@ export const Map = () => {
             case "Polygon":
                 if(tools().setMask){
                     
-                    clipMask({layer: layer, mask: geom})
+                    // Работает
+                    // clipMask({layer: layer, mask: geom})
+                    // let newGroupLayer = new L.FeatureGroup() as any
+                    // newGroupLayer.addLayer(layer)
+                    // newGroupLayer.addTo(map)
+                    // layerControl.addOverlay(newGroupLayer, 'clip mask')
+                    
+                    // Проверяю
                     let newGroupLayer = new L.FeatureGroup() as any
                     newGroupLayer.addLayer(layer)
                     newGroupLayer.addTo(map)
                     layerControl.addOverlay(newGroupLayer, 'clip mask')
+                    clipMask({layer: newGroupLayer, mask: geom})
                 }
                 // data = {
                 //     layerType: 'shape',
@@ -146,5 +155,13 @@ export const Map = () => {
 
 
 
-    return <div id='map' style={{height: '95vh', width: '100%'}}></div>
+    // return <div id='map' style={{height: '95vh', width: '100%'}}></div>
+    return <div className='row justify-content-center g-0'>
+        <div className='col-9'>
+            <div id='map' style={{height: '95vh', width: '100%'}}></div>
+        </div>
+        <div className='col-3'>
+            <Sidebar />
+        </div>
+    </div>
 }

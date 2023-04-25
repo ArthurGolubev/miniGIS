@@ -1,0 +1,13 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: migrations-minigis-dev-pvc
+  labels:
+    app: minigis-app
+spec:
+  storageClassName: migrations-minigis-dev-local-storage
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 3Gi

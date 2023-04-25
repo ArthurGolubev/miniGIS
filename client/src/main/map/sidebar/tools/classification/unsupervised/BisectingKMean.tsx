@@ -6,7 +6,7 @@ import { socket } from '../../../../../../app/socket'
 import { AvailableFiles } from '../../AvailableFiles'
 import { ResultOnMap } from '../resultOnMap/ResultOnMap'
 import { ClassificationResultsType } from '../../../../types/interfacesTypeScript'
-import { classification, isLoading, selectedFiles, toasts, classificationResponse } from '../../../../rv'
+import { classification, isLoading, selectedFiles, toasts, classificationResponse, classificationDescription } from '../../../../rv'
 
 
 export const BisectingKMean = () => {
@@ -15,6 +15,7 @@ export const BisectingKMean = () => {
     const location = useLocation()
     const isLoadingSub = useReactiveVar(isLoading)
     const classificationResponseSub = useReactiveVar(classificationResponse) as ClassificationResultsType
+    const classificationDescriptionSub = useReactiveVar(classificationDescription)
 
 
     const classifyHandler = () => {
@@ -40,6 +41,16 @@ export const BisectingKMean = () => {
                 </div>
             </div>
             {/* -------------------------------------------Header-End-------------------------------------------- */}
+
+
+            {/* -------------------------------------------Description-Start------------------------------------------ */}
+            <div className='row justify-content-center mt-2'>
+                <div className='col-10'>
+                    {classificationDescriptionSub.unsupervised.BisectingKMean}
+                </div>
+            </div>
+            {/* -------------------------------------------Description-End-------------------------------------------- */}
+
 
             <div className='row justify-content-center'>
                 <div className='col-10'>
@@ -80,6 +91,9 @@ export const BisectingKMean = () => {
                     </div>
                 </div>
             </div>
+
+
+
 
         </div>
     </div>

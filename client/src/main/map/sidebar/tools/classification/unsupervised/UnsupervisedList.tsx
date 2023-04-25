@@ -1,13 +1,17 @@
 import * as React from 'react'
-import { useNavigate } from 'react-router'
+import { useLocation, useNavigate } from 'react-router'
 import { Accordion } from 'react-bootstrap'
-import { tools } from '../../../../rv'
+import { classificationDescription } from '../../../../rv'
 import { useReactiveVar } from '@apollo/client'
 
 
 
 export const UnsupervisedList = () => {
     const redirect = useNavigate()
+    const location = useLocation()
+    const classificationDescriptionSub = useReactiveVar(classificationDescription)
+
+    const path = location.pathname == '/main/automation' ? '/main/automation' : '/classification/unsupervised'
 
     return <div className='row justify-content-center mt-3'>
         <div className='col-11'>
@@ -15,19 +19,16 @@ export const UnsupervisedList = () => {
                 
                 {/* -------------------------------------------Kmean-Start------------------------------------------ */}
                 <Accordion.Item eventKey='0'>
-                    <Accordion.Header>KMean1</Accordion.Header>
+                    <Accordion.Header>KMean</Accordion.Header>
                         <Accordion.Body>
                             <div className='row justify-content-center overflow-auto' style={{maxHeight: "20vh"}}>
                                 <div className='col-12' style={{fontSize: '80%'}}>
-                                    Алгоритм KMeans группирует данные, пытаясь разделить выборки на n групп с одинаковой дисперсией, сводя к минимуму критерий,
-                                    известный как инерция или сумма квадратов внутри кластера (см. ниже). Этот алгоритм требует указания количества кластеров.
-                                    Он хорошо масштабируется для большого количества образцов и используется в самых разных областях применения в самых
-                                    разных областях.
+                                    {classificationDescriptionSub.unsupervised.KMean}
                                 </div>
                                 <div className='row justify-content-end'>
                                     <div className='col-auto me-3'>
                                         <button
-                                        onClick={()=>redirect('/classification/unsupervised/kmean')}
+                                        onClick={()=>redirect(`${path}/kmean`)}
                                         className='btn btn-sm btn-light'
                                         type='button'>
                                             Рассчитать <i className="bi bi-arrow-right link-dark"></i>
@@ -46,18 +47,12 @@ export const UnsupervisedList = () => {
                     <Accordion.Body>
                         <div className='row justify-content-center overflow-auto' style={{maxHeight: "20vh"}}>
                             <div className='col-12' style={{fontSize: '80%'}}>
-                                Это <b>BisectingKMeans</b> итеративный вариант <b>KMeans</b>, использующий разделительную иерархическую кластеризацию.
-                                Вместо того, чтобы создавать все центроиды сразу, центроиды выбираются постепенно на основе предыдущей кластеризации:
-                                кластер многократно разбивается на два новых кластера, пока не будет достигнуто целевое количество кластеров.
-                                BisectingKMeans более эффективен, чем KMeans при большом количестве кластеров, поскольку он работает только с
-                                подмножеством данных в каждом делении пополам, но KMeansвсегда работает со всем набором данных.
-                                Этот вариант более эффективен для агломерационной кластеризации, если количество кластеров невелико
-                                по сравнению с количеством точек данных.            
+                                {classificationDescriptionSub.unsupervised.BisectingKMean}
                             </div>
                             <div className='row justify-content-end'>
                                 <div className='col-auto me-3'>
                                     <button
-                                    onClick={()=>redirect('/classification/unsupervised/bisecting-kmean')}
+                                    onClick={()=>redirect(`${path}//bisecting-kmean`)}
                                     className='btn btn-sm btn-light'
                                     type='button'>
                                         Рассчитать <i className="bi bi-arrow-right link-dark"></i>
@@ -76,18 +71,12 @@ export const UnsupervisedList = () => {
                     <Accordion.Body>
                     <div className='row justify-content-center overflow-auto' style={{maxHeight: "20vh"}}>
                         <div className='col-12' style={{fontSize: '80%'}}>
-                            Объект <b>GaussianMixture</b>GaussianMixture реализует алгоритм максимизации ожидания (EM) для подгонки смешанных гауссовских моделей.
-                            Он также может рисовать эллипсоиды достоверности для многомерных моделей и вычислять байесовский информационный
-                            критерий для оценки количества кластеров в данных. GaussianMixture.fitПредоставляется метод, который изучает гауссовскую
-                            модель смеси из данных поезда . Имея тестовые данные, он может присвоить каждой выборке гауссову диаграмму, которой она,
-                            скорее всего, принадлежит, используя метод GaussianMixture.predict.
-                            Поставляется GaussianMixtureс различными вариантами ограничения ковариации оцениваемых классов разности: сферическая,
-                            диагональная, связанная или полная ковариация.            
+                            {classificationDescriptionSub.unsupervised.GaussianMixture}
                         </div>
                         <div className='row justify-content-end'>
                             <div className='col-auto me-3'>
                                 <button
-                                onClick={()=>redirect('/classification/unsupervised/gaussian-mixture')}
+                                onClick={()=>redirect(`${path}/gaussian-mixture`)}
                                 className='btn btn-sm btn-light'
                                 type='button'>
                                     Рассчитать <i className="bi bi-arrow-right link-dark"></i>
@@ -106,15 +95,12 @@ export const UnsupervisedList = () => {
                     <Accordion.Body>
                         <div className='row justify-content-center overflow-auto' style={{maxHeight: "20vh"}}>
                             <div className='col-12' style={{fontSize: '80%'}}>
-                                <b>MeanShift</b> кластеризация направлена ​​на обнаружение пятен в равномерной плотности образцов.
-                                Это алгоритм, основанный на центроидах, который работает путем обновления кандидатов на центроиды,
-                                чтобы они были средним значением точек в заданной области. Затем эти кандидаты фильтруются на этапе постобработки,
-                                чтобы исключить почти дубликаты и сформировать окончательный набор центроидов.            
+                                {classificationDescriptionSub.unsupervised.MeanShift}
                             </div>
                             <div className='row justify-content-end'>
                                 <div className='col-auto me-3'>
                                     <button
-                                    onClick={()=>redirect('/classification/unsupervised/mean-shift')}
+                                    onClick={()=>redirect(`${path}/mean-shift`)}
                                     className='btn btn-sm btn-light'
                                     type='button'>
                                         Рассчитать <i className="bi bi-arrow-right link-dark"></i>

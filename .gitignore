@@ -15,3 +15,4 @@ secret.yml
 secret.yaml
 *credential.json
 .kube
+.mypy_cache/

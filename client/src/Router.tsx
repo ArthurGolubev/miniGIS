@@ -15,6 +15,14 @@ import { UnsupervisedList } from './main/map/sidebar/tools/classification/unsupe
 import { BisectingKMean } from './main/map/sidebar/tools/classification/unsupervised/BisectingKMean';
 import { GaussianMixture } from './main/map/sidebar/tools/classification/unsupervised/GaussianMixture';
 import { MeanShift } from './main/map/sidebar/tools/classification/unsupervised/MeanShift';
+import { Map } from './main/map/Map';
+import { Automation } from './main/automation/Automation';
+import { Step1 } from './main/automation/Step1';
+import { Step2 } from './main/automation/Step2';
+import { Step3 } from './main/automation/Step3';
+import { Step0 } from './main/automation/Step0';
+import { ShowSelectedTab } from './main/map/sidebar/tools/ShowSelectedTab';
+import { ViewSidebar } from './main/map/sidebar/layers/ViewSidebar';
 
 
 export const router = createHashRouter([
@@ -28,28 +36,66 @@ export const router = createHashRouter([
                 element: <Main />,
                 children: [
                     {
-                        path: 'poi',
-                        element: <SearchImages />
+                        path: 'automation',
+                        element: <Automation />,
+                        children: [
+                            {
+                                path: 'step-0',
+                                element: <Step0 />
+                            },
+                            {
+                                path: 'step-1',
+                                element: <Step1 />,
+                            },
+                            {
+                                path: 'step-2',
+                                element: <Step2 />
+                            },
+                            {
+                                path: 'step-3',
+                                element: <Step3 />
+                            },
+                        ]
                     },
                     {
-                        path: 'clip',
-                        element: <Clip />
-                    },
-                    {
-                        path: 'stack',
-                        element: <Stack />
-                    },
-                    {
-                        path: 'classification',
-                        element: <SelectClassificationType />,
-                    },
-                    {
-                        path: 'classification/unsupervised',
-                        element: <UnsupervisedList />,
-                    },
-                    {
-                        path: 'classification/supervised',
-
+                        path: 'map',
+                        element: <Map />,
+                        children: [
+                            {
+                                path: 'workflow',
+                                element: <ShowSelectedTab />,
+                                children: [
+                                    {
+                                        path: 'poi',
+                                        element: <SearchImages />
+                                    },
+                                    {
+                                        path: 'clip',
+                                        element: <Clip />
+                                    },
+                                    {
+                                        path: 'stack',
+                                        element: <Stack />
+                                    },
+                                    {
+                                        path: 'classification',
+                                        element: <SelectClassificationType />,
+                                    },
+                                    {
+                                        path: 'classification/unsupervised',
+                                        element: <UnsupervisedList />,
+                                    },
+                                    {
+                                        path: 'classification/supervised',
+                                    }
+                                ]
+                            },
+                            {
+                                path: 'layers',
+                                element: <ViewSidebar />,
+                                
+                            }
+                        ]
                     }
                 ]
             },

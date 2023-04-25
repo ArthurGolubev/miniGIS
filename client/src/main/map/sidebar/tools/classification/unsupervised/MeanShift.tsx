@@ -5,7 +5,7 @@ import { socket } from '../../../../../../app/socket'
 import { AvailableFiles } from '../../AvailableFiles'
 import { ResultOnMap } from '../resultOnMap/ResultOnMap'
 import { ClassificationResultsType } from '../../../../types/interfacesTypeScript'
-import { classification, classificationResponse, isLoading, selectedFiles } from '../../../../rv'
+import { classification, classificationDescription, classificationResponse, isLoading, selectedFiles } from '../../../../rv'
 import { useLocation } from 'react-router'
 
 
@@ -15,7 +15,7 @@ export const MeanShift = () => {
     const isLoadingSub = useReactiveVar(isLoading)
     const location = useLocation()
     const classificationResponseSub = useReactiveVar(classificationResponse) as ClassificationResultsType
-    
+    const classificationDescriptionSub = useReactiveVar(classificationDescription)
 
     
     const classifyHandler = () => {
@@ -41,6 +41,14 @@ export const MeanShift = () => {
                 </div>
             </div>
             {/* -------------------------------------------Header-End-------------------------------------------- */}
+
+            {/* -------------------------------------------Description-Start------------------------------------------ */}
+            <div className='row justify-content-center'>
+                <div className='col-10'>
+                    {classificationDescriptionSub.unsupervised.MeanShift}
+                </div>
+            </div>
+            {/* -------------------------------------------Description-End-------------------------------------------- */}
 
             <div className='row justify-content-center'>
                 <div className='col-10'>

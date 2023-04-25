@@ -37,3 +37,4 @@ class YandexDiskHandler:
         except:
             token = None
         return token
+    

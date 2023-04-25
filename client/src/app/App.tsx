@@ -70,6 +70,11 @@ export const App = () => {
         socket.on("download-landsat", (response) => responseHandler(response, "download-landsat"))
         socket.on("clip-to-mask", (response) => responseHandler(response, "clip-to-mask"))
         socket.on("stack-bands", (response) => responseHandler(response, "stack-bands"))
+
+        socket.on('automation/monitoring', (response) => responseHandler(response, 'automation/monitoring'))
+        socket.on('automation/data-processing', (response) => responseHandler(response, 'automation/data-processing'))
+        
+        
         
         
     

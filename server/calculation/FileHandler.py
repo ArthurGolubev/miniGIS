@@ -30,15 +30,18 @@ class FileHandler(YandexDiskHandler):
         self._make_yandex_dir_recursively('/miniGIS/images')
         self.user = user
 
-    
+
     def shp_save(self, shp_name, layer):
         """
         шейпфайл будет состоять из списка геометрий geoJSON
         1. Если в списке одна геометрия - один geoJSON, то создаётся один шейп с одной геометрией
         2. Если в списке несколько геометрий - несколько geo............
         """
-        c = json.loads(layer)
-        logger.info(f"{json.loads(layer)=}")
+        if type(layer) == str:
+            c = json.loads(layer)
+            logger.info(f"{json.loads(layer)=}")
+        else:
+            c = layer
         self._make_yandex_dir_recursively('/miniGIS/images/vector')
 
         file_name = f'{"".join([x for x in shp_name.title() if x.isalpha() or x.isdigit()])}'
@@ -53,42 +56,53 @@ class FileHandler(YandexDiskHandler):
         dbf_io = BytesIO()
 
         with shapefile.Writer(shp=shp_io, shx=shx_io, dbf=dbf_io) as shp:
-            for attr in c.get('features', [])[0].get('properties').keys():
-                _, attr_type = attr.split('_')
-                shp.field(attr, attr_type)
-            for shape in c.get('features', []):
-                props = []
-                for k, v in shape.get('properties').items():
-                    attr_type = k.split('_')[1]
-                    if attr_type == 'D':
-                        if v != '':
-                            d = datetime.strptime(v, '%Y-%m-%d').date()
+            features = c.get('features', [])
+            if len(features) > 0:
+                properties = features[0].get('properties')
+                if properties:
+                    for attr in properties.keys():
+                        _, attr_type = attr.split('_')
+                        shp.field(attr, attr_type)
+                else:
+                    shp.field('NullAttr', 'L')
+
+                for shape in features:
+                    props = []
+                    for k, v in properties.items():
+                        attr_type = k.split('_')[1]
+                        if attr_type == 'D':
+                            if v != '':
+                                d = datetime.strptime(v, '%Y-%m-%d').date()
+                            else:
+                                d = ''
+                            props.append(d)
+                        elif attr_type == 'L':
+                            d = False if v == False or v == '' else True
+                            props.append(d)
                         else:
-                            d = ''
-                        props.append(d)
-                    elif attr_type == 'L':
-                        d = False if v == False or v == '' else True
-                        props.append(d)
-                    else:
-                        logger.info(f"{v=}")
-                        props.append(v)
-                geom = shape['geometry']
-                if geom['type'] == 'Point':
-                    shp.point(geom['coordinates'][0], geom['coordinates'][1])
-                elif geom['type'] == 'LineString':
-                    shp.line([geom['coordinates']])
-                elif geom['type'] == 'Polygon':
-                    shp.poly(geom['coordinates'])
-                shp.record(*props)
+                            logger.info(f"{v=}")
+                            props.append(v)
+                    geom = shape['geometry']
+                    if geom['type'] == 'Point':
+                        shp.point(geom['coordinates'][0], geom['coordinates'][1])
+                    elif geom['type'] == 'LineString':
+                        shp.line([geom['coordinates']])
+                    elif geom['type'] == 'Polygon':
+                        shp.poly(geom['coordinates'])
+                    # if len(props) == 0: props.append(False)
+                    shp.record(*props)
         shp_io.seek(0)
         shx_io.seek(0)
         dbf_io.seek(0)
-        self.y.upload(shp_io, yandex_disk_path + '.shp')
-        self.y.upload(shx_io, yandex_disk_path + '.shx')
-        self.y.upload(dbf_io, yandex_disk_path + '.dbf')
+        self.y.upload(shp_io, yandex_disk_path + '.shp', overwrite=True)
+        self.y.upload(shx_io, yandex_disk_path + '.shx', overwrite=True)
+        self.y.upload(dbf_io, yandex_disk_path + '.dbf', overwrite=True)
+
 
     def shp_read(self, name: str):
+        logger.info(f'\n\n\nname1 {name=}\n\n\n')
         name = name.split('.')[0]
+        logger.info(f'\n\n\nname2 {name=}\n\n\n')
 
         shp_io = BytesIO()
         shx_io = BytesIO()
@@ -97,7 +111,7 @@ class FileHandler(YandexDiskHandler):
         self.y.download(name + '.shp', shp_io)
         self.y.download(name + '.shx', shx_io)
         self.y.download(name + '.dbf', dbf_io)
-
+        
         with shapefile.Reader(shp=shp_io, shx=shx_io, dbf=dbf_io) as shp:
             return shp.__geo_interface__
 
@@ -106,6 +120,7 @@ class FileHandler(YandexDiskHandler):
 
     def stack_bands(self,q: Queue):
         files: list[str] = q.get()
+        yandex_disk_path = q.get()
         bands = sorted(files)
         temp_file = f'./cache/temp_username_{bands[0].split("/")[-1]}'
         
@@ -131,10 +146,16 @@ class FileHandler(YandexDiskHandler):
         logger.info(f"{files[0].split('/')[4:6]=}")
         SATELLITE, PRODUCT = files[0].split('/')[4:6]
 
-        yandex_disk_path = f'/miniGIS/images/stack/{SATELLITE}/{PRODUCT}'
+        if yandex_disk_path == '':
+            # вариант вызываемый из workflow
+            yandex_disk_path = f'/miniGIS/images/stack/{SATELLITE}/{PRODUCT}'
+        else:
+            # в случае вызова из автоматизации
+            yandex_disk_path += '/stack'
+
         self._make_yandex_dir_recursively(yandex_disk_path)
 
-        Path(stack_folder).mkdir(parents=True, exist_ok=True)
+        # Path(stack_folder).mkdir(parents=True, exist_ok=True) # рудимент, использовавшийся при разработке. но на всякий случай, пусть будет
         file_path = os.path.join(stack_folder, file_name)
 
         with rasterio.open(file_path, "w", **meta) as dst:
@@ -145,15 +166,20 @@ class FileHandler(YandexDiskHandler):
                 with rasterio.open(temp_file) as src:
                     dst.write_band(id, src.read(1))
                 os.remove(temp_file)
-        self.y.upload(file_path, yandex_disk_path + f'/{file_name}', overwrite=True)
+        file_ = yandex_disk_path + f'/{file_name}'
+        self.y.upload(file_path, file_, overwrite=True)
         os.remove(file_path)
 
-        q.put(ToastMessage(
-            header="Объединение слоёв",
-            message=f"слои {bands} объеденены в {file_name}",
-            datetime=datetime.now(),
-            operation='stack-bands'
-        ))
+        q.put(
+            {
+            "tm": ToastMessage(
+                header="Объединение слоёв",
+                message=f"слои {bands} объеденены в {file_name}",
+                datetime=datetime.now(),
+                operation='stack-bands'
+            ),
+            "stack_file": file_
+        })
 
 
 
@@ -268,42 +294,68 @@ class FileHandler(YandexDiskHandler):
 
     def clip_to_mask(self, q: Queue):
         data: ClipToMask = q.get()
+        yandex_disk_path = q.get()
         mask = data.mask
         files = data.files
         g = mask.geometry["coordinates"]
         d1 = {'col1': ['mask'], 'geometry': [Polygon(g[0])]}
         gdf = gpd.GeoDataFrame(d1, crs="EPSG:4326")
         # gdf = gpd.GeoDataFrame(d1, crs="EPSG:32630")
+        clipped_files = []
+        
+        if yandex_disk_path == '':
+            path = files[0].split('/')
+            # вариант вызываемый из workflow
+            yandex_disk_path = '/' + os.path.join(*path[:-4], 'clipped', *path[-3:-2], *path[-2:-1])
+        else:
+            # в случае вызова из автоматизации
+            yandex_disk_path += '/clipped'
+
         for band_path in files:
+            path = band_path.split('/')
             temp_file = f'./cache/clip_to_mask_user_{band_path.split("/")[-1]}'
             self.y.download(band_path, temp_file)
             
             band_crs = es.crs_check(temp_file)
             mask = gdf.to_crs(band_crs)
-            clipped = rxr.open_rasterio(temp_file, masked=True).rio.clip(mask.geometry, from_disk=True).squeeze()
-            os.remove(temp_file)
 
-            path = band_path.split('/')
-            clipped_folder = os.path.join(*path[:-4], 'clipped', *path[-3:-2], *path[-2:-1])
+            try:
+                clipped = rxr.open_rasterio(temp_file, masked=True).rio.clip(mask.geometry, from_disk=True).squeeze()
+            except ValueError:
+                q.put(ToastMessage(
+                header="Обрезка по маске не завершена",
+                message="Маска не перекрывает растер",
+                datetime=datetime.now(),
+                operation='clip-to-mask'
+            ))
+                return
+            finally:
+                os.remove(temp_file)
+
+            
+            
             file_format = path[-1][-3:]
             file_name = f"clipped_{path[-1][:-4]}.{file_format}"
             logger.info(f"{file_name=}")
-            Path(clipped_folder).mkdir(parents=True, exist_ok=True)
-            
+            # Path(clipped_folder).mkdir(parents=True, exist_ok=True)
             local_path = './cache' + f'/{file_name}'
-            logger.info(f"{clipped_folder=}")
             clipped.rio.to_raster(local_path)
-            yandex_disk_path = '/' + clipped_folder
             self._make_yandex_dir_recursively(yandex_disk_path)
-            self.y.upload(local_path, yandex_disk_path  + f'/{file_name}', overwrite=True)
+
+            file_ = yandex_disk_path  + f'/{file_name}'
+            self.y.upload(local_path, file_, overwrite=True)
+            clipped_files.append(file_)
             os.remove(local_path)
 
-        q.put(ToastMessage(
-            header="Обрезка завершена - output.tif",
-            message="Обрезка по маске",
-            datetime=datetime.now(),
-            operation='clip-to-mask'
-        ))
+        q.put({
+            "tm": ToastMessage(
+                header="Обрезка завершена - output.tif",
+                message="Обрезка по маске",
+                datetime=datetime.now(),
+                operation='clip-to-mask'
+            ),
+            "clipped_files": clipped_files
+        })
 
 
 

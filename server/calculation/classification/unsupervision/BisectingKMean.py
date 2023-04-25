@@ -13,13 +13,14 @@ class BisectingKMean:
 
     def classify(self, q: Queue):
         k = q.get()
+        yandex_disk_path = q.get()
         img = ImgHandler(user=self.user, file_path=self.file_path, alg_name='BisectingKMean', alg_param=f'k{k}')
         rows, cols, reshaped_img = img.open_()
 
         bisecting_kmeans = cluster.BisectingKMeans(n_clusters=k, random_state=0).fit(reshaped_img)
         bisecting_kmeans_predictions_2d = bisecting_kmeans.labels_.reshape(1, rows, cols)
 
-        classification_layer = img.save_(bisecting_kmeans_predictions_2d)
+        classification_layer = img.save_(bisecting_kmeans_predictions_2d, path=yandex_disk_path)
 
         q.put(ClassificationTM(
             **classification_layer,

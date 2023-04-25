@@ -24,6 +24,7 @@ async def classify_kmean(sid, msg):
     alg = KMean(session['user'], data.file_path)
     q = Queue()
     q.put(data.k)
+    q.put('') # to default yandex disk path
     p = Process(target=alg.classify, args=(q,))
     p.start()
     while p.is_alive():
@@ -41,6 +42,7 @@ async def classify_bisecting_kmean(sid, msg):
     alg = BisectingKMean(session['user'], data.file_path)
     q = Queue()
     q.put(data.k)
+    q.put('') # to default yandex disk path
     p = Process(target=alg.classify, args=(q,))
     p.start()
     while p.is_alive():
@@ -58,6 +60,7 @@ async def classify_gaussian_mixture(sid, msg):
     alg = GaussianMixture(session['user'], data.file_path)
     q = Queue()
     q.put(data.n_components)
+    q.put('') # to default yandex disk path
     p = Process(target=alg.classify, args=(q,))
     p.start()
     while p.is_alive():
@@ -75,6 +78,7 @@ async def classify_mean_shift(sid, msg):
     alg = MeanShift(session['user'], data.file_path)
     q = Queue()
     q.put(data.n_samples)
+    q.put('') # to default yandex disk path
     p = Process(target=alg.classify, args=(q,))
     p.start()
     while p.is_alive():

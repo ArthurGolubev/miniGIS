@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minigis-deployment
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  selector:
+    matchLabels:
+      app: minigis-app
+  template:
+    metadata:
+      labels:
+        app: minigis-app
+    spec:
+      containers:
+
+        - name: minigis
+          image: arthurgo/minigis-web:dev
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              memory: 100Mi
+              cpu: "200m"
+            limits:
+              memory: 2048Mi
+              cpu: "2000m"
+          ports: 
+            - containerPort: 8000
+          env:
+            - name: POSTGRES_HOST
+              value: minigis-postgres-svc
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /minigis/credential/MINIGIS_EARTH_ENGINE_KEY_DATA
+          envFrom:
+            - secretRef:
+                name: minigis-secret
+          volumeMounts:
+            - name: google-earth-engine-secret
+              mountPath: "/minigis/credential"
+              readOnly: true
+            - mountPath: /miniGIS/cache
+              name: cache-minigis
+            - mountPath: /miniGIS/server/alembic
+              name: migrations-minigis
+            - mountPath: /miniGIS/
+              name: dev
+      # nodeName: server1   # prod
+      nodeName: arthur-virtualbox   # dev
+      volumes:
+        - name: google-earth-engine-secret
+          secret:
+            secretName: google-earth-engine-secret
+            optional: false
+        - name: cache-minigis
+          persistentVolumeClaim:
+            claimName: cache-minigis-pvc
+        - name: dev
+          persistentVolumeClaim:
+            claimName: migrations-minigis-dev-pvc
+        - name: migrations-minigis
+          persistentVolumeClaim:
+            claimName: migrations-minigis-pvc

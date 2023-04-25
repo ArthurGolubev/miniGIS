@@ -119,3 +119,5 @@ export interface SatelliteImageType {
 // export interface LayersType {
 //     [key: string]: SatelliteImage | geom
 // }
+
+export type unsupervisedType =  'KMean' | 'BisectingKMean' | 'GaussianMixture' | 'MeanShift'

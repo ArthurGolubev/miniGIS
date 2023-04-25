@@ -56,7 +56,7 @@ export const BandsList = () => {
             info.bands = band
             band.forEach(check => (document.querySelector(`#band-${check}`) as HTMLInputElement).checked = true)
         }
-        
+        console.log('info -> ', info)
         imagesStack({
             ...imagesStackSub,
             [satellite]: {

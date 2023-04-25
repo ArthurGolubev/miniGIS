@@ -52,7 +52,7 @@ class ImgHandler(YandexDiskHandler):
 
 
 
-    def save_(self, predictions_2d):
+    def save_(self, predictions_2d, path: str):
         path = self.file_path.split('/')
         SATELLITE = path[-3]
         PRODUCT = path[-2]
@@ -69,8 +69,16 @@ class ImgHandler(YandexDiskHandler):
         # добавляем палитру для классифицированного изображения
         img = imread(fname=self.file_path)
         matplotlib_imsave(fname=self.file_path, arr=img, cmap=colormaps["turbo"], format='png')
+        
+        if path == '':
+            # вариант вызываемый из workflow
+            yandex_disk_path = f'/miniGIS/images/classification/{SATELLITE}/{PRODUCT}/show_in_browser'
+        else:
+            # в случае вызова из автоматизации
+            yandex_disk_path = "/".join(path[:-2]) + '/classification/show_in_browser'
 
-        yandex_disk_path = f'/miniGIS/images/classification/{SATELLITE}/{PRODUCT}/show_in_browser'
+
+        # yandex_disk_path = f'/miniGIS/images/classification/{SATELLITE}/{PRODUCT}/show_in_browser'
         self._make_yandex_dir_recursively(yandex_disk_path)
         self.y.upload(self.file_path, yandex_disk_path + f'/{file_name}', overwrite=True)
         logger.success('success2!')
@@ -97,7 +105,16 @@ class ImgHandler(YandexDiskHandler):
             #         9: (0, 0, 255, 255)
             #     }
             # )
-        yandex_disk_path = f'/miniGIS/images/classification/{SATELLITE}/{PRODUCT}'
+
+        if path == '':
+            # вариант вызываемый из workflow
+            yandex_disk_path = f'/miniGIS/images/classification/{SATELLITE}/{PRODUCT}'
+        else:
+            # в случае вызова из автоматизации
+            yandex_disk_path = "/".join(path[:-2]) + '/classification'
+
+
+        # yandex_disk_path = f'/miniGIS/images/classification/{SATELLITE}/{PRODUCT}'
         self._make_yandex_dir_recursively(yandex_disk_path)
         self.y.upload(self.file_path, yandex_disk_path + f'/{file_name}', overwrite=True)
 

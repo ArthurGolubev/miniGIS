@@ -6,7 +6,7 @@ import { AvailableFiles } from '../../AvailableFiles'
 import { socket } from '../../../../../../app/socket'
 import { ResultOnMap } from '../resultOnMap/ResultOnMap'
 import { ClassificationResultsType } from '../../../../types/interfacesTypeScript'
-import { classification, isLoading, selectedFiles, classificationResponse } from '../../../../rv'
+import { classification, isLoading, selectedFiles, classificationResponse, classificationDescription } from '../../../../rv'
 
 export const KMean = () => {
     const classificationSub = useReactiveVar(classification)
@@ -14,7 +14,7 @@ export const KMean = () => {
     const location = useLocation()
     const isLoadingSub = useReactiveVar(isLoading)
     const classificationResponseSub = useReactiveVar(classificationResponse) as ClassificationResultsType
-    
+    const classificationDescriptionSub = useReactiveVar(classificationDescription)
     
     const classifyHandler = () => {
         console.log('KMean start!')
@@ -38,6 +38,15 @@ export const KMean = () => {
                 </div>
             </div>
             {/* -------------------------------------------Header-End-------------------------------------------- */}
+
+            {/* -------------------------------------------Descriptions-Start------------------------------------------ */}
+            <div className='row justify-content-center'>
+                <div className='col-10'>
+                    {classificationDescriptionSub.unsupervised.KMean}
+                </div>
+            </div>
+            {/* -------------------------------------------Descriptions-End-------------------------------------------- */}
+
 
             <div className='row justify-content-center'>
                 <div className='col-10'>

@@ -14,6 +14,7 @@ class MeanShift:
 
     def classify(self, q: Queue):
         n_samples = q.get()
+        yandex_disk_path = q.get()
         img = ImgHandler(user=self.user, file_path=self.file_path, alg_name='Mean Shift', alg_param=f'n_samples{n_samples}')
         rows, cols, reshaped_img = img.open_()
         
@@ -21,7 +22,7 @@ class MeanShift:
         mean_shift = cluster.MeanShift(bandwidth=bandwidth, bin_seeding=True).fit(reshaped_img)
         mean_shift_2d = mean_shift.labels_.reshape(1, rows, cols)
 
-        classification_layer = img.save_(mean_shift_2d)
+        classification_layer = img.save_(mean_shift_2d, path=yandex_disk_path)
 
         q.put(ClassificationTM(
             **classification_layer,

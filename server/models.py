@@ -1,7 +1,7 @@
 
 from datetime import datetime
-from sqlmodel import Field, SQLModel, Relationship, ARRAY, Column, Float
-
+from sqlmodel import Field, SQLModel, Relationship, ARRAY, Column, Float, String
+from sqlalchemy.dialects import postgresql
 from humps import camelize, decamelize
 
 def to_camel(string):
@@ -112,7 +112,7 @@ class Coordinates(SQLModel):
 
 class Period(SQLModel):
     start_date: str
-    end_date:   str
+    end_date:   str | None
 
 
 
@@ -173,6 +173,17 @@ class TokenData(SQLModel):
     username: str | None = None
 
 
+
+class AutomationType(SQLModel):
+    poi: Coordinates
+    date: Period
+    sensor: str
+    bands: list[str]
+    mask: GeoJSON
+    alg: str
+    param: int
+
+
 ''' -------------------------------------------User-Start------------------------------------------ '''
 
 class UserBase(SQLModel):
@@ -197,6 +208,7 @@ class User1Create(UserBase):
 
 class User1Read(UserBase):
     id: int
+    # Хорошо бы не отправлять токен яндекса, а отправлять булево значение - есть / нету
     yandex_token: str | None
 
     class Config:
@@ -205,14 +217,20 @@ class User1Read(UserBase):
 
 
 # временная реализация хранения алгоритмов. Proof of concept
-class Job(SQLModel, table=True):
+class Algorithm(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     user_id: int = Field(default=None, foreign_key="user1.id")
     poi: str
     last_file_name: str
     alg_name: str
     alg_param: int
-    mask: str                                                                   # yandex disk path_name
+    mask: str                                                                  # yandex disk path_name
+    sensor: str
+    # bands: list[str] = Field(default=None, sa_column=Column(postgresql.ARRAY(String())))
+    bands: str
+    start_date: str | None
+    end_date: str | None
+    name: str
 
 
 ''' -------------------------------------------User-End-------------------------------------------- '''

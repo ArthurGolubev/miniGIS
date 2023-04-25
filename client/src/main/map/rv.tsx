@@ -2,6 +2,7 @@ import { makeVar } from "@apollo/client"
 import { MapLayers } from "./types/main/LayerTypes"
 import { MapObject } from "./types/main/MapTypes"
 import { ClassificationResultsType, ClassificationType, ImagesStackType, SelectedFilesType, SidebarType, ToastDataType, ToastDataWithImgType, ToastsType, ToolsType } from "./types/interfacesTypeScript"
+import * as React from "react"
 
 
 // TODO Почистить
@@ -12,7 +13,7 @@ export const imagePreview = makeVar([])
 export const isLoading = makeVar(false)
 export const errors = makeVar({period: false})
 
-export const sidebar = makeVar({show: 'tools'} as SidebarType)
+// export const sidebar = makeVar({show: 'tools'} as SidebarType)
 export const tools = makeVar({
     setMask: false,
     setPOI: false,
@@ -56,7 +57,7 @@ export const bands = {
 
 
 export const toasts = makeVar({} as ToastsType)
-export const classification = makeVar({} as ClassificationType)
+export const classification = makeVar({method: 'KMean', classes: 0} as ClassificationType)
 export const selectedFiles = makeVar({} as SelectedFilesType)
 
 export const layers = makeVar({} as MapLayers)
@@ -78,3 +79,39 @@ export const treeAvailableFiles = makeVar({} as any)
 export const redirectTo = makeVar({url: undefined})
 
 export const classificationResponse = makeVar({} as ClassificationResultsType)
+
+
+export const classificationDescription = makeVar({
+    unsupervised: {
+        KMean: <p>
+            Алгоритм <b>KMeans</b> группирует данные, пытаясь разделить выборки на n групп с одинаковой дисперсией, сводя к минимуму критерий,
+            известный как инерция или сумма квадратов внутри кластера (см. ниже). Этот алгоритм требует указания количества кластеров.
+            Он хорошо масштабируется для большого количества образцов и используется в самых разных областях применения в самых
+            разных областях.
+        </p>,
+        BisectingKMean: <p>
+            Это <b>BisectingKMeans</b> итеративный вариант <b>KMeans</b>, использующий разделительную иерархическую кластеризацию.
+            Вместо того, чтобы создавать все центроиды сразу, центроиды выбираются постепенно на основе предыдущей кластеризации:
+            кластер многократно разбивается на два новых кластера, пока не будет достигнуто целевое количество кластеров.
+            BisectingKMeans более эффективен, чем KMeans при большом количестве кластеров, поскольку он работает только с
+            подмножеством данных в каждом делении пополам, но KMeansвсегда работает со всем набором данных.
+            Этот вариант более эффективен для агломерационной кластеризации, если количество кластеров невелико
+            по сравнению с количеством точек данных.
+        </p>,
+        GaussianMixture: <p>
+            Объект <b>GaussianMixture</b>GaussianMixture реализует алгоритм максимизации ожидания (EM) для подгонки смешанных гауссовских моделей.
+            Он также может рисовать эллипсоиды достоверности для многомерных моделей и вычислять байесовский информационный
+            критерий для оценки количества кластеров в данных. GaussianMixture.fitПредоставляется метод, который изучает гауссовскую
+            модель смеси из данных поезда . Имея тестовые данные, он может присвоить каждой выборке гауссову диаграмму, которой она,
+            скорее всего, принадлежит, используя метод GaussianMixture.predict.
+            Поставляется GaussianMixtureс различными вариантами ограничения ковариации оцениваемых классов разности: сферическая,
+            диагональная, связанная или полная ковариация.            
+        </p>,
+        MeanShift: <p>
+            <b>MeanShift</b> кластеризация направлена ​​на обнаружение пятен в равномерной плотности образцов.
+            Это алгоритм, основанный на центроидах, который работает путем обновления кандидатов на центроиды,
+            чтобы они были средним значением точек в заданной области. Затем эти кандидаты фильтруются на этапе постобработки,
+            чтобы исключить почти дубликаты и сформировать окончательный набор центроидов.            
+        </p>
+    }
+})

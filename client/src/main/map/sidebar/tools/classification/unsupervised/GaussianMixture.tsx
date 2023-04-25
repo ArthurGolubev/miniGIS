@@ -1,6 +1,6 @@
 import { useReactiveVar } from '@apollo/client'
 import * as React from 'react'
-import { classification, classificationResponse, isLoading, selectedFiles, } from '../../../../rv'
+import { classification, classificationDescription, classificationResponse, isLoading, selectedFiles, } from '../../../../rv'
 import { AvailableFiles } from '../../AvailableFiles'
 import { useLocation } from 'react-router'
 import { ResultOnMap } from '../resultOnMap/ResultOnMap'
@@ -15,7 +15,7 @@ export const GaussianMixture = () => {
     const location = useLocation()
     const isLoadingSub = useReactiveVar(isLoading) 
     const classificationResponseSub = useReactiveVar(classificationResponse) as ClassificationResultsType
-
+    const classificationDescriptionSub = useReactiveVar(classificationDescription)
     
     const classifyHandler = () => {
         isLoading(true)
@@ -38,6 +38,14 @@ export const GaussianMixture = () => {
                 </div>
             </div>
             {/* -------------------------------------------Header-End-------------------------------------------- */}
+
+            {/* -------------------------------------------Description-Start------------------------------------------ */}
+            <div className='row justify-content-center'>
+                <div className='col-10'>
+                    {classificationDescriptionSub.unsupervised.GaussianMixture}
+                </div>
+            </div>
+            {/* -------------------------------------------Description-End-------------------------------------------- */}
 
             <div className='row justify-content-center'>
                 <div className='col-10'>

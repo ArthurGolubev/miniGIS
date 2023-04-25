@@ -95,12 +95,13 @@ async def download_sentinel(sid, msg):
     alg = EarthEngine(user=session['user'])
     q = Queue()
     q.put(data)
+    q.put('/miniGIS/images/raw/Sentinel/')
     p = Process(target=alg.download_sentinel, args=(q,))
     p.start()
     while p.is_alive():
         await asyncio.sleep(5)
     p.join()
-    result: ToastMessage = q.get()
+    result: ToastMessage = q.get()["tm"]
     # print(result)
     await sio.emit("download-sentinel", result.json())
 
@@ -113,12 +114,13 @@ async def download_landsat(sid, msg):
     alg = EarthEngine(user=session['user'])
     q = Queue()
     q.put(data)
+    q.put('/miniGIS/images/raw/Landsat/')
     p = Process(target=alg.download_landsat, args=(q,))
     p.start()
     while p.is_alive():
         await asyncio.sleep(5)
     p.join()
-    result: ToastMessage = q.get()
+    result: ToastMessage = q.get()["tm"]
     # print(result)
     await sio.emit("download-landsat", result.json())
 
@@ -131,12 +133,13 @@ async def clip_to_mask(sid, msg):
     alg = FileHandler(user=session['user'])
     q = Queue()
     q.put(data)
+    q.put('') # '' for default yandex disk path
     p = Process(target=alg.clip_to_mask, args=(q,))
     p.start()
     while p.is_alive():
         await asyncio.sleep(5)
     p.join()
-    result: ToastMessage = q.get()
+    result: ToastMessage = q.get()["tm"]
     # print(result)
     await sio.emit("clip-to-mask", result.json())
 
@@ -149,12 +152,13 @@ async def stack_bands(sid, msg):
     alg = FileHandler(user=session['user'])
     q = Queue()
     q.put(data.files)
+    q.put('') # '' for default yandex disk path
     p = Process(target=alg.stack_bands, args=(q,))
     p.start()
     while p.is_alive():
         await asyncio.sleep(5)
     p.join()
-    result: ToastMessage = q.get()
+    result: ToastMessage = q.get()["tm"]
     # print(result)
     await sio.emit("stack-bands", result.json())
 

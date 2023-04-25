@@ -92,13 +92,15 @@ export const SearchImages = () => {
                     })}
                 /> - 
                 <input type='date' id="end-date" 
-                    onChange={e => searchImages({
+                    onChange={e => {
+                        console.log(e.target.value)
+                        searchImages({
                         ...searchImagesSub,
                         period: {
                             ...searchImagesSub.period,
                             end: e.target.value
                         }
-                    })}
+                    })} }
                 />
             </div>
             {
@@ -133,10 +135,6 @@ export const SearchImages = () => {
                 </div>
             </div>
         </div>
-        {/* <button onClick={()=>console.log(data1)} className='btn btn-sm btn-success' type='button' disabled={loading1}>data</button>
-        <button onClick={()=>console.log(searchImagesSub)} className='btn btn-sm btn-success' type='button' disabled={loading1}>searchImagesSub</button>
-        <button onClick={()=>console.log(error1)} className='btn btn-sm btn-success' type='button' disabled={loading1}>error</button>
-        <button onClick={()=>console.log(imagesStack())} className='btn btn-sm btn-secondary' type='button' disabled={loading1}>imagesStack</button> */}
         {
             searchImagesSub.images.length > 0 && selectedImageSub.metadata == undefined &&
             <ImagesList />

@@ -45,14 +45,18 @@ export const ClipBtn = () => {
                     disabled={isLoadingSub}
                     className='btn btn-sm btn-success' type='button'>draw</button>
                 </div>
-                <div className='col-6 text-center'>
-                    <button 
-                    onClick={()=>sendHandler()}
-                    className='btn btn-sm btn-success'
-                    type='button'
-                    disabled={!(clipMaskSub.layer != undefined) || isLoadingSub}
-                    >CLIP</button>
-                </div>
+                {
+                    location.pathname == '/main/map/workflow/clip' && (
+                        <div className='col-6 text-center'>
+                            <button 
+                            onClick={()=>sendHandler()}
+                            className='btn btn-sm btn-success'
+                            type='button'
+                            disabled={!(clipMaskSub.layer != undefined) || isLoadingSub}
+                            >CLIP</button>
+                        </div>
+                    )
+                }
             </div>
         </div>
     </div>

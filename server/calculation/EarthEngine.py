@@ -12,15 +12,6 @@ from server.models import Coordinates, DownloadLandsat, Period, DownloadSentinel
 from multiprocessing import Queue
 
 
-def time_metr(func):
-    logger.info(f"Старт {func.__name__}")
-    start = time()
-    def wrapper(*args, **kwargs):
-        return func(*args, **kwargs)
-    logger.info(f"{func.__name__} -> Вермя выполнения: {timedelta(seconds=time()-start)} секунд")
-    return wrapper
-
-
 
 class EarthEngine(YandexDiskHandler):
     def __init__(self, user):
@@ -41,16 +32,16 @@ class EarthEngine(YandexDiskHandler):
         bucket = storage_client.bucket(bucket_name)
         blob = bucket.blob(source_blob_name)
         return BytesIO(blob.download_as_string())
+    
 
 
-
-    @time_metr
     def search_preview(self, poi: Coordinates, date: Period,  sensor: str = 'LC08') -> SearchPreviewTM:
         point = ee.Geometry.Point(poi.lon, poi.lat)
 
         if sensor in self.landsat:
             images = ee.ImageCollection(f"LANDSAT/{sensor}/C01/T1").filterBounds(point).filterDate(date.start_date, date.end_date)
         elif sensor in self.sentinel:
+            # images = ee.ImageCollection("COPERNICUS/S2_HARMONIZED").filterBounds(point).filterDate(date.start_date, date.end_date)
             images = ee.ImageCollection("COPERNICUS/S2_HARMONIZED").filterBounds(point).filterDate(date.start_date, date.end_date)
         else:
             logger.error("wrong source")
@@ -68,7 +59,6 @@ class EarthEngine(YandexDiskHandler):
 
 
 
-    @time_metr
     def show_images_preview(self, sensor: str, system_index: str) -> PreviewTM:
         logger.debug(__name__)
         sensor = sensor.strip('\n')
@@ -104,9 +94,10 @@ class EarthEngine(YandexDiskHandler):
 
 
 
-    @time_metr
     def download_sentinel(self, q: Queue):
         dwld_sentinel: DownloadSentinel = q.get()
+        yandex_disk_path = q.get()
+
         UTM_ZONE        = dwld_sentinel.sentinel_meta.mgrs_tile[:2]
         LATITUDE_BAND   = dwld_sentinel.sentinel_meta.mgrs_tile[2:3]
         GRID_SQUARE     = dwld_sentinel.sentinel_meta.mgrs_tile[3:]
@@ -117,39 +108,42 @@ class EarthEngine(YandexDiskHandler):
         system_index    = dwld_sentinel.system_index
         metadata        = dwld_sentinel.meta
 
-        logger.info(f"{metadata=}")
-        yandex_disk_path = f'/miniGIS/images/raw/Sentinel/{PRODUCT_ID}'
-        self._make_yandex_dir_recursively(yandex_disk_path)
+        yandex_disk_path += PRODUCT_ID
+        self._make_yandex_dir_recursively(yandex_disk_path + '/raw')
         for band in bands:
             LAYER = f"T{dwld_sentinel.sentinel_meta.mgrs_tile}_{PRODUCT_ID[11:26]}_{band}.jp2"
             file_io = self._download_blob(
                 "gcp-public-data-sentinel-2",
                 f"tiles/{UTM_ZONE}/{LATITUDE_BAND}/{GRID_SQUARE}/{PRODUCT_ID}/GRANULE/{GRANULE_ID}/IMG_DATA/{LAYER}",
             )
-            self.y.upload(file_io, yandex_disk_path + f'/{LAYER}', overwrite=True)
+            self.y.upload(file_io, yandex_disk_path + '/raw' + f'/{LAYER}', overwrite=True)
 
         with BytesIO() as preview:
             preview.write(bytes(sensor + '\n', 'utf-8'))
             preview.write(bytes(system_index + '\n', 'utf-8'))
             preview.write(bytes(metadata, 'utf-8'))
             preview.seek(0)
-            self.y.upload(preview, yandex_disk_path + '/preview.txt', overwrite=True)
+            self.y.upload(preview, yandex_disk_path + '/raw' + '/preview.txt', overwrite=True)
+        msg = {
+            "tm": ToastMessage(
+                header=f'Загрузка завершена - Sentinel',
+                message=f"""
+                    Продукт {PRODUCT_ID},
+                    Cлои {bands}
+                """,
+                datetime=datetime.now(),
+                operation='download-sentinel'
+            ),
+            "yandex_disk_path": yandex_disk_path,
+            "latest": GRANULE_ID
+        }
+        q.put(msg)
 
-        q.put(ToastMessage(
-            header=f'Загрузка завершена - Sentinel',
-            message=f"""
-                Продукт {PRODUCT_ID},
-                Cлои {bands}
-            """,
-            datetime=datetime.now(),
-            operation='download-sentinel'
-        ))
 
 
-
-    @time_metr
     def download_landsat(self, q: Queue):
         dwld_landsat: DownloadLandsat = q.get()
+        yandex_disk_path = q.get()
         SENSOR_ID           = dwld_landsat.landsat_meta.sensor_id
         PATH                = dwld_landsat.landsat_meta.path.zfill(3)
         ROW                 = dwld_landsat.landsat_meta.row.zfill(3)
@@ -159,7 +153,7 @@ class EarthEngine(YandexDiskHandler):
         system_index        = dwld_landsat.system_index
         metadata            = dwld_landsat.meta
 
-        yandex_disk_path = f'/miniGIS/images/raw/Landsat/{PRODUCT_ID}'
+        yandex_disk_path += PRODUCT_ID
         self._make_yandex_dir_recursively(yandex_disk_path)
         for band in bands:
             PRODUCT_ID_BAND = f"{PRODUCT_ID}_{band}.TIF"
@@ -176,12 +170,17 @@ class EarthEngine(YandexDiskHandler):
             preview.seek(0)
             self.y.upload(preview, yandex_disk_path + '/preview.txt', overwrite=True)
 
-        q.put(ToastMessage(
-            header=f'Загрузка завершена - Landsat',
-            message=f"""
-                Продукт {PRODUCT_ID},
-                Слои {bands}
-            """,
-            datetime=datetime.now(),
-            operation='download-landsat'
-        ))
+        msg = {
+            "tm": ToastMessage(
+                header=f'Загрузка завершена - Landsat',
+                message=f"""
+                    Продукт {PRODUCT_ID},
+                    Слои {bands}
+                """,
+                datetime=datetime.now(),
+                operation='download-landsat'
+            ),
+            "yandex_disk_path": yandex_disk_path,
+            "latest": PRODUCT_ID
+        }
+        q.put(msg)

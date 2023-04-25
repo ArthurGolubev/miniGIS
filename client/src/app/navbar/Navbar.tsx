@@ -1,7 +1,7 @@
 import { useReactiveVar } from '@apollo/client'
 import * as React from 'react'
 import { Link } from 'react-router-dom'
-import { isLoading, showToggle, sidebar } from '../../main/map/rv'
+import { isLoading, showToggle } from '../../main/map/rv'
 import { LoadingStatus } from './LoadingStatus'
 import { StackIcon } from './StackIcon'
 
@@ -28,17 +28,19 @@ export const NavBar = () => {
                         <div className='col'>
                             <ul className="navbar-nav">
                                 <li className="nav-item">
-                                    <a href='#/authorization' onClick={()=>sidebar({show: 'tools'})} className='nav-link active' type='button'>Authorization</a>
+                                    <a href='#/authorization' className='nav-link active' type='button'>Authorization</a>
                                 </li>
                                 <li className="nav-item">
-                                    <a href='#/registration' onClick={()=>sidebar({show: 'tools'})} className='nav-link active' type='button'>Registration</a>
+                                    <a href='#/registration' className='nav-link active' type='button'>Registration</a>
                                 </li>
                                 <li className="nav-item">
-                                    <a href='#/main/poi' onClick={()=>sidebar({show: 'tools'})} className='nav-link active' type='button'>Tools</a>
+                                    <a href='#/main/automation/step-0' className='nav-link active' type='button'>Automation</a>
                                 </li>
                                 <li className="nav-item">
-                                    <a href='#/main' onClick={()=>{
-                                        sidebar({show: 'layers'})
+                                    <a href='#/main/map/workflow/poi' className='nav-link active' type='button'>Tools</a>
+                                </li>
+                                <li className="nav-item">
+                                    <a href='#/main/map/layers' onClick={()=>{
                                         showToggle({...showToggleSub, LayerList: true})
                                         }} className='nav-link active' type='button'>Layers</a>
                                 </li>

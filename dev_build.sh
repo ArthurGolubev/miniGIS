@@ -12,8 +12,8 @@ docker buildx build \
 
 
 deploy="../kubernetes/minigis/minigis-web"
-microk8s.kubectl delete -f "$deploy/05_deployment_minigis.yml"
-microk8s.kubectl apply -f "$deploy/05_deployment_minigis.yml"
+microk8s.kubectl delete -f "$deploy/08_deployment_minigis.yml"
+microk8s.kubectl apply -f "$deploy/08_deployment_minigis.yml"
 
 end=$SECONDS
 runtime=$((end - start))

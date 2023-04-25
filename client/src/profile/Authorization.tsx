@@ -16,7 +16,7 @@ export const Authorization = () => {
             if(!user.getMe?.yandexToken){
                 redirect("/yandex-authorization")
             } else {
-                redirect('/main')
+                redirect('/main/map/workflow/poi')
             }
         }
     })
