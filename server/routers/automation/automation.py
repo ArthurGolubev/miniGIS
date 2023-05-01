@@ -42,7 +42,7 @@ async def save_automation_monitoring(sid, msg):
     session = await sio.get_session(sid)
     user = session['user']
     with Session(engine) as session:
-        a = Automation(user=user, alg=None, session=session)
+        a = Automation(user=user, alg_type='monitoring', session=session)
         a.save_monitoring_algorithm_mask(msg=msg)
     tm = ToastMessage(
         header='Создание алгоритма',
@@ -62,7 +62,7 @@ async def automation_data_processing(sid, msg: Automation):
     session = await sio.get_session(sid)
     user = session['user']
     with Session(engine) as session:
-        a = Automation(user=user, alg=msg, session=session)
+        a = Automation(user=user, alg_type='data-processing', session=session)
         a.save_monitoring_algorithm_mask(msg=msg)
         tm = ToastMessage(
             header='Создание алгоритма',

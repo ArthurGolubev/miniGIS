@@ -18,7 +18,7 @@ export const tools = makeVar({
     setMask: false,
     setPOI: false,
     title: {
-        POI: 'Выбор спутникого снимка',
+        POI: 'Выбор спутникового снимка',
         Clip: 'Создать GeoJSON',
         Stack: 'Объединить слои',
         Classification: 'Классификация',

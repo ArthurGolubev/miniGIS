@@ -21,20 +21,24 @@ from server.models import GeoJSON, ClipToMask
 
 
 class Automation(YandexDiskHandler):
-    def __init__(self, user: User1, session: Session, alg: Algorithm | None):
+    def __init__(self, user: User1, session: Session, alg_type: str):
         super().__init__(user=user)
         self._make_yandex_dir_recursively('/miniGIS/automation')
         self.user = user
         self.session = session
-        self.alg = alg
+        self.alg_type = alg_type
+        if self.alg_type == 'monitoring':
+            self.alg_path = '/miniGIS/automation/monitoring'
+        else:
+            self.alg_path = '/miniGIS/automation/archive-data-processing'
         self.q = Queue()
 
 
 
     def save_monitoring_algorithm_mask(self, msg):
         mask = msg["mask"]
-        self._make_yandex_dir_recursively(f'/miniGIS/automation/monitoring/{msg["algName"]}/mask')
-        yandex_disk_path = f'/miniGIS/automation/monitoring/{msg["algName"]}/mask/mask'
+        self._make_yandex_dir_recursively(f'{self.alg_path}/{msg["algName"]}/mask')
+        yandex_disk_path = f'{self.alg_path}/{msg["algName"]}/mask/mask'
         shp_io = BytesIO()
         shx_io = BytesIO()
         dbf_io = BytesIO()
@@ -52,6 +56,12 @@ class Automation(YandexDiskHandler):
         self.y.upload(dbf_io, yandex_disk_path + '.dbf', overwrite=True)
         lat = msg.get('poi')['lat']
         lon = msg.get('poi')['lon']
+        if msg["algType"] == 'dataProcessing':
+            start_date = msg["date"]["startDate"]
+            end_date = msg["date"]["endDate"]
+        else:
+            start_date = None
+            end_date = None
         self.alg = Algorithm(
             user_id=self.user.id,
             last_file_name='',
@@ -62,8 +72,8 @@ class Automation(YandexDiskHandler):
             alg_name=msg.get('alg'),
             bands=",".join(msg.get('bands')),
             name=msg.get('algName'),
-            start_date=msg["date"]["startDate"],
-            end_date=msg["date"]["endDate"]
+            start_date=start_date,
+            end_date=end_date,
         )
         self.session.add(self.alg)
         self.session.commit()
@@ -109,7 +119,8 @@ class Automation(YandexDiskHandler):
             meta=''
         )
         self.q.put(ds)
-        self.q.put(f'/miniGIS/automation/monitoring/{self.alg.name}/')
+        
+        self.q.put(f'{self.alg_path}/{self.alg.name}/')
         EarthEngine(user=self.user).download_sentinel(q=self.q)
         self.session.add(self.alg)
         self.session.commit()
@@ -124,7 +135,7 @@ class Automation(YandexDiskHandler):
         logger.info('CLIP NEW IMAGE!')
         f = FileHandler(user=self.user)
         
-        result = f.shp_read(f'/miniGIS/automation/monitoring/{self.alg.name}/mask/mask.shp')
+        result = f.shp_read(f'{self.alg_path}/{self.alg.name}/mask/mask.shp')
         feature = result["features"][0]
         gj = GeoJSON(
             geometry=feature["geometry"],

@@ -27,7 +27,7 @@ class FileHandler(YandexDiskHandler):
 
     def __init__(self, user: User1):
         super().__init__(user=user)
-        self._make_yandex_dir_recursively('/miniGIS/images')
+        self._make_yandex_dir_recursively('/miniGIS/workflow')
         self.user = user
 
 
@@ -42,11 +42,11 @@ class FileHandler(YandexDiskHandler):
             logger.info(f"{json.loads(layer)=}")
         else:
             c = layer
-        self._make_yandex_dir_recursively('/miniGIS/images/vector')
+        self._make_yandex_dir_recursively('/miniGIS/workflow/vector')
 
         file_name = f'{"".join([x for x in shp_name.title() if x.isalpha() or x.isdigit()])}'
         # local_path = f'./cache/vector/{file_name}'
-        yandex_disk_path = f'/miniGIS/images/vector/{file_name}'
+        yandex_disk_path = f'/miniGIS/workflow/vector/{file_name}'
         dt = datetime.now().strftime("%Y%m%d_%H%M%S")
         yandex_disk_path = yandex_disk_path if not self.y.exists(yandex_disk_path + '.shp') else f"{yandex_disk_path}_{dt}"
 
@@ -146,9 +146,10 @@ class FileHandler(YandexDiskHandler):
         logger.info(f"{files[0].split('/')[4:6]=}")
         SATELLITE, PRODUCT = files[0].split('/')[4:6]
 
-        if yandex_disk_path == '':
+        if yandex_disk_path == '/miniGIS/workflow/':
             # вариант вызываемый из workflow
-            yandex_disk_path = f'/miniGIS/images/stack/{SATELLITE}/{PRODUCT}'
+            yandex_disk_path += os.path.join(path[-4], path[-3], 'stack')
+            # yandex_disk_path = f'/miniGIS/workflow/{SATELLITE}/{PRODUCT}/stack'
         else:
             # в случае вызова из автоматизации
             yandex_disk_path += '/stack'
@@ -188,7 +189,7 @@ class FileHandler(YandexDiskHandler):
         classification = {}
 
         logger.success('OK!')
-        yandex_disk_path = '/miniGIS/images/classification/'
+        yandex_disk_path = '/miniGIS/workflow/classification/'
         self._make_yandex_dir_recursively(yandex_disk_path)
         for satellite in [x.path.split(':')[1] for x in self.y.listdir(yandex_disk_path)]:
             logger.info(f'{satellite=}')
@@ -200,7 +201,7 @@ class FileHandler(YandexDiskHandler):
                 classification[s][p] = [x.path.split('/')[-1] for x in self.y.listdir(product + '/show_in_browser') if x.type == 'file']
         
 
-        yandex_disk_path = '/miniGIS/images/raw'
+        yandex_disk_path = '/miniGIS/workflow/raw'
         self._make_yandex_dir_recursively(yandex_disk_path)
         for satellite in [x.path.split(':')[1] for x in self.y.listdir(yandex_disk_path)]:
             s = satellite.split('/')[-1]
@@ -210,7 +211,7 @@ class FileHandler(YandexDiskHandler):
                 raw[s][p] = None
         
 
-        yandex_disk_path = '/miniGIS/images/vector'
+        yandex_disk_path = '/miniGIS/workflow/vector'
         self._make_yandex_dir_recursively(yandex_disk_path)
         shapes = [x.path.split(':')[1] for x in self.y.listdir(yandex_disk_path) if x.name.endswith('.shp')]
 
@@ -226,7 +227,7 @@ class FileHandler(YandexDiskHandler):
 
     def add_layer(self, scope, satellite, product, target) -> AddLayerTM:
         logger.debug(__name__)
-        p = os.path.join('/miniGIS/images', scope, satellite, product)
+        p = os.path.join('/miniGIS/workflow', scope, satellite, product)
         
         if scope == 'raw':
             yandex_disk_path = os.path.join(p, 'preview.txt')
@@ -255,40 +256,28 @@ class FileHandler(YandexDiskHandler):
 
 
     def available_files(self, to: str) -> dict[str, dict[str, list[str]]]:
-        logger.debug(f'{to=}')
-        """Возвращает список директорий и доступных в них файлов.
+        clear_path = lambda x: x.path.split(':')[1]
+        get_last_elem = lambda x: x.split('/')[-1]
 
-        Sentinel -> folder1 -> [band1.tif, band2.tif]
-        Landsat -> (folder1, folder2 -> ([band1.tif, band2.tif, band3.tif]) ).
-        """
-        images_path = {
-            "clip": '/miniGIS/images/raw',
-            "stack": '/miniGIS/images/clipped',
-            "unsupervised": '/miniGIS/images/stack',
-            "supervised": '/miniGIS/images/stack',
-            "classification": '/miniGIS/images/stack',
-        }
-        for path in images_path.values():
-            self._make_yandex_dir_recursively(path)
-
-        available = {}
-        folders_1 = [x.path.split(':')[1] for x in self.y.listdir(images_path[to])]
-        for folder_1 in folders_1:
-            folders_2 = [x.path.split(':')[1] for  x in self.y.listdir(folder_1)]
-            # logger.info(f"{folders_2=}")
-            product = {}
-            for folder_2 in folders_2:
-                files = [f.path.split(':')[1] for f in self.y.listdir(folder_2) if f.type == 'file']
-                # logger.debug(f"{files=}")
-                if to == 'unsupervised' or to == 'supervised':
-                    layers = {k: v for k, v in [(path.split('/')[-1], path) for path in files]}
-                else:
-                    layers = {k: v for k, v in [(path.split('.')[-2].split('_')[-1], path) for path in files if not path.endswith('.txt')]}
-                product[folder_2.split('/')[-1]] =  layers
-            available[folder_1.split('/')[-1]] = product
-        # logger.info(f"{available=}")
-        return available
-
+        response = {'satellites': {}}
+        satellites = [clear_path(x) for x in self.y.listdir('/miniGIS/workflow')]
+        for satellite in satellites:
+            products = [clear_path(x) for x in self.y.listdir(satellite)]
+            _satellite = get_last_elem(satellite)
+            response['satellites'][_satellite] = {}
+            for product in products:
+                results = [clear_path(x) for x in self.y.listdir(product)]
+                _product = get_last_elem(product)
+                response['satellites'][_satellite][_product] = {}
+                for result in results:
+                    data = [clear_path(x) for x in self.y.listdir(result)]
+                    _result = get_last_elem(result)
+                    _data = [x for x in data if not x.endswith('.txt')]
+                    response['satellites'][_satellite][_product][_result] = {get_last_elem(v): v for v in _data}
+        logger.success(f'\n\n\n{response=}\n\n\n')
+        return response
+        
+        
 
 
 
@@ -303,10 +292,10 @@ class FileHandler(YandexDiskHandler):
         # gdf = gpd.GeoDataFrame(d1, crs="EPSG:32630")
         clipped_files = []
         
-        if yandex_disk_path == '':
+        if yandex_disk_path == '/miniGIS/workflow/':
             path = files[0].split('/')
             # вариант вызываемый из workflow
-            yandex_disk_path = '/' + os.path.join(*path[:-4], 'clipped', *path[-3:-2], *path[-2:-1])
+            yandex_disk_path += os.path.join(path[-4], path[-3], 'clipped')
         else:
             # в случае вызова из автоматизации
             yandex_disk_path += '/clipped'
@@ -383,9 +372,12 @@ class FileHandler(YandexDiskHandler):
 
         with rasterio.open(tif_file_path + f'/{cached_target}.tif') as f:
             bounds = f.bounds
+            crs = f.crs
+            logger.info(f'\n\n\n{crs=}\n\n\n')
         os.remove(tif_file_path + f'/{cached_target}.tif')
 
-        transformer = Transformer.from_crs(32629, 4326, always_xy=True)
+        # transformer = Transformer.from_crs(32629, 4326, always_xy=True)
+        transformer = Transformer.from_crs(crs, 4326, always_xy=True)
         left_bottom = transformer.transform(bounds[0], bounds[1])
         right_top = transformer.transform(bounds[2], bounds[3])
 

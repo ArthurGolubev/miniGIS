@@ -121,7 +121,7 @@ export const Map = () => {
 
 
     React.useEffect(() => {
-        let map: any = L.map('map').setView([35.88, -5.3525], 10)
+        let map: any = L.map('map', {'attributionControl': false}).setView([35.88, -5.3525], 10)
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -139,6 +139,7 @@ export const Map = () => {
         map.pm.setPathOptions(
             // { color: '#fd7e14' },
         );
+        
 
         let layerControl = L.control.layers().addTo(map) as any
         mapLayerControl(layerControl)

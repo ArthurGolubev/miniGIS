@@ -8,19 +8,30 @@ import { useLocation } from 'react-router'
 
 export const AvailableFiles = ({to = undefined}: {to: string | undefined}) => {
     let location = useLocation()
+    const scope = {
+        'clip': 'raw',
+        'stack': 'clipped',
+        'unsupervised': 'stack'
+    } as any
     const [state, setState] = React.useState({} as any)
     const {data, loading} = useQuery(AVAILABLE_FILES, {
         fetchPolicy: 'network-only',
         variables: {to: to},
         onCompleted: data => {
-            let c = {} as any
-            data.availableFiles.items.map((item: any) => {
-                let key: string = Object.keys(item)[1]
-                if(key != "items"){
-                    c[key] = item[key]
-                }
+            let tree = {} as any
+            let satellites = data.availableFiles.items[0].satellites
+            console.log('af satellites -> ', satellites)
+            Object.keys(satellites).map(sattelite => {
+                tree[sattelite] = {}
+                Object.keys(satellites[sattelite]).map(product => {
+                    tree[sattelite][product] = {}
+                    Object.keys(satellites[sattelite][product]).map(result => {
+                        tree[sattelite][product][result] = satellites[sattelite][product][result]
+                    })
+                })
             })
-            setState(c)
+            setState(tree)
+            console.log('tree -> ', tree)
         },
     })
     const selectedFilesSub = useReactiveVar(selectedFiles)
@@ -84,9 +95,10 @@ export const AvailableFiles = ({to = undefined}: {to: string | undefined}) => {
                     <div>Слои</div>
                     {
                         state && !loading && selectedFilesSub?.product && selectedFilesSub?.satellite &&
-                        Object.entries(state[selectedFilesSub.satellite][selectedFilesSub.product]).map((entry: Array<any>, iter: number) => {
+                        Object.entries(state[selectedFilesSub.satellite][selectedFilesSub.product][scope[to]]).map((entry: Array<any>, iter: number) => {
                             console.log("key ->", entry[0])
-                            return <div className={location.pathname == "/main/classification" ? 'col-12' : 'col-4'} key={iter}>
+                            // return <div className={location.pathname == "/main/classification" ? 'col-12' : 'col-4'} key={iter}>
+                            return <div className='col-12' key={iter}>
                                 <div className="form-check form-check-inline">
                                     <input className='form-check-input' type={"checkbox"} id={`band-${entry[0]}`} defaultChecked={false} value={entry[1]}
                                         onChange={e => selectedFiles({

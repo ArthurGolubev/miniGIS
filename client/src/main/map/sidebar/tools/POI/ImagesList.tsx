@@ -57,9 +57,8 @@ export const ImagesList = () => {
         })
     }
 
-    return <div className='row justify-content-center overflow-auto'>
+    return <div className='row justify-content-center overflow-auto mt-3'>
         <div className='col-12 ' style={{maxHeight: "400px"}}>
-            <button onClick={()=>console.log("e ->", error2, "l ->", loading2, "d ->", data2)} className='btn btn-sm btn-primary' type='button'>INFO</button>
             <ul className='mt-1'>
                 {
                     searchImagesSub.images.map((item: any, iter: number) => {
