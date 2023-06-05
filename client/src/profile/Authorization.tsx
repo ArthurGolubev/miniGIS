@@ -2,6 +2,7 @@ import * as React from 'react'
 import { useNavigate } from 'react-router'
 import { useMutation, useQuery } from '@apollo/client'
 import { AUTHORIZATION, GET_ME } from './restMutations'
+import { useProfileStore } from './store'
 
 
 
@@ -16,6 +17,7 @@ export const Authorization = () => {
             if(!user.getMe?.yandexToken){
                 redirect("/yandex-authorization")
             } else {
+                localStorage.setItem('usr', user.getMe.username)
                 redirect('/main/map/workflow/poi')
             }
         }

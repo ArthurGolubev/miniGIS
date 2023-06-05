@@ -8,12 +8,20 @@ import { socket } from './socket'
 import { useLazyQuery, useReactiveVar } from '@apollo/client'
 import { AVAILABLE_FILES } from '../main/map/restQueries'
 import { ToastDataWithImgType } from '../main/map/types/interfacesTypeScript'
+import * as bootstrap from 'bootstrap'
+import { useTimelineStore } from '../timeline/store'
 
 export const App = () => {
 
     const [isConnected, setIsConnected] = React.useState(socket.connected);
     const [fooEvents, setFooEvents] = React.useState([])
     const classificationResponseSub = useReactiveVar(classificationResponse)
+    const TimelineStore = useTimelineStore()
+
+    const dropdownElementList = document.querySelectorAll('.dropdown-toggle') as any
+    const dropdownList = [...dropdownElementList].map(dropdownToggleEl => new bootstrap.Dropdown(dropdownToggleEl))
+
+    const addImageToTimeline = useTimelineStore().addImageToTimeline
 
     const responseHandler = (response: string, event: string) => {
         let msg  = JSON.parse(response) as ToastDataWithImgType
@@ -34,8 +42,11 @@ export const App = () => {
                         [event]: msg
                     })
                     break;
+                case 'algorithm/timeline':
+                    console.log('algorithm/timeline response -> ', response)
+                    break
                 default:
-                    console.log("DEFAULT CASE FROM App.tsx")
+                    console.log("DEFAULT CASE FROM App.tsx -> ", operation[0])
                     break;
             }
             call1()
@@ -73,8 +84,9 @@ export const App = () => {
 
         socket.on('automation/monitoring', (response) => responseHandler(response, 'automation/monitoring'))
         socket.on('automation/data-processing', (response) => responseHandler(response, 'automation/data-processing'))
-        
-        
+
+
+        socket.on("algorithm/timeline", (response) => addImageToTimeline(response))
         
         
     

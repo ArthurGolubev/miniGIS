@@ -231,7 +231,6 @@ class Algorithm(SQLModel, table=True):
     start_date: str | None
     end_date: str | None
     name: str
-
-
+    
 ''' -------------------------------------------User-End-------------------------------------------- '''
 

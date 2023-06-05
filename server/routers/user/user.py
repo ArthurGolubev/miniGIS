@@ -13,6 +13,7 @@ from server.auth import login_for_access_token
 
 from server.models import User1
 from server.models import Token
+from server.models import Algorithm
 from server.models import User1Read
 from server.models import User1Create
 from server.models import UserAuthorization
@@ -35,6 +36,7 @@ router = APIRouter(prefix='/user')
 @router.get('/get-me', response_model=User1Read)
 async def read_user_me(current_user: User1 = Depends(get_current_user)):
     logger.debug(__name__)
+    current_user.yandex_token = True if current_user.yandex_token else False
     return current_user
 
 
@@ -100,5 +102,4 @@ async def get_yandex_disk_token(code: int, user: User1 = Depends(get_current_use
 @router.post("/get-token-from-client", response_model=Token)  # название пути можно изменить на более однозначное
 async def login_for_access_token_from_client(user: UserAuthorization, session = Depends(get_session)):
     return login_for_access_token(user=user, session=session)
-
 

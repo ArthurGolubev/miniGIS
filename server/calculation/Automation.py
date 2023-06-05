@@ -18,7 +18,9 @@ from server.calculation.classification.unsupervision.MeanShift import MeanShift
 from server.calculation.classification.unsupervision.BisectingKMean import BisectingKMean
 from server.calculation.classification.unsupervision.GaussianMixture import GaussianMixture
 from server.models import GeoJSON, ClipToMask
-
+import yadisk
+from server.models import ToastMessage
+from json import dumps
 
 class Automation(YandexDiskHandler):
     def __init__(self, user: User1, session: Session, alg_type: str):
@@ -51,34 +53,47 @@ class Automation(YandexDiskHandler):
         shp_io.seek(0)
         shx_io.seek(0)
         dbf_io.seek(0)
-        self.y.upload(shp_io, yandex_disk_path + '.shp', overwrite=True)
-        self.y.upload(shx_io, yandex_disk_path + '.shx', overwrite=True)
-        self.y.upload(dbf_io, yandex_disk_path + '.dbf', overwrite=True)
-        lat = msg.get('poi')['lat']
-        lon = msg.get('poi')['lon']
-        if msg["algType"] == 'dataProcessing':
-            start_date = msg["date"]["startDate"]
-            end_date = msg["date"]["endDate"]
-        else:
-            start_date = None
-            end_date = None
-        self.alg = Algorithm(
-            user_id=self.user.id,
-            last_file_name='',
-            mask=yandex_disk_path,
-            poi=f"{lat},{lon}",
-            sensor=msg.get('sensor'),
-            alg_param=msg.get('param'),
-            alg_name=msg.get('alg'),
-            bands=",".join(msg.get('bands')),
-            name=msg.get('algName'),
-            start_date=start_date,
-            end_date=end_date,
-        )
-        self.session.add(self.alg)
-        self.session.commit()
-        self.session.refresh(self.alg)
-        return yandex_disk_path
+        try:
+            self.y.upload(shp_io, yandex_disk_path + '.shp', overwrite=True)
+            self.y.upload(shx_io, yandex_disk_path + '.shx', overwrite=True)
+            self.y.upload(dbf_io, yandex_disk_path + '.dbf', overwrite=True)
+            lat = msg.get('poi')['lat']
+            lon = msg.get('poi')['lon']
+            if msg["algType"] == 'dataProcessing':
+                start_date = msg["date"]["startDate"]
+                end_date = msg["date"]["endDate"]
+            else:
+                start_date = None
+                end_date = None
+            self.alg = Algorithm(
+                user_id=self.user.id,
+                last_file_name='',
+                mask=yandex_disk_path,
+                poi=f"{lat},{lon}",
+                sensor=msg.get('sensor'),
+                alg_param=msg.get('param'),
+                alg_name=msg.get('alg'),
+                bands=",".join(msg.get('bands')),
+                name=msg.get('algName'),
+                start_date=start_date,
+                end_date=end_date,
+            )
+            self.session.add(self.alg)
+            self.session.commit()
+            self.session.refresh(self.alg)
+            return ToastMessage(
+                header='Создание алгоритма',
+                message=f'Алгоритм "{msg["algName"]}" создан',
+                operation='automation/monitoring',
+                datetime=datetime.now()
+            )
+        except yadisk.exceptions.LockedError:
+            return ToastMessage(
+                header='Ошибка',
+                message=f'Загрузка файлов недоступна, можно только просматривать и скачивать. Вы достигли ограничения по загрузке файлов',
+                operation='automation/monitoring',
+                datetime=datetime.now()
+            )
 
 
 
@@ -116,7 +131,7 @@ class Automation(YandexDiskHandler):
             sentinel_meta=sm,
             sensor=self.alg.sensor,
             system_index=image["system:index"],
-            meta=''
+            meta=dumps(image)
         )
         self.q.put(ds)
         
@@ -158,6 +173,7 @@ class Automation(YandexDiskHandler):
     def stack_new_image(self):
         logger.info("STACK NEW IMAGE!")
         f = FileHandler(user=self.user)
+        logger.info(f"{self.yandex_disk_path=}")
         files: str = self.y.listdir(self.yandex_disk_path + '/clipped')
         clipped_files=[x.path.split(":")[1] for x in files]
         self.q.put(clipped_files)
@@ -170,8 +186,10 @@ class Automation(YandexDiskHandler):
 
     def classificate_new_image(self):
         logger.info("CLASSIFICATE NEW IMAGE!")
-        self.q.put(self.alg.alg_param)
-        self.q.put(self.yandex_disk_path)
+        self.q.put({
+            "alg_param": self.alg.alg_param,
+            "yandex_disk_path": self.yandex_disk_path,
+            })
         files: str = self.y.listdir(self.yandex_disk_path + '/stack')
         stack_file=[x.path.split(":")[1] for x in files][0]
         match self.alg.alg_name:

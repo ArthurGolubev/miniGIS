@@ -1,13 +1,17 @@
 import { useReactiveVar } from '@apollo/client'
 import * as React from 'react'
 import { Link } from 'react-router-dom'
-import { isLoading, showToggle } from '../../main/map/rv'
+import { isLoading, isProgress, showToggle } from '../../main/map/rv'
 import { LoadingStatus } from './LoadingStatus'
 import { StackIcon } from './StackIcon'
+import { ProfileIcon } from './ProfileIcon'
+import { ProgressBarStatus } from './ProgressBarStatus'
+import { useTimelineStore } from '../../timeline/store'
 
 
 export const NavBar = () => {
     const isLoadingSub = useReactiveVar(isLoading)
+    const isProgressBarSub = useTimelineStore().isProgressBar
     const showToggleSub = useReactiveVar(showToggle)
     
     return <nav className='navbar navbar-expand-sm bg-light' style={{height: '5vh'}}>
@@ -23,16 +27,13 @@ export const NavBar = () => {
                 <div className='col-auto text-center'>
                     {isLoadingSub && <LoadingStatus />}
                 </div>
+                <div className='col-1 text-center'>
+                    {isProgressBarSub != undefined && <ProgressBarStatus />}
+                </div>
                 <div className='ms-auto'>
                     <div className='row justify-content-center'>
                         <div className='col'>
                             <ul className="navbar-nav">
-                                <li className="nav-item">
-                                    <a href='#/authorization' className='nav-link active' type='button'>Authorization</a>
-                                </li>
-                                <li className="nav-item">
-                                    <a href='#/registration' className='nav-link active' type='button'>Registration</a>
-                                </li>
                                 <li className="nav-item">
                                     <a href='#/main/automation/step-0' className='nav-link active' type='button'>Automation</a>
                                 </li>
@@ -47,6 +48,9 @@ export const NavBar = () => {
                             </ul>
                         </div>
 
+                        <div className='col-auto'>
+                            <ProfileIcon />
+                        </div>
                         <div className='col-auto'>
                             <StackIcon />
                         </div>

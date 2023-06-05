@@ -4,16 +4,17 @@ start=$SECONDS
 cd client && \
 npx webpack build --mode=development
 
-cd ../ && \
-docker buildx build \
---push \
---platform linux/amd64 \
---tag arthurgo/minigis-web:1.0 .
+# cd ../ && \
+# docker buildx build \
+# --push \
+# --platform linux/amd64 \
+# --tag arthurgo/minigis-web:1.0 .
 
 
-deploy="../kubernetes/minigis/minigis-web"
-microk8s.kubectl delete -f "$deploy/08_deployment_minigis.yml"
-microk8s.kubectl apply -f "$deploy/08_deployment_minigis.yml"
+# deploy="../kubernetes/minigis/minigis-web"
+deploy="/home/arthur/dev/kubernetes/minigis/minigis-web/dev"
+microk8s.kubectl delete -f "$deploy/dev_dep.yml"
+microk8s.kubectl apply -f "$deploy/dev_dep.yml"
 
 end=$SECONDS
 runtime=$((end - start))

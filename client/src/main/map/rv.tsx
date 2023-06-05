@@ -11,6 +11,7 @@ export const selectedImage = makeVar({metadata: undefined, imgUrl: '', sensor: '
 export const mapObj = makeVar({} as MapObject)
 export const imagePreview = makeVar([])
 export const isLoading = makeVar(false)
+export const isProgress = makeVar(undefined)
 export const errors = makeVar({period: false})
 
 // export const sidebar = makeVar({show: 'tools'} as SidebarType)

@@ -10,6 +10,7 @@ from datetime import datetime, timedelta
 from server.calculation.YandexDiskHadler import YandexDiskHandler
 from server.models import Coordinates, DownloadLandsat, Period, DownloadSentinel, ToastMessage, SearchPreviewTM, PreviewTM
 from multiprocessing import Queue
+import yadisk
 
 
 
@@ -116,27 +117,41 @@ class EarthEngine(YandexDiskHandler):
                 "gcp-public-data-sentinel-2",
                 f"tiles/{UTM_ZONE}/{LATITUDE_BAND}/{GRID_SQUARE}/{PRODUCT_ID}/GRANULE/{GRANULE_ID}/IMG_DATA/{LAYER}",
             )
-            self.y.upload(file_io, yandex_disk_path + '/raw' + f'/{LAYER}', overwrite=True)
+            try:
+                self.y.upload(file_io, yandex_disk_path + '/raw' + f'/{LAYER}', overwrite=True)
+                with BytesIO() as preview:
+                    preview.write(bytes(sensor + '\n', 'utf-8'))
+                    preview.write(bytes(system_index + '\n', 'utf-8'))
+                    preview.write(bytes(metadata, 'utf-8'))
+                    preview.seek(0)
+                    self.y.upload(preview, yandex_disk_path + '/raw' + '/preview.txt', overwrite=True)
+                msg = {
+                    "tm": ToastMessage(
+                        header=f'Загрузка завершена - Sentinel',
+                        message=f"""
+                            Продукт {PRODUCT_ID},
+                            Cлои {bands}
+                        """,
+                        datetime=datetime.now(),
+                        operation='download-sentinel'
+                    ),
+                    "yandex_disk_path": yandex_disk_path,
+                    "latest": GRANULE_ID
+                }
+            except yadisk.exceptions.LockedError:
+                msg = {
+                    "tm": ToastMessage(
+                        header=f'Ошибка загрузки - Sentinel',
+                        message=f"""
+                            Загрузка файлов недоступна, можно только просматривать и скачивать. Вы достигли ограничения по загрузке файлов
+                        """,
+                        datetime=datetime.now(),
+                        operation='download-sentinel'
+                    ),
+                    "yandex_disk_path": yandex_disk_path,
+                    "latest": GRANULE_ID
+                }
 
-        with BytesIO() as preview:
-            preview.write(bytes(sensor + '\n', 'utf-8'))
-            preview.write(bytes(system_index + '\n', 'utf-8'))
-            preview.write(bytes(metadata, 'utf-8'))
-            preview.seek(0)
-            self.y.upload(preview, yandex_disk_path + '/raw' + '/preview.txt', overwrite=True)
-        msg = {
-            "tm": ToastMessage(
-                header=f'Загрузка завершена - Sentinel',
-                message=f"""
-                    Продукт {PRODUCT_ID},
-                    Cлои {bands}
-                """,
-                datetime=datetime.now(),
-                operation='download-sentinel'
-            ),
-            "yandex_disk_path": yandex_disk_path,
-            "latest": GRANULE_ID
-        }
         q.put(msg)
 
 
@@ -161,26 +176,40 @@ class EarthEngine(YandexDiskHandler):
                 "gcp-public-data-landsat",
                 f"{SENSOR_ID}/01/{PATH}/{ROW}/{PRODUCT_ID}/{PRODUCT_ID_BAND}",
             )
-            self.y.upload(file_io, yandex_disk_path + f'/{PRODUCT_ID_BAND}', overwrite=True)
+            try:
+                self.y.upload(file_io, yandex_disk_path + f'/{PRODUCT_ID_BAND}', overwrite=True)
         
-        with BytesIO() as preview:
-            preview.write(bytes(sensor + '\n', 'utf-8'))
-            preview.write(bytes(system_index + '\n', 'utf-8'))
-            preview.write(bytes(metadata, 'utf-8'))
-            preview.seek(0)
-            self.y.upload(preview, yandex_disk_path + '/preview.txt', overwrite=True)
+                with BytesIO() as preview:
+                    preview.write(bytes(sensor + '\n', 'utf-8'))
+                    preview.write(bytes(system_index + '\n', 'utf-8'))
+                    preview.write(bytes(metadata, 'utf-8'))
+                    preview.seek(0)
+                    self.y.upload(preview, yandex_disk_path + '/preview.txt', overwrite=True)
 
-        msg = {
-            "tm": ToastMessage(
-                header=f'Загрузка завершена - Landsat',
-                message=f"""
-                    Продукт {PRODUCT_ID},
-                    Слои {bands}
-                """,
-                datetime=datetime.now(),
-                operation='download-landsat'
-            ),
-            "yandex_disk_path": yandex_disk_path,
-            "latest": PRODUCT_ID
-        }
+                msg = {
+                    "tm": ToastMessage(
+                        header=f'Загрузка завершена - Landsat',
+                        message=f"""
+                            Загрузка файлов недоступна, можно только просматривать и скачивать. Вы достигли ограничения по загрузке файлов
+                        """,
+                        datetime=datetime.now(),
+                        operation='download-landsat'
+                    ),
+                    "yandex_disk_path": yandex_disk_path,
+                    "latest": PRODUCT_ID
+                }
+            except yadisk.exceptions.LockedError:
+                msg = {
+                    "tm": ToastMessage(
+                        header=f'Ошибка - Landsat',
+                        message=f"""
+                            Продукт {PRODUCT_ID},
+                            Слои {bands}
+                        """,
+                        datetime=datetime.now(),
+                        operation='download-landsat'
+                    ),
+                    "yandex_disk_path": yandex_disk_path,
+                    "latest": PRODUCT_ID
+                }
         q.put(msg)

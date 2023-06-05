@@ -3,6 +3,7 @@ export interface SioType {
     emit: (event: string, payload: {}) => void
 }
 
+
 export interface ToolsType {
     setMask: boolean,
     setPOI: boolean,

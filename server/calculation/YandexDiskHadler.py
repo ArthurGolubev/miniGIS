@@ -21,7 +21,6 @@ class YandexDiskHandler:
 
 
 
-
     def get_yandex_disk_auth_url(self):
         return yadisk.YaDisk(id=os.getenv("YANDEX_DISK_CLIENT_ID_APP_MINIGIS")).get_auth_url(type="code")
 

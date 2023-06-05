@@ -77,7 +77,8 @@ async def add_layer(input: AddLayerOptions, user: User1 = Depends(get_current_us
 
 @router.post('/shp-save')
 async def shp_save(input: ShpSave, user: User1 = Depends(get_current_user)):
-    FileHandler(user=user).shp_save(input.shp_name, input.layer)
+    tm: ToastMessage = FileHandler(user=user).shp_save(input.shp_name, input.layer)
+    return tm
 
 
 

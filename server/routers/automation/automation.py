@@ -43,14 +43,7 @@ async def save_automation_monitoring(sid, msg):
     user = session['user']
     with Session(engine) as session:
         a = Automation(user=user, alg_type='monitoring', session=session)
-        a.save_monitoring_algorithm_mask(msg=msg)
-    tm = ToastMessage(
-        header='Создание алгоритма',
-        message=f'Алгоритм {msg["algName"]} создан',
-        operation='automation/monitoring',
-        datetime=datetime.now()
-    )
-        
+        tm: ToastMessage = a.save_monitoring_algorithm_mask(msg=msg)
     await sio.emit("automation/monitoring", tm.json())
 
 
@@ -63,13 +56,7 @@ async def automation_data_processing(sid, msg: Automation):
     user = session['user']
     with Session(engine) as session:
         a = Automation(user=user, alg_type='data-processing', session=session)
-        a.save_monitoring_algorithm_mask(msg=msg)
-        tm = ToastMessage(
-            header='Создание алгоритма',
-            message=f'Алгоритм "{msg["algName"]}" создан',
-            operation='automation/monitoring',
-            datetime=datetime.now()
-        )
+        tm: ToastMessage =  a.save_monitoring_algorithm_mask(msg=msg)
         await sio.emit("automation/monitoring", tm.json())
         msg: SearchPreviewTM =  a.search_new_image(period=True)
         for img in msg.images:

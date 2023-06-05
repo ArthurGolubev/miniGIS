@@ -23,6 +23,8 @@ import { Step3 } from './main/automation/Step3';
 import { Step0 } from './main/automation/Step0';
 import { ShowSelectedTab } from './main/map/sidebar/tools/ShowSelectedTab';
 import { ViewSidebar } from './main/map/sidebar/layers/ViewSidebar';
+import { Profile } from './profile/Profile';
+import { Algorithm } from './timeline/Algorithm';
 
 
 export const router = createHashRouter([
@@ -93,11 +95,19 @@ export const router = createHashRouter([
                             {
                                 path: 'layers',
                                 element: <ViewSidebar />,
-                                
                             }
                         ]
                     }
                 ]
+            },
+
+            {
+                path: '/profile',
+                element: <Profile />
+            },
+            {
+                path: '/algorithm/:slug',
+                element: <Algorithm />
             },
             
             {

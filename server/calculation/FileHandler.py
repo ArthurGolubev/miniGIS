@@ -29,6 +29,23 @@ class FileHandler(YandexDiskHandler):
         super().__init__(user=user)
         self._make_yandex_dir_recursively('/miniGIS/workflow')
         self.user = user
+        self.clear_path = lambda x: x.path.split(':')[1]
+        self.get_last_elem = lambda x: x.split('/')[-1]
+
+
+    def get_algorithms_yandex(self):
+        result = [x.path.split('/')[-1] for x in self.y.listdir('/miniGIS/automation/archive-data-processing')]
+        return result
+        
+
+
+
+
+    def algorithm_results(self, alg_path, alg_type):
+        logger.debug(f"{alg_path=}")
+        results = self.y.listdir('/' + alg_path)
+
+        logger.info(f"{list(results)=}")
 
 
     def shp_save(self, shp_name, layer):
@@ -94,9 +111,23 @@ class FileHandler(YandexDiskHandler):
         shp_io.seek(0)
         shx_io.seek(0)
         dbf_io.seek(0)
-        self.y.upload(shp_io, yandex_disk_path + '.shp', overwrite=True)
-        self.y.upload(shx_io, yandex_disk_path + '.shx', overwrite=True)
-        self.y.upload(dbf_io, yandex_disk_path + '.dbf', overwrite=True)
+        try:
+            self.y.upload(shp_io, yandex_disk_path + '.shp', overwrite=True)
+            self.y.upload(shx_io, yandex_disk_path + '.shx', overwrite=True)
+            self.y.upload(dbf_io, yandex_disk_path + '.dbf', overwrite=True)
+            return ToastMessage(
+                datetime=datetime.now(),
+                header='Сохранение шейп-файла',
+                message=f"Файл сохранён",
+                operation="shp-save"
+            )
+        except yadisk.exceptions.LockedError:
+            return ToastMessage(
+                datetime=datetime.now(),
+                header='Сохранение шейп-файла',
+                message=f"Загрузка файлов недоступна, можно только просматривать и скачивать. Вы достигли ограничения по загрузке файлов",
+                operation="shp-save"
+            )
 
 
     def shp_read(self, name: str):
@@ -122,6 +153,7 @@ class FileHandler(YandexDiskHandler):
         files: list[str] = q.get()
         yandex_disk_path = q.get()
         bands = sorted(files)
+        logger.debug(f'123 -> {bands=}')
         temp_file = f'./cache/temp_username_{bands[0].split("/")[-1]}'
         
         self.y.download(bands[0], temp_file)
@@ -168,19 +200,31 @@ class FileHandler(YandexDiskHandler):
                     dst.write_band(id, src.read(1))
                 os.remove(temp_file)
         file_ = yandex_disk_path + f'/{file_name}'
-        self.y.upload(file_path, file_, overwrite=True)
-        os.remove(file_path)
-
-        q.put(
-            {
-            "tm": ToastMessage(
-                header="Объединение слоёв",
-                message=f"слои {bands} объеденены в {file_name}",
-                datetime=datetime.now(),
-                operation='stack-bands'
-            ),
-            "stack_file": file_
-        })
+        try:
+            self.y.upload(file_path, file_, overwrite=True)
+            os.remove(file_path)
+            q.put(
+                {
+                "tm": ToastMessage(
+                    header="Объединение слоёв",
+                    message=f"слои {bands} объеденены в {file_name}",
+                    datetime=datetime.now(),
+                    operation='stack-bands'
+                ),
+                "stack_file": file_
+            })
+        except yadisk.exceptions.LockedError:
+            os.remove(file_path)
+            q.put(
+                {
+                "tm": ToastMessage(
+                    header="ОШИБКА",
+                    message=f"Загрузка файлов недоступна, можно только просматривать и скачивать. Вы достигли ограничения по загрузке файлов",
+                    datetime=datetime.now(),
+                    operation='stack-bands'
+                ),
+                "stack_file": file_
+            })
 
 
 
@@ -256,24 +300,24 @@ class FileHandler(YandexDiskHandler):
 
 
     def available_files(self, to: str) -> dict[str, dict[str, list[str]]]:
-        clear_path = lambda x: x.path.split(':')[1]
-        get_last_elem = lambda x: x.split('/')[-1]
+        
+        
 
         response = {'satellites': {}}
-        satellites = [clear_path(x) for x in self.y.listdir('/miniGIS/workflow')]
+        satellites = [self.clear_path(x) for x in self.y.listdir('/miniGIS/workflow')]
         for satellite in satellites:
-            products = [clear_path(x) for x in self.y.listdir(satellite)]
-            _satellite = get_last_elem(satellite)
+            products = [self.clear_path(x) for x in self.y.listdir(satellite)]
+            _satellite = self.get_last_elem(satellite)
             response['satellites'][_satellite] = {}
             for product in products:
-                results = [clear_path(x) for x in self.y.listdir(product)]
-                _product = get_last_elem(product)
+                results = [self.clear_path(x) for x in self.y.listdir(product)]
+                _product = self.get_last_elem(product)
                 response['satellites'][_satellite][_product] = {}
                 for result in results:
-                    data = [clear_path(x) for x in self.y.listdir(result)]
-                    _result = get_last_elem(result)
+                    data = [self.clear_path(x) for x in self.y.listdir(result)]
+                    _result = self.get_last_elem(result)
                     _data = [x for x in data if not x.endswith('.txt')]
-                    response['satellites'][_satellite][_product][_result] = {get_last_elem(v): v for v in _data}
+                    response['satellites'][_satellite][_product][_result] = {self.get_last_elem(v): v for v in _data}
         logger.success(f'\n\n\n{response=}\n\n\n')
         return response
         
@@ -332,30 +376,46 @@ class FileHandler(YandexDiskHandler):
             self._make_yandex_dir_recursively(yandex_disk_path)
 
             file_ = yandex_disk_path  + f'/{file_name}'
-            self.y.upload(local_path, file_, overwrite=True)
-            clipped_files.append(file_)
-            os.remove(local_path)
-
-        q.put({
-            "tm": ToastMessage(
-                header="Обрезка завершена - output.tif",
-                message="Обрезка по маске",
-                datetime=datetime.now(),
-                operation='clip-to-mask'
-            ),
-            "clipped_files": clipped_files
-        })
+            try:
+                self.y.upload(local_path, file_, overwrite=True)
+                clipped_files.append(file_)
+                os.remove(local_path)
+                tm = {
+                    "tm": ToastMessage(
+                        header="Обрезка завершена - output.tif",
+                        message="Обрезка по маске",
+                        datetime=datetime.now(),
+                        operation='clip-to-mask'
+                    ),
+                    "clipped_files": clipped_files
+                }
+            except yadisk.exceptions.LockedError:
+                os.remove(local_path)
+                tm = {
+                    "tm": ToastMessage(
+                        header="Обрезка завершена - output.tif",
+                        message="Обрезка по маске",
+                        datetime=datetime.now(),
+                        operation='clip-to-mask'
+                    ),
+                    "clipped_files": clipped_files
+                }
+                break
+        q.put(tm)
 
 
 
 
     def get_classification_layer(self, satellite: str, product: str, target: str, username: str = 'someuser') -> dict:
 
-        target = target.split(".")[-2]
+        # target = target.split(".")[-2]
 
         cached_target = f'cached_{username}_{target}'
         png_file_path = f'./cache/classification/{satellite}/{product}/show_in_browser'
         tif_file_path = f'./cache/classification/{satellite}/{product}'
+
+        # TODO во-первых: не обязательно скачивать на диск, можно BytesIO
+        # Во-вторых: я делаю метафайл для .png, в котором будет лежать координаты слоя .tif => следует удалить или изменить этот метод
         if not os.path.exists(png_file_path + f'/{cached_target}.png'):
             Path(png_file_path).mkdir(exist_ok=True, parents=True)
             yandex_disk_path = f'/miniGIS/images/classification/{satellite}/{product}/show_in_browser/{target}.png'
@@ -395,6 +455,61 @@ class FileHandler(YandexDiskHandler):
             },
             "coordinates": [left_bottom, right_top]
             }
+    
+    
+    async def get_products_by_path(self, path: str, sio):
+        
+        products = list(filter(lambda x: not x.endswith("mask"), [self.clear_path(x) for x in self.y.listdir(path)]))
+        iters = len(products)
+
+        for i, product in enumerate(products):
+            date = self.get_last_elem(product).split("_")[-1][0:8]
+
+            preview_path = product + '/raw/preview.txt'
+            preview_file = BytesIO()
+            logger.debug(f'{preview_path=}')
+            self.y.download(preview_path, preview_file)
+            preview_file.seek(0)
+            preview = preview_file.read().decode('UTF-8').split('\n')
+            logger.debug(f"\n\n{preview=}\n\n")
+            img_url = EarthEngine(user=self.user).show_images_preview(sensor=preview[0], system_index=preview[1]).img_url
+            
+
+            classifications_path = product + '/classification/show_in_browser'
+            files = [self.clear_path(x) for x in self.y.listdir(classifications_path)]
+            imgs = []
+            metafiles = []
+            for x in files:
+                if x.endswith(".metafile"):
+                    metafiles.append(x)
+                elif x.endswith(".png"):
+                    imgs.append(x)
+
+
+            
+            for classification in imgs:
+                img = BytesIO()
+                self.y.download(classification, img)
+                metafile = classification.replace(".png", ".metafile")
+                meta = None
+                if metafile in metafiles:
+                    meta = BytesIO()
+                    self.y.download(metafile, meta)
+                    meta.seek(0)
+                    meta = meta.read().decode('UTF-8')
+
+                img.seek(0)
+                await sio.emit('algorithm/timeline', {
+                    "img": img.read(),
+                    "meta": meta,
+                    "date": f'{datetime.strptime(date, "%Y%m%d").date()}',
+                    "preview": img_url,
+                    "iter": i+1,
+                    "iters": iters
+                    })
+
+
+
 
 
 
