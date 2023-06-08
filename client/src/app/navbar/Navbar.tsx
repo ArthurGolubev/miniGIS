@@ -7,12 +7,21 @@ import { StackIcon } from './StackIcon'
 import { ProfileIcon } from './ProfileIcon'
 import { ProgressBarStatus } from './ProgressBarStatus'
 import { useTimelineStore } from '../../timeline/store'
+import { useMainStore } from '../store'
 
 
 export const NavBar = () => {
     const isLoadingSub = useReactiveVar(isLoading)
+    const isLoadingSub2 = useMainStore().isLoading
     const isProgressBarSub = useTimelineStore().isProgressBar
     const showToggleSub = useReactiveVar(showToggle)
+    const setLoading = useMainStore().setLoading
+
+    React.useEffect(() => {
+        if(isProgressBarSub == undefined){setLoading(false)}
+    }, [isProgressBarSub])
+    
+
     
     return <nav className='navbar navbar-expand-sm bg-light' style={{height: '5vh'}}>
         <div className='container-fluid'>
@@ -25,7 +34,7 @@ export const NavBar = () => {
         
             <div className="collapse navbar-collapse " id="navbarNav">
                 <div className='col-auto text-center'>
-                    {isLoadingSub && <LoadingStatus />}
+                    {(isLoadingSub || isLoadingSub2) && <LoadingStatus />}
                 </div>
                 <div className='col-1 text-center'>
                     {isProgressBarSub != undefined && <ProgressBarStatus />}

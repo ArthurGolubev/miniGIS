@@ -8,6 +8,7 @@ from multiprocessing import Queue
 from sklearn import metrics
 from sklearn.datasets import load_digits
 from sklearn.model_selection import train_test_split
+import numpy as np
 
 
 class KMean:
@@ -20,7 +21,7 @@ class KMean:
         k = data["alg_param"]
         yandex_disk_path = data["yandex_disk_path"]
         img = ImgHandler(user=self.user, file_path=self.file_path, alg_name='KMean', alg_param=f'k{k}')
-        rows, cols, reshaped_img = img.open_()
+        rows, cols, reshaped_img, band_stats = img.open_()
 
         logger.info(f"{rows=}")
         logger.info(f"{cols=}")
@@ -75,15 +76,27 @@ class KMean:
 
         statistic['confusion_matrix'] = c21
         statistic['classification_report'] = c22
+        statistic['band_stats'] = band_stats
 
         kmeans_predictions_2d = c.predict(reshaped_img)
+        logger.success(f"\n\n{kmeans_predictions_2d=}\n\n")
+
+        unique_classes, count_pixels = np.unique(kmeans_predictions_2d, return_counts=True)
+        unique_classes = unique_classes.tolist()
+        count_pixels = count_pixels.tolist()
+
+        pixels_per_class = {k: v for k, v in zip(unique_classes, count_pixels)}
+        statistic['pixels_per_class'] = pixels_per_class
+
+
         kmeans_predictions_2d = kmeans_predictions.labels_.reshape(1, rows, cols)
         
 
         classification_layer = img.save_(
             predictions_2d=kmeans_predictions_2d,
             statistic=statistic,
-            path=yandex_disk_path
+            path=yandex_disk_path,
+            k=k
             )
 
         q.put(ClassificationTM(

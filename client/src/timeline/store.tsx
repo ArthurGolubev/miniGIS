@@ -1,12 +1,34 @@
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 import { AlgorithmType } from '../profile/store'
+import { ax } from '..'
+import { socket } from '../app/socket'
+import { useMainStore } from '../app/store'
+
+
+interface ClassificationResultType {
+    img: any
+    date: Date
+    statistic: any
+    preview: {
+        img_url : string
+        bounds: Array<Array<number>>
+    }
+}
 
 
 interface TimelineStore {
     algData: AlgorithmType | undefined
-    timalineImages: Array<any>
+    timalineImages: Array<ClassificationResultType>
     isProgressBar: undefined | {iter: number, iters: number}
+    algorithmDetail: {
+        alg_name: string | undefined
+        alg_param: string | undefined
+        name: string | undefined
+        bands: string | undefined
+    }
+    
+    fetchAlgDetailById: (id: string) => void
     addImageToTimeline: (img: any) => void
 }   
 
@@ -17,29 +39,48 @@ export const useTimelineStore = create<TimelineStore>()(
             algData: undefined,
             timalineImages: [],
             isProgressBar: undefined,
+            algorithmDetail: {
+                alg_name: undefined,
+                alg_param: undefined,
+                name: undefined,
+                bands: undefined
+            },
 
 
-            addImageToTimeline: (classification) => 
+            addImageToTimeline: (data) => 
             set((state) => {
-                console.log(classification)
+                console.log(data)
                 let progress = {iter: 0, iters: 0}
-                if(classification.iter / classification.iters < 1){
-                    progress.iter = classification.iter
-                    progress.iters = classification.iters
+                if(data.progress.iter / data.progress.iters < 1){
+                    progress.iter = data.progress.iter
+                    progress.iters = data.progress.iters
                 } else {
                     progress = undefined
                 }
-                let arrayBufferView = new Uint8Array(classification.img)
-                let statistic = JSON.parse(classification.meta)
+                let arrayBufferView = new Uint8Array(data.classification.img)
+                let statistic = JSON.parse(data.classification.meta)
                 console.log(progress)
                 const blob = new Blob([arrayBufferView], {type:"image/jpeg"} )
                 return {...state,
                     timalineImages: [
-                        ...state.timalineImages, {img: blob, date: new Date(classification.date), statistic}
+                        ...state.timalineImages, {
+                            img: blob,
+                            date: new Date(data.classification.date),
+                            statistic,
+                            preview: data.preview
+                        }
                     ],
                     isProgressBar: progress
                     }
             }),
+
+            fetchAlgDetailById: async (id) => {
+                let response = await ax.get(`/algorithm/detail/${id}`)
+                set((state) => ({...state, algorithmDetail: response.data}))
+                let path = response.data.mask.split('/').slice(0, -2)
+                socket.emit("algorithm/timeline", {path: path.join('/')})
+
+            }
         })
     )
 )

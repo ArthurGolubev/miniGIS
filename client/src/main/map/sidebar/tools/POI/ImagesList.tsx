@@ -21,8 +21,10 @@ export const ImagesList = () => {
         },
         fetchPolicy: 'network-only',
         onCompleted: data => {
-            let coordinates = metadata["system:footprint"]["coordinates"]
+            // let coordinates = metadata["system:footprint"]["coordinates"]
+            let coordinates = data.getImagePreview.bounds
             console.log('some data -> ', data)
+            console.log('some coordinates -> ', coordinates)
             L.geoJSON().addTo(mapObjSub).addData({type: 'LineString', coordinates: coordinates} as any)
             let layer = L.imageOverlay(data.getImagePreview.imgUrl, coordinates.map((point: Array<number>) => [point[1], point[0]]) ) as any
 

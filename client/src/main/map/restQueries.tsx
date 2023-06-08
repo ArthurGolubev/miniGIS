@@ -33,7 +33,8 @@ export const GET_PREVIEW = gql`
             message,
             datetime,
             sensor,
-            systemIndex
+            systemIndex,
+            bounds
         }
     }
 `

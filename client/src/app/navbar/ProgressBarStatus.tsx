@@ -1,6 +1,4 @@
 import * as React from 'react'
-import { isProgress } from '../../main/map/rv'
-import { useReactiveVar } from '@apollo/client'
 import { useTimelineStore } from '../../timeline/store'
 
 
@@ -10,7 +8,7 @@ export const ProgressBarStatus = () => {
 
 
     let width = (isProgressSub.iter / isProgressSub.iters) * 100
-    return <div className='row justify-content-center'>
+    return <div className='row justify-content-center ms-1'>
         <div className='col-12'>
             <div className="progress">
                 <div

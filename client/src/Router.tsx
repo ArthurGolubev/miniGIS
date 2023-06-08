@@ -25,6 +25,9 @@ import { ShowSelectedTab } from './main/map/sidebar/tools/ShowSelectedTab';
 import { ViewSidebar } from './main/map/sidebar/layers/ViewSidebar';
 import { Profile } from './profile/Profile';
 import { Algorithm } from './timeline/Algorithm';
+import { StatisticTable1 } from './timeline/StatisticTable1';
+import { ClassificationReport } from './timeline/ClassificationReport';
+import { ConfusionMatrix } from './timeline/ConfusionMatrix';
 
 
 export const router = createHashRouter([
@@ -107,7 +110,21 @@ export const router = createHashRouter([
             },
             {
                 path: '/algorithm/:slug',
-                element: <Algorithm />
+                element: <Algorithm />,
+                children: [
+                    {
+                        path: 'tab1',
+                        element: <StatisticTable1 />
+                    },
+                    {
+                        path: 'tab2',
+                        element: <ClassificationReport />
+                    },
+                    {
+                        path: 'tab3',
+                        element: <ConfusionMatrix />
+                    },
+                ]
             },
             
             {

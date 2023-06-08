@@ -12,14 +12,14 @@ from loguru import logger
 from rasterio.plot import reshape_as_image, reshape_as_raster
 from matplotlib.pyplot import imread
 from matplotlib.pyplot import imsave as matplotlib_imsave
-from matplotlib import colormaps
+from matplotlib import colormaps, colors
 from pyproj import Transformer
 
 
 from server.calculation.YandexDiskHadler import YandexDiskHandler
 from server.calculation.FileHandler import FileHandler
 
-
+import numpy as np
 
 
 
@@ -48,8 +48,27 @@ class ImgHandler(YandexDiskHandler):
             self.meta.update(count=1)
             self.meta.update(compress='lzw')
 
+            img_read = img.read()
+            bands_stats = []
+            for index, band in zip(img.indexes, img_read):
+                histogram, bin_edges = np.histogram(band, bins=np.linspace(0, band.size, 100))
+                bin_edges = (bin_edges[:-1] + bin_edges[1:]) / 2
+                bands_stats.append({
+                    'band': img.tags(index)['band_name'],
+                    'min': band.min().item(),
+                    'mean': band.mean().item(),
+                    'median': np.median(band).item(),
+                    'max': band.max().item(),
+                    # 'histogram': np.histogram(band, bins=range(band.size))
+                    # 'histogram': np.histogram(band, bins=np.linspace(0, band.size, 1000))
+                    'histogram': {"y": histogram.tolist(), "x": bin_edges.tolist()}
+                    }
+                )
+            logger.info(f"\n\n\n\n\n{bands_stats=}\n\n\n\n\n")
+            logger.info(f"\n\n\n\n\n{bin_edges=}\n\n\n\n\n")
+
             # rasterio format (bands, rows, columns) -> scikit-image (rows, columns, bands)
-            reshaped_img = reshape_as_image(img.read())
+            reshaped_img = reshape_as_image(img_read)
         # reshaped_img = reshaped_img.reshape(-1, origin_count)
             # Flatten the raster array (решейпит из многомерного масив в одномерный масив, как я понял)
             # [[1, 23, 40], [1, 2, 33, 12]] -> [1, 23, 40, 1, 2, 33, 12]
@@ -59,11 +78,11 @@ class ImgHandler(YandexDiskHandler):
         rows, cols = img.shape
         logger.info(f"{img.shape=}")
         logger.success('success1!')
-        return rows, cols, reshaped_img
+        return rows, cols, reshaped_img, bands_stats
 
 
 
-    def save_(self, predictions_2d, statistic, path: str):
+    def save_(self, predictions_2d, statistic, path: str, k: int):
         path = self.file_path.split('/')
         SATELLITE = path[-3]
         PRODUCT = path[-2]
@@ -82,6 +101,7 @@ class ImgHandler(YandexDiskHandler):
 
         with rasterio.open(self.file_path, "w", **self.meta) as dst:
             dst.write(predictions_2d)
+            logger.success(f"\n\n{predictions_2d=}\n\n")
             bounds = dst.bounds
             crs = dst.crs
 
@@ -121,7 +141,6 @@ class ImgHandler(YandexDiskHandler):
         right_top = transformer.transform(bounds[2], bounds[3])
 
         statistic["bounds"] = [left_bottom, right_top]
-        metafile = StringIO(dumps(statistic))
         file_name = f"{self.alg_name}_{path[-1].split('.')[-2]}_{self.alg_param}"
         cached_file_name = f"cached_{self.user.username}_" + file_name + '.png'
         classification_folder = os.path.join('./cache', 'classification', SATELLITE, PRODUCT, 'show_in_browser')
@@ -131,7 +150,14 @@ class ImgHandler(YandexDiskHandler):
 
         # добавляем палитру для классифицированного изображения
         img = imread(fname=self.file_path)
-        matplotlib_imsave(fname=self.file_path, arr=img, cmap=colormaps["turbo"], format='png')
+        colors_ = colormaps["turbo"].resampled(k)
+        classes = [f"Class {x}" for x in range(1)]
+        classes_colors = {k: colors.to_hex(v) for k, v in zip(classes, colors_.colors[1:])}
+
+        statistic['colors'] = classes_colors
+
+
+        matplotlib_imsave(fname=self.file_path, arr=img, cmap=colors_, format='png')
         
         if path == '':
             # вариант вызываемый из workflow
@@ -143,6 +169,7 @@ class ImgHandler(YandexDiskHandler):
 
         # yandex_disk_path = f'/miniGIS/images/classification/{SATELLITE}/{PRODUCT}/show_in_browser'
         self._make_yandex_dir_recursively(yandex_disk_path)
+        metafile = StringIO(dumps(statistic))
         self.y.upload(metafile, yandex_disk_path + f'/{file_name}.metafile', overwrite=True)
         self.y.upload(self.file_path, yandex_disk_path + f'/{file_name}.png', overwrite=True)
         logger.success('success2!')

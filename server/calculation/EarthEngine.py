@@ -83,6 +83,10 @@ class EarthEngine(YandexDiskHandler):
         else:
             logger.error(f"wrong sensor {sensor=}")
 
+        bounds = res.geometry().bounds().getInfo().get('coordinates')
+        logger.debug(f"\n\n{bounds=}\n\n")
+        
+
         return PreviewTM(
             img_url=res.getThumbURL(parameters),
             system_index=system_index,
@@ -90,7 +94,8 @@ class EarthEngine(YandexDiskHandler):
             header='Запрос привью',
             message=f'Сцена {system_index}',
             datetime=datetime.today(),
-            operation='get-image-preview'
+            operation='get-image-preview',
+            bounds=bounds[0]
         )
 
 

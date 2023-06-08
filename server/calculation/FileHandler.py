@@ -192,12 +192,14 @@ class FileHandler(YandexDiskHandler):
         file_path = os.path.join(stack_folder, file_name)
 
         with rasterio.open(file_path, "w", **meta) as dst:
+            # по соглашению GDLA, слои нумеруются с 1
             for id, layer in enumerate(bands, start=1):
                 temp_file = f'./cache/{layer.split("/")[-1]}'
                 self.y.download(layer, temp_file)
                 # with rasterio.open(layer) as src:
                 with rasterio.open(temp_file) as src:
                     dst.write_band(id, src.read(1))
+                    dst.update_tags(id, band_name=bands_names[id-1])
                 os.remove(temp_file)
         file_ = yandex_disk_path + f'/{file_name}'
         try:
@@ -472,7 +474,10 @@ class FileHandler(YandexDiskHandler):
             preview_file.seek(0)
             preview = preview_file.read().decode('UTF-8').split('\n')
             logger.debug(f"\n\n{preview=}\n\n")
-            img_url = EarthEngine(user=self.user).show_images_preview(sensor=preview[0], system_index=preview[1]).img_url
+            preview_response = EarthEngine(user=self.user).show_images_preview(sensor=preview[0], system_index=preview[1])
+            logger.info(f"\n\n{preview_response=}\n\n")
+            img_url = preview_response.img_url
+            bounds  = preview_response.bounds
             
 
             classifications_path = product + '/classification/show_in_browser'
@@ -500,12 +505,21 @@ class FileHandler(YandexDiskHandler):
 
                 img.seek(0)
                 await sio.emit('algorithm/timeline', {
-                    "img": img.read(),
-                    "meta": meta,
-                    "date": f'{datetime.strptime(date, "%Y%m%d").date()}',
-                    "preview": img_url,
-                    "iter": i+1,
-                    "iters": iters
+                    "classification": {
+                        "img": img.read(),
+                        "meta": meta,
+                        "date": f'{datetime.strptime(date, "%Y%m%d").date()}',
+                    },
+
+                    "preview": {
+                        "img_url": img_url,
+                        "bounds": bounds
+                    },
+                    
+                    "progress": {
+                        "iter": i+1,
+                        "iters": iters
+                    }
                     })
 
 

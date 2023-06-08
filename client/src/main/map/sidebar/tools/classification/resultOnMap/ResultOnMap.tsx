@@ -10,11 +10,6 @@ export const ResultOnMap = ({data}: {data: ToastDataWithImgType}) => {
         console.log('coordinates1 -> ', coordinates)
         const bounds = new LatLngBounds([coordinates[0][1], coordinates[0][0]], [coordinates[1][1], coordinates[1][0]])
 
-        // const bounds = new LatLngBounds([coordinates[0][0], coordinates[0][1]], [coordinates[1][0], coordinates[1][1]])
-        // const bounds = new LatLngBounds([coordinates[0][1], coordinates[0][0]], [coordinates[1][1], coordinates[1][0]])
-        // const bounds = new LatLngBounds([coordinates[1][0], coordinates[1][1]], [coordinates[0][0], coordinates[0][1]])
-        // const bounds = new LatLngBounds([coordinates[0][0], coordinates[0][1]], [coordinates[1][0], coordinates[1][1]])
-
         return <MapContainer
                 attributionControl={false}
                 center={[coordinates[0][1], coordinates[0][0]]}

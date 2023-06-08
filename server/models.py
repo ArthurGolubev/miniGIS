@@ -127,6 +127,7 @@ class PreviewTM(ToastMessage):
     img_url: str
     system_index: str
     sensor: str
+    bounds: list[list[float]]
 
     class Config:
         alias_generator = to_camel

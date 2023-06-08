@@ -23,8 +23,11 @@ async def classify_kmean(sid, msg):
     session = await sio.get_session(sid)
     alg = KMean(session['user'], data.file_path)
     q = Queue()
-    q.put(data.k)
-    q.put('') # to default yandex disk path
+    data = {
+        "alg_param": data.k,
+        "yandex_disk_path": ""
+    }
+    q.put(data)
     p = Process(target=alg.classify, args=(q,))
     p.start()
     while p.is_alive():
@@ -41,8 +44,11 @@ async def classify_bisecting_kmean(sid, msg):
     session = await sio.get_session(sid)
     alg = BisectingKMean(session['user'], data.file_path)
     q = Queue()
-    q.put(data.k)
-    q.put('') # to default yandex disk path
+    data = {
+        "alg_param": data.k,
+        "yandex_disk_path": ""
+    }
+    q.put(data)
     p = Process(target=alg.classify, args=(q,))
     p.start()
     while p.is_alive():
@@ -59,8 +65,11 @@ async def classify_gaussian_mixture(sid, msg):
     session = await sio.get_session(sid)
     alg = GaussianMixture(session['user'], data.file_path)
     q = Queue()
-    q.put(data.n_components)
-    q.put('') # to default yandex disk path
+    data = {
+        "alg_param": data.n_components,
+        "yandex_disk_path": ""
+    }
+    q.put(data)
     p = Process(target=alg.classify, args=(q,))
     p.start()
     while p.is_alive():
@@ -77,8 +86,11 @@ async def classify_mean_shift(sid, msg):
     session = await sio.get_session(sid)
     alg = MeanShift(session['user'], data.file_path)
     q = Queue()
-    q.put(data.n_samples)
-    q.put('') # to default yandex disk path
+    data = {
+        "alg_param": data.n_samples,
+        "yandex_disk_path": ""
+    }
+    q.put(data)
     p = Process(target=alg.classify, args=(q,))
     p.start()
     while p.is_alive():
