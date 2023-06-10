@@ -16,7 +16,7 @@ export const Metadata = () => {
                     <button 
                     onClick={()=>selectedImage({metadata: undefined, imgUrl: '', sensor: '', systemIndex: ''})}
                     className='btn btn-sm btn-light' type='button'>
-                        <i className="bi bi-arrow-left link-primary"></i> back
+                        <i className="bi bi-arrow-left link-primary"></i> назад
                     </button>
                 </div>
                 {

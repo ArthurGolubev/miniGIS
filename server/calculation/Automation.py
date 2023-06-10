@@ -40,7 +40,7 @@ class Automation(YandexDiskHandler):
     def save_monitoring_algorithm_mask(self, msg):
         mask = msg["mask"]
         self._make_yandex_dir_recursively(f'{self.alg_path}/{msg["algName"]}/mask')
-        yandex_disk_path = f'{self.alg_path}/{msg["algName"]}/mask/mask'
+        yandex_disk_path = f'{self.alg_path}/{msg["algName"].replace(".", ";")}/mask/mask'
         shp_io = BytesIO()
         shx_io = BytesIO()
         dbf_io = BytesIO()

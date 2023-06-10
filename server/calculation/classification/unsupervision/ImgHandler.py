@@ -51,21 +51,25 @@ class ImgHandler(YandexDiskHandler):
             img_read = img.read()
             bands_stats = []
             for index, band in zip(img.indexes, img_read):
-                histogram, bin_edges = np.histogram(band, bins=np.linspace(0, band.size, 100))
-                bin_edges = (bin_edges[:-1] + bin_edges[1:]) / 2
+                custom_histogram = band.flatten()
+                values, counts = np.unique(custom_histogram, return_counts=True)
+                logger.debug(f'\n\n\n{values=}\n{counts=}\n\n\n')
+                # histogram, bin_edges = np.histogram(band, bins=np.linspace(0, band.size, 10))
+                # bin_edges = (bin_edges[:-1] + bin_edges[1:]) / 2
+
+
+                
                 bands_stats.append({
                     'band': img.tags(index)['band_name'],
                     'min': band.min().item(),
                     'mean': band.mean().item(),
                     'median': np.median(band).item(),
                     'max': band.max().item(),
-                    # 'histogram': np.histogram(band, bins=range(band.size))
-                    # 'histogram': np.histogram(band, bins=np.linspace(0, band.size, 1000))
-                    'histogram': {"y": histogram.tolist(), "x": bin_edges.tolist()}
+                    'histogram': {"y": counts.tolist(), "x": values.tolist()}
                     }
                 )
-            logger.info(f"\n\n\n\n\n{bands_stats=}\n\n\n\n\n")
-            logger.info(f"\n\n\n\n\n{bin_edges=}\n\n\n\n\n")
+            # logger.info(f"\n\n\n\n\n{bands_stats=}\n\n\n\n\n")
+            # logger.info(f"\n\n\n\n\n{bin_edges=}\n\n\n\n\n")
 
             # rasterio format (bands, rows, columns) -> scikit-image (rows, columns, bands)
             reshaped_img = reshape_as_image(img_read)
@@ -151,8 +155,9 @@ class ImgHandler(YandexDiskHandler):
         # добавляем палитру для классифицированного изображения
         img = imread(fname=self.file_path)
         colors_ = colormaps["turbo"].resampled(k)
-        classes = [f"Class {x}" for x in range(1)]
-        classes_colors = {k: colors.to_hex(v) for k, v in zip(classes, colors_.colors[1:])}
+        classes = [f"Class {x}" for x in range(k)]
+
+        classes_colors = {k: colors.to_hex(v) for k, v in zip(classes, colors_.colors)}
 
         statistic['colors'] = classes_colors
 

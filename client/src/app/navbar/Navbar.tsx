@@ -1,6 +1,6 @@
 import { useReactiveVar } from '@apollo/client'
 import * as React from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { isLoading, isProgress, showToggle } from '../../main/map/rv'
 import { LoadingStatus } from './LoadingStatus'
 import { StackIcon } from './StackIcon'
@@ -16,6 +16,7 @@ export const NavBar = () => {
     const isProgressBarSub = useTimelineStore().isProgressBar
     const showToggleSub = useReactiveVar(showToggle)
     const setLoading = useMainStore().setLoading
+    const location = useLocation()
 
     React.useEffect(() => {
         if(isProgressBarSub == undefined){setLoading(false)}
@@ -44,15 +45,24 @@ export const NavBar = () => {
                         <div className='col'>
                             <ul className="navbar-nav">
                                 <li className="nav-item">
-                                    <a href='#/main/automation/step-0' className='nav-link active' type='button'>Automation</a>
+                                    <Link
+                                    to='/main/automation/step-0'
+                                    className={location.pathname.startsWith('/main/automation/step-') ? 'nav-link active' : 'nav-link'}
+                                    type='button'>Автоматизация</Link>
                                 </li>
                                 <li className="nav-item">
-                                    <a href='#/main/map/workflow/poi' className='nav-link active' type='button'>Tools</a>
+                                    <Link
+                                    to='/main/map/workflow/poi'
+                                    className={location.pathname.startsWith('/main/map/workflow') ? 'nav-link active' : 'nav-link'}
+                                    type='button'
+                                    >Рабочий процесс</Link>
                                 </li>
                                 <li className="nav-item">
-                                    <a href='#/main/map/layers' onClick={()=>{
-                                        showToggle({...showToggleSub, LayerList: true})
-                                        }} className='nav-link active' type='button'>Layers</a>
+                                    <Link
+                                    to='/main/map/layers'
+                                    onClick={()=>{ showToggle({...showToggleSub, LayerList: true}) }}
+                                    className={location.pathname.startsWith('/main/map/layers') ? 'nav-link active' : 'nav-link'}
+                                    type='button'>Добавить слой</Link>
                                 </li>
                             </ul>
                         </div>

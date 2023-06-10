@@ -13,25 +13,25 @@ export const ToggleNavTabs = () => {
                 <button
                 onClick={()=>redirect('/main/map/workflow/poi')}
                 className={location.pathname == '/main/map/workflow/poi' ? 'nav-link active' : 'nav-link'}
-                type='button'>POI</button>
+                type='button'>Найти</button>
             </li>
             <li className='nav-item'>
                 <button
                 onClick={()=>redirect('/main/map/workflow/clip')}
                 className={location.pathname == '/main/map/workflow/clip' ? 'nav-link active' : 'nav-link'}
-                type='button'>Clip</button>
+                type='button'>Вырезать</button>
             </li>
             <li className='nav-item'>
                 <button
                 onClick={()=>redirect('/main/map/workflow/stack')}
                 className={location.pathname == '/main/map/workflow/stack' ? 'nav-link active' : 'nav-link'}
-                type='button'>Stack</button>
+                type='button'>Объединить</button>
             </li>
             <li className='nav-item'>
                 <button
                 onClick={()=>redirect('/main/map/workflow/classification')}
                 className={location.pathname == '/main/map/workflow/classification' ? 'nav-link active' : 'nav-link'}
-                type='button'>Classification</button>
+                type='button'>Классифицировать</button>
             </li>
         </ul>
     </div>

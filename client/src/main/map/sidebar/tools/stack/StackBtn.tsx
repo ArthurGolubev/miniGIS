@@ -26,7 +26,7 @@ export const StackBtn = () => {
             <button
             onClick={() => stackHandler()}
             disabled={isLoadingSub}
-            className='btn btn-sm btn-success' type='button'>Stack</button>
+            className='btn btn-sm btn-success' type='button'>Объединить</button>
         </div>
     </div>
 

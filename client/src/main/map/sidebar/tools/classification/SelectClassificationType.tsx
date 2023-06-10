@@ -15,14 +15,14 @@ export const SelectClassificationType = () => {
                     <button 
                     onClick={()=>redirect('unsupervised')}
                     className='btn btn-sm btn-light text-dark'
-                    type='button'>Unsupervision</button>
+                    type='button'>Неконтролируемая</button>
                 </div>
                 <div className='col-4'>
                 <button 
                     onClick={()=>redirect('supervised')}
                     className='btn btn-sm btn-light text-dark'
                     // disabled
-                    type='button'>Supervision</button>
+                    type='button'>Контролируемая</button>
                 </div>
             </div>
         </div>

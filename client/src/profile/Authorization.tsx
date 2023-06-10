@@ -50,7 +50,7 @@ export const Authorization = () => {
                     <div className='card-text'>
 
                         <div className='row justify-content-center'>
-                            <label htmlFor='input-login' className='col-5 col-form-label'>Login:</label>
+                            <label htmlFor='input-login' className='col-5 col-form-label'>Логин:</label>
                             <div className='col'>
                                 <input type='text' id='input-login'
                                 className={state.validLogin ? 'form-control form-control-sm' : 'form-control form-control-sm is-invalid'}
@@ -59,7 +59,7 @@ export const Authorization = () => {
                         </div>
 
                         <div className='row justify-content-center'>
-                            <label htmlFor='input-login' className='col-5 col-form-label'>Password:</label>
+                            <label htmlFor='input-login' className='col-5 col-form-label'>Пароль:</label>
                             <div className='col'>
                                 <input type='password' id='input-password'
                                 className={state.validLogin ? 'form-control form-control-sm' : 'form-control form-control-sm is-invalid'}

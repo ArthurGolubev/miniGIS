@@ -28,6 +28,8 @@ import { Algorithm } from './timeline/Algorithm';
 import { StatisticTable1 } from './timeline/StatisticTable1';
 import { ClassificationReport } from './timeline/ClassificationReport';
 import { ConfusionMatrix } from './timeline/ConfusionMatrix';
+import { BandsStatistic } from './timeline/bandStatistic/BandsStatistic';
+import { Legend } from './timeline/Legend';
 
 
 export const router = createHashRouter([
@@ -114,7 +116,8 @@ export const router = createHashRouter([
                 children: [
                     {
                         path: 'tab1',
-                        element: <StatisticTable1 />
+                        element: <BandsStatistic />
+                        // element: <StatisticTable1 />
                     },
                     {
                         path: 'tab2',
@@ -123,6 +126,10 @@ export const router = createHashRouter([
                     {
                         path: 'tab3',
                         element: <ConfusionMatrix />
+                    },
+                    {
+                        path: 'tab4',
+                        element: <Legend />
                     },
                 ]
             },

@@ -51,7 +51,7 @@ export const useTimelineStore = create<TimelineStore>()(
             set((state) => {
                 console.log(data)
                 let progress = {iter: 0, iters: 0}
-                if(data.progress.iter / data.progress.iters < 1){
+                if((data.progress.iter - data.progress.iters) != 0){
                     progress.iter = data.progress.iter
                     progress.iters = data.progress.iters
                 } else {

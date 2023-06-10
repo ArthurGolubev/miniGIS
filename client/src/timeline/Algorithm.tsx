@@ -77,18 +77,19 @@ export const Algorithm = () => {
                                         <MapContainer
                                         center={bounds[0]}
                                         zoom={13}
-                                        scrollWheelZoom={false}
+                                        scrollWheelZoom={true}
                                         style={{ height: '55vh', width: '100wh' }}
                                         attributionControl={false}
                                         >
                                             <TileLayer
                                             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                                             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                            // url="https://www.google.cn/maps/vt?lyrs=m@189&gl=cn&x={x}&y={y}&z={z}"
                                             />
                                             <LayersControl position="topright">
                                                 <LayersControl.Overlay
                                                     name={img.date.toDateString()}
-                                                    checked={true}>
+                                                    checked={false}>
                                                     <ImageOverlay
                                                         url={img.preview.img_url}
                                                         bounds={img.preview.bounds.map((point: Array<number>) => [point[1], point[0]])}
@@ -131,6 +132,11 @@ export const Algorithm = () => {
                                                 <Link
                                                 className={location.pathname == `/algorithm/${slug.slug}/tab3` ? 'nav-link active' : 'nav-link'}
                                                 to={`/algorithm/${slug.slug}/tab3`}>tab3</Link>
+                                            </li>
+                                            <li className='nav-item'>
+                                                <Link
+                                                className={location.pathname == `/algorithm/${slug.slug}/tab4` ? 'nav-link active' : 'nav-link'}
+                                                to={`/algorithm/${slug.slug}/tab4`}>tab4</Link>
                                             </li>
                                         </ul>
                                     </div>

@@ -64,7 +64,7 @@ export const Registration = () => {
                     <div className='card-text'>
 
                         <div className='row justify-content-center'>
-                            <label htmlFor='input-login' className='col-5 col-form-label'>Login:</label>
+                            <label htmlFor='input-login' className='col-5 col-form-label'>Логин:</label>
                             <div className='col'>
                                 <input type='text' id='input-login'
                                 className={state.validLogin ? 'form-control form-control-sm' : 'form-control form-control-sm is-invalid'}
@@ -73,7 +73,7 @@ export const Registration = () => {
                         </div>
 
                         <div className='row justify-content-center'>
-                            <label htmlFor='input-email' className='col-5 col-form-label'>Email:</label>
+                            <label htmlFor='input-email' className='col-5 col-form-label'>Почта:</label>
                             <div className='col'>
                                 <input type='email' id='input-email'
                                 className={state.validEmal ? 'form-control form-control-sm' : 'form-control form-control-sm is-invalid'}
@@ -82,7 +82,7 @@ export const Registration = () => {
                         </div>
                             
                         <div className='row justify-content-center'>
-                            <label htmlFor='input-passowrd-1' className='col-5 col-form-label'>Password:</label>
+                            <label htmlFor='input-passowrd-1' className='col-5 col-form-label'>Пароль:</label>
                             <div className='col'>
                                 <input type='password' id='input-password-1' 
                                 className={state.validPassword ? 'form-control form-control-sm' : 'form-control form-control-sm is-invalid'}
@@ -91,7 +91,7 @@ export const Registration = () => {
                         </div>
 
                         <div className='row justify-content-center'>
-                            <label htmlFor='input-passowrd-2' className='col-5 col-form-label'>Password:</label>
+                            <label htmlFor='input-passowrd-2' className='col-5 col-form-label'>Пароль:</label>
                             <div className='col'>
                                 <input type='password' id='input-password-2'
                                 className={state.validPassword ? 'form-control form-control-sm' : 'form-control form-control-sm is-invalid'}

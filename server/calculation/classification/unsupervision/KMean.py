@@ -6,7 +6,6 @@ from server.models import ClassificationTM
 from server.calculation.classification.unsupervision.ImgHandler import ImgHandler
 from multiprocessing import Queue
 from sklearn import metrics
-from sklearn.datasets import load_digits
 from sklearn.model_selection import train_test_split
 import numpy as np
 
@@ -23,11 +22,12 @@ class KMean:
         img = ImgHandler(user=self.user, file_path=self.file_path, alg_name='KMean', alg_param=f'k{k}')
         rows, cols, reshaped_img, band_stats = img.open_()
 
-        logger.info(f"{rows=}")
-        logger.info(f"{cols=}")
-        logger.info(f"{reshaped_img=}")
-
+        
         X_train, X_test = train_test_split(reshaped_img, test_size=0.5)
+
+        logger.info(f"\n\n\n{X_train.shape=}\n{X_test.shape=}\n\n\n")
+        X_train = np.resize(X_train, X_test.shape)
+        logger.info(f"\n\n\n{X_train.shape=}\n{X_test.shape=}\n\n\n")
 
         train1 = cluster.KMeans(n_clusters=k, random_state=0)
         train1_fit = train1.fit(X_train)
@@ -43,24 +43,7 @@ class KMean:
 
 
 
-
-
-
-
-
-
-
-
-
-        clustering_metrics = {
-            "homo":     metrics.homogeneity_score,
-            "compl":    metrics.completeness_score,
-            "v-meas":   metrics.v_measure_score,
-            "ARI":      metrics.adjusted_rand_score,
-            "AMI":      metrics.adjusted_mutual_info_score,
-        }
-
-        statistic = {k: v(train1_fit.labels_, predict) for k, v in clustering_metrics.items()}
+        statistic = {}
 
         c21 = metrics.confusion_matrix(train1_fit.labels_, predict).tolist()
         c22 = metrics.classification_report(
@@ -85,7 +68,7 @@ class KMean:
         unique_classes = unique_classes.tolist()
         count_pixels = count_pixels.tolist()
 
-        pixels_per_class = {k: v for k, v in zip(unique_classes, count_pixels)}
+        pixels_per_class = {f"Class {k}": v for k, v in zip(unique_classes, count_pixels)}
         statistic['pixels_per_class'] = pixels_per_class
 
 

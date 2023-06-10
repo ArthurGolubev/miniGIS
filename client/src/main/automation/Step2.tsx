@@ -34,7 +34,8 @@ export const Step2 = () => {
                     <div className='col-auto me-3'>
                         <button 
                         onClick={()=>nextStep()}
-                        className='btn btn-sm btn-light' type='button'>
+                        className='btn btn-sm btn-light'
+                        type='button'>
                             Далее <i className="bi bi-arrow-right link-primary"></i>
                         </button>
                     </div>

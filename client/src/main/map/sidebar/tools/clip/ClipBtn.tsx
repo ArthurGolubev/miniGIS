@@ -39,11 +39,13 @@ export const ClipBtn = () => {
         <div className='col-11'>
             
             <div className='row justify-content-center'>
-                <div className='col-6 text-center'>
+                <div className='col text-center mt-1'>
                     <button 
                     onClick={()=>drawMaskHandler()}
                     disabled={isLoadingSub}
-                    className='btn btn-sm btn-success' type='button'>draw</button>
+                    className='btn btn-sm btn-success' type='button'>
+                        Создать маску
+                    </button>
                 </div>
                 {
                     location.pathname == '/main/map/workflow/clip' && (
@@ -53,7 +55,7 @@ export const ClipBtn = () => {
                             className='btn btn-sm btn-success'
                             type='button'
                             disabled={!(clipMaskSub.layer != undefined) || isLoadingSub}
-                            >CLIP</button>
+                            >Вырезать</button>
                         </div>
                     )
                 }
