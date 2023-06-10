@@ -22,6 +22,8 @@ import yadisk
 from server.models import ToastMessage
 from json import dumps
 
+
+
 class Automation(YandexDiskHandler):
     def __init__(self, user: User1, session: Session, alg_type: str):
         super().__init__(user=user)
@@ -39,8 +41,9 @@ class Automation(YandexDiskHandler):
 
     def save_monitoring_algorithm_mask(self, msg):
         mask = msg["mask"]
-        self._make_yandex_dir_recursively(f'{self.alg_path}/{msg["algName"]}/mask')
-        yandex_disk_path = f'{self.alg_path}/{msg["algName"].replace(".", ";")}/mask/mask'
+        alg_name = msg["algName"].replace(".", ";")
+        self._make_yandex_dir_recursively(f'{self.alg_path}/{alg_name}/mask')
+        yandex_disk_path = f'{self.alg_path}/{alg_name}/mask/mask'
         shp_io = BytesIO()
         shx_io = BytesIO()
         dbf_io = BytesIO()
@@ -74,7 +77,7 @@ class Automation(YandexDiskHandler):
                 alg_param=msg.get('param'),
                 alg_name=msg.get('alg'),
                 bands=",".join(msg.get('bands')),
-                name=msg.get('algName'),
+                name=alg_name,
                 start_date=start_date,
                 end_date=end_date,
             )
@@ -83,7 +86,7 @@ class Automation(YandexDiskHandler):
             self.session.refresh(self.alg)
             return ToastMessage(
                 header='Создание алгоритма',
-                message=f'Алгоритм "{msg["algName"]}" создан',
+                message=f'Алгоритм "{alg_name}" создан',
                 operation='automation/monitoring',
                 datetime=datetime.now()
             )

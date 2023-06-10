@@ -19,12 +19,9 @@ class EarthEngine(YandexDiskHandler):
         self.landsat = ['LC08']
         self.sentinel = ['S2']
         super().__init__(user=user)
-        
-        ee_creds = ee.ServiceAccountCredentials(
-            email=os.getenv("MINIGIS_EARTH_ENGINE_SERVICE_ACCOUNT_EMAIL"),
-            key_file='/minigis/credential/MINIGIS_EARTH_ENGINE_KEY_DATA'
-        )
-        ee.Initialize(ee_creds)
+        logger.debug(f'EE END 1')
+
+        logger.debug(f'EE END 3')
 
 
 

@@ -15,13 +15,20 @@ from server.auth import login_for_access_token
 from server.auth import get_websocket_user
 
 from server.routers import main
-
+import ee
 
 
 
 from server.models import Token
 from server.sio import sio
 
+
+ee_creds = ee.ServiceAccountCredentials(
+    email=os.getenv("MINIGIS_EARTH_ENGINE_SERVICE_ACCOUNT_EMAIL"),
+    key_file='/minigis/credential/MINIGIS_EARTH_ENGINE_KEY_DATA'
+)
+
+ee.Initialize(ee_creds)
 
 Path('./cache').mkdir(exist_ok=True, parents=True)
 app = FastAPI()
@@ -34,8 +41,9 @@ app_socketio = socketio.ASGIApp(socketio_server=sio, socketio_path='workflow')
 
 @sio.event
 async def connect(sid, environ, auth):
-    user = await get_websocket_user(token=auth["token"])
-    await sio.save_session(sid, {'user': user})
+    if auth["token"]:
+        user = await get_websocket_user(token=auth["token"])
+        await sio.save_session(sid, {'user': user})
 
 @sio.event
 async def message(_, msg):

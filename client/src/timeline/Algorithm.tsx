@@ -1,12 +1,7 @@
 import * as React from 'react'
 import { Outlet, useLocation, useParams } from 'react-router'
 import { useTimelineStore } from './store'
-import { AlgorithmType, useProfileStore } from '../profile/store'
-import { socket } from '../app/socket'
-import { MapContainer, TileLayer, Marker, Popup, LayersControl, ImageOverlay } from 'react-leaflet'
-import { LatLngBounds, CRS } from 'leaflet'
-import { StatisticTable1 } from './StatisticTable1'
-import { ClassificationReport } from './ClassificationReport'
+import { MapContainer, TileLayer, LayersControl, ImageOverlay } from 'react-leaflet'
 import { Link } from 'react-router-dom'
 import { useMainStore } from '../app/store'
 
@@ -40,18 +35,9 @@ export const Algorithm = () => {
                             </div>
                         </div>
 
-                        <div className='row justify-content-center mt-3'>
+                        <div className='row justify-content-center mt-3 mb-3'>
                             <div className='col-auto'>
-                                <p>{algorithmDetail.alg_name}</p>
-                            </div>
-                            <div className='col'>
-                                <p>{algorithmDetail.alg_param}</p>
-                            </div>
-                        </div>
-
-                        <div className='row justify-content-center mt-3'>
-                            <div className='col-12'>
-                                {/* <p>{.last_file_name}</p> */}
+                                <h5>Алгоритм {algorithmDetail.alg_name} с параметром {algorithmDetail.alg_param}</h5>
                             </div>
                         </div>
 
@@ -121,22 +107,22 @@ export const Algorithm = () => {
                                             <li className='nav-item'>
                                                 <Link
                                                 className={location.pathname == `/algorithm/${slug.slug}/tab1` ? 'nav-link active' : 'nav-link'}
-                                                to={`/algorithm/${slug.slug}/tab1`}>tab1</Link>
+                                                to={`/algorithm/${slug.slug}/tab1`}>Вкладка 1</Link>
                                             </li>
                                             <li className='nav-item'>
                                                 <Link
                                                 className={location.pathname == `/algorithm/${slug.slug}/tab2` ? 'nav-link active' : 'nav-link'}
-                                                to={`/algorithm/${slug.slug}/tab2`}>tab2</Link>
+                                                to={`/algorithm/${slug.slug}/tab2`}>Вкладка 2</Link>
                                             </li>
                                             <li className='nav-item'>
                                                 <Link
                                                 className={location.pathname == `/algorithm/${slug.slug}/tab3` ? 'nav-link active' : 'nav-link'}
-                                                to={`/algorithm/${slug.slug}/tab3`}>tab3</Link>
+                                                to={`/algorithm/${slug.slug}/tab3`}>Вкладка 3</Link>
                                             </li>
                                             <li className='nav-item'>
                                                 <Link
                                                 className={location.pathname == `/algorithm/${slug.slug}/tab4` ? 'nav-link active' : 'nav-link'}
-                                                to={`/algorithm/${slug.slug}/tab4`}>tab4</Link>
+                                                to={`/algorithm/${slug.slug}/tab4`}>Вкладка 4</Link>
                                             </li>
                                         </ul>
                                     </div>

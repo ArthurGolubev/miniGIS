@@ -55,7 +55,10 @@ async def search_preview(input: SearchPreview, user: User1 = Depends(get_current
 
 @router.get('/get-image-preview/{sensor}/{system_index}', response_model=PreviewTM)
 async def get_image_preview(sensor: str, system_index: str, user: User1 = Depends(get_current_user)):
-    return EarthEngine(user=user).show_images_preview(sensor=sensor, system_index=system_index)
+    logger.debug(f"get_image_preview start!")
+    r = EarthEngine(user=user).show_images_preview(sensor=sensor, system_index=system_index)
+    logger.warning(f"{r=}")
+    return r
 
 
 @router.get('/available-files/{to}')

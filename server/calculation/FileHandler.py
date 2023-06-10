@@ -463,6 +463,7 @@ class FileHandler(YandexDiskHandler):
         
         products = list(filter(lambda x: not x.endswith("mask"), [self.clear_path(x) for x in self.y.listdir(path)]))
         iters = len(products)
+        logger.debug(f"STEP 1")
 
         for i, product in enumerate(products):
             date = self.get_last_elem(product).split("_")[-1][0:8]
@@ -484,6 +485,7 @@ class FileHandler(YandexDiskHandler):
             files = [self.clear_path(x) for x in self.y.listdir(classifications_path)]
             imgs = []
             metafiles = []
+            logger.debug(f"ITER {i}")
             for x in files:
                 if x.endswith(".metafile"):
                     metafiles.append(x)
@@ -491,7 +493,7 @@ class FileHandler(YandexDiskHandler):
                     imgs.append(x)
 
 
-            
+            logger.debug(f"STEP 2")
             for classification in imgs:
                 img = BytesIO()
                 self.y.download(classification, img)
@@ -504,6 +506,7 @@ class FileHandler(YandexDiskHandler):
                     meta = meta.read().decode('UTF-8')
 
                 img.seek(0)
+                logger.debug(f"STEP 3")
                 await sio.emit('algorithm/timeline', {
                     "classification": {
                         "img": img.read(),

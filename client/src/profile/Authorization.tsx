@@ -14,7 +14,7 @@ export const Authorization = () => {
         skip: !token?.loginForAccessTokenFromClient?.accessToken,
         fetchPolicy: "network-only",
         onCompleted: user => {
-            if(!user.getMe?.yandexToken){
+            if(user.getMe.yandexToken == "False"){
                 redirect("/yandex-authorization")
             } else {
                 localStorage.setItem('usr', user.getMe.username)

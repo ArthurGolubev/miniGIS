@@ -8,5 +8,5 @@ sio = socketio.AsyncServer(
     # engineio_logger=True,
     ping_interval=10,
     ping_timeout=40000,
-    timeout=30,
+    timeout=100,
 )

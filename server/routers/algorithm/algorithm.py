@@ -33,13 +33,6 @@ async def user_algorithms(user: User1 = Depends(get_current_user), session: Sess
 @router.get('/detail/{alg_id}', response_model=Algorithm)
 async def get_alg_info(alg_id, session: Session = Depends(get_session), user: User1 = Depends(get_current_user)):
     response = session.exec(select(Algorithm).where(Algorithm.id == alg_id).where(Algorithm.user_id == user.id)).first()
-    
-    alg_path = os.path.join(*response.mask.split('/')[:-2])
-    alg_type = 'monitoring' if response.start_date == None and response.end_date == None else 'archive date'
-    FileHandler(user=user).algorithm_results(alg_path=alg_path, alg_type=alg_type)
-    logger.info(f"\n\n\n\n\n/detail/{alg_id}\n\n\n")
-
-
     return response
 
 

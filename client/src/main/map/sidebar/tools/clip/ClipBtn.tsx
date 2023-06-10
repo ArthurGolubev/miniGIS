@@ -44,7 +44,7 @@ export const ClipBtn = () => {
                     onClick={()=>drawMaskHandler()}
                     disabled={isLoadingSub}
                     className='btn btn-sm btn-success' type='button'>
-                        Создать маску
+                        нарисовать
                     </button>
                 </div>
                 {
