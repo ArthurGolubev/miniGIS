@@ -23,12 +23,6 @@ export const Map2 = ({mapId}: {mapId: string}) => {
             console.log('layerGroup ->', layerGroup)
             layerGroup.layer.addLayer(g)
         }
-        // g.bindPopup('<button class="btn btn-primary">CHeck</button>')
-        // g.on('click', e => console.log('AWESOME CLICK!', e))
-        // TODO Функция, которая будет стучтаться в MapLayer с нужным ключём (айди созданной фигуры)
-        // layers()[selectedVecLay].properties
-        // g.on('click', (e: any) => e.target.pm._layer.bindPopup(`${new Date().toLocaleTimeString()}`))
-        // vecLayer()[selectedVecLay()].layerGroup.addLayer(geom.layer)
         
         let id: string
         switch (geom.type) {
