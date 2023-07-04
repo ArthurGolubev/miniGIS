@@ -29,12 +29,14 @@ class FileHandler(YandexDiskHandler):
         super().__init__(user=user)
         self._make_yandex_dir_recursively('/miniGIS/workflow')
         self.user = user
+        
         self.clear_path = lambda x: x.path.split(':')[1]
         self.get_last_elem = lambda x: x.split('/')[-1]
 
 
     def get_algorithms_yandex(self):
         result = [x.path.split('/')[-1] for x in self.y.listdir('/miniGIS/automation/archive-data-processing')]
+        result.extend([x.path.split('/')[-1] for x in self.y.listdir('/miniGIS/automation/monitoring')])
         return result
         
 
@@ -460,8 +462,9 @@ class FileHandler(YandexDiskHandler):
     
     
     async def get_products_by_path(self, path: str, sio):
-        
-        products = list(filter(lambda x: not x.endswith("mask"), [self.clear_path(x) for x in self.y.listdir(path)]))
+        products = self.y.listdir(path)
+        products = sorted(products, key=lambda x: x.created)
+        products = list(filter(lambda x: not x.endswith("mask"), [self.clear_path(x) for x in products]))
         iters = len(products)
         logger.debug(f"STEP 1")
 

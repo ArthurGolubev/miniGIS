@@ -13,7 +13,7 @@ export const useMainStore = create<useMainStoreType>()(
         set => ({
             isLoading: false,
 
-            setLoading: (status) => set((state) => ({...state, isLoading: status}))
+            setLoading: (status) => set((state) => ({...state, isLoading: status})),
         })
     )
 )

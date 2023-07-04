@@ -16,3 +16,4 @@ secret.yaml
 *credential.json
 .kube
 .mypy_cache/
+.vscode

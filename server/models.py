@@ -172,6 +172,7 @@ class Token(SQLModel):
 
 class TokenData(SQLModel):
     username: str | None = None
+    scopes: list[str] = []
 
 
 
@@ -201,6 +202,12 @@ class User1(UserBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
     yandex_token: str | None = None
     password: str
+    # None для уже созданных пользователей, иначе миграция не проходит
+    # (можно разобраться, как в миграции применить обновление полей для уже созданных пользователей)
+    admin: bool | None = False
+    permissions: str | None = 'regular_user'
+    telegram_chat_id: str | None = None
+
 
 
 class User1Create(UserBase):

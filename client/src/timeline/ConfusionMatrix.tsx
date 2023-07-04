@@ -9,7 +9,7 @@ export const ConfusionMatrix = () => {
     const [img] = useOutletContext<any>()
 
     console.log(img.statistic.confusion_matrix)
-    let classes = Array.from(Array(img.statistic.confusion_matrix.length).keys()).map(n => 'Class ' + (n+1))
+    let classes = Array.from(Array(img.statistic.confusion_matrix.length).keys()).map(n => 'Class ' + n)
     console.log('classes -> ', classes)
 
     let colorscaleValue: Array<[number, string]> = [

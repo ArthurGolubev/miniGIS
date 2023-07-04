@@ -140,6 +140,6 @@ export const Map2 = ({mapId}: {mapId: string}) => {
 
 
 
-    return <div id={mapId} style={{height: '40vh', width: '100%'}}></div>
+    return <div id={mapId} style={{height: '70vh', width: '100%'}}></div>
 
 }

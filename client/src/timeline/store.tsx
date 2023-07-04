@@ -76,7 +76,7 @@ export const useTimelineStore = create<TimelineStore>()(
 
             fetchAlgDetailById: async (id) => {
                 let response = await ax.get(`/algorithm/detail/${id}`)
-                set((state) => ({...state, algorithmDetail: response.data}))
+                set((state) => ({...state, algorithmDetail: response.data, timalineImages: []}))
                 let path = response.data.mask.split('/').slice(0, -2)
                 socket.emit("algorithm/timeline", {path: path.join('/')})
 

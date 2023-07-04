@@ -2,6 +2,7 @@ from loguru import logger
 from sqlmodel import Session, select
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import RedirectResponse
+from fastapi import Security
 
 
 
@@ -34,9 +35,9 @@ router = APIRouter(prefix='/user')
 
 
 @router.get('/get-me', response_model=User1Read)
-async def read_user_me(current_user: User1 = Depends(get_current_user)):
+async def read_user_me(current_user: User1=Security(get_current_user, scopes=['regular_user'] )):
     logger.debug(__name__)
-    current_user.yandex_token = True if current_user.yandex_token else False
+    current_user.yandex_token = "True" if current_user.yandex_token else None
     return current_user
 
 
@@ -84,7 +85,11 @@ async def get_yandex_disk_auth_url():
 
 
 @router.get('/get-yandex-disk-token/{code}')
-async def get_yandex_disk_token(code: int, user: User1 = Depends(get_current_user), session: Session = Depends(get_session)):
+async def get_yandex_disk_token(
+        code: int,
+        user: User1=Security(get_current_user, scopes=['regular_user'] ),
+        session: Session = Depends(get_session)
+    ):
     logger.warning(f"{code=}")
     token = YandexDiskHandler().get_yandex_disk_token(code)
     if not token:

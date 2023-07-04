@@ -1,6 +1,7 @@
 from loguru import logger
 from sklearn import cluster
 from datetime import datetime
+from typing import Any
 
 from server.models import ClassificationTM
 from server.calculation.classification.unsupervision.ImgHandler import ImgHandler
@@ -43,7 +44,7 @@ class KMean:
 
 
 
-        statistic = {}
+        statistic: Any = {}
 
         c21 = metrics.confusion_matrix(train1_fit.labels_, predict).tolist()
         c22 = metrics.classification_report(

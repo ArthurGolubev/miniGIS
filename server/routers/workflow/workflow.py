@@ -1,5 +1,5 @@
 
-from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect, Security
 from loguru import logger
 from datetime import datetime
 from fastapi.responses import JSONResponse
@@ -49,12 +49,12 @@ router = APIRouter(
 
 
 @router.post('/search-preview', response_model=SearchPreviewTM)
-async def search_preview(input: SearchPreview, user: User1 = Depends(get_current_user)):
+async def search_preview(input: SearchPreview, user: User1 = Security(get_current_user, scopes=['regular_user'])):
     return EarthEngine(user=user).search_preview(input.poi, input.date, input.sensor)
 
 
 @router.get('/get-image-preview/{sensor}/{system_index}', response_model=PreviewTM)
-async def get_image_preview(sensor: str, system_index: str, user: User1 = Depends(get_current_user)):
+async def get_image_preview(sensor: str, system_index: str, user: User1 = Security(get_current_user, scopes=['regular_user'])):
     logger.debug(f"get_image_preview start!")
     r = EarthEngine(user=user).show_images_preview(sensor=sensor, system_index=system_index)
     logger.warning(f"{r=}")
@@ -62,31 +62,31 @@ async def get_image_preview(sensor: str, system_index: str, user: User1 = Depend
 
 
 @router.get('/available-files/{to}')
-async def available_files(to: str, user: User1 = Depends(get_current_user)):
+async def available_files(to: str, user: User1 = Security(get_current_user, scopes=['regular_user'])):
     c = FileHandler(user=user).available_files(to)
     response = jsonable_encoder(c)
     return JSONResponse(content=response)
 
 
 @router.get('/tree-available-files')
-async def tree_available_files(user: User1 = Depends(get_current_user)):
+async def tree_available_files(user: User1 = Security(get_current_user, scopes=['regular_user'])):
     return FileHandler(user=user).tree_available_files()
 
 
 @router.post('/add-layer', response_model=AddLayerTM)
-async def add_layer(input: AddLayerOptions, user: User1 = Depends(get_current_user)):
+async def add_layer(input: AddLayerOptions, user: User1 = Security(get_current_user, scopes=['regular_user'])):
     return FileHandler(user=user).add_layer(input.scope, input.satellite, input.product, input.target)
 
 
 @router.post('/shp-save')
-async def shp_save(input: ShpSave, user: User1 = Depends(get_current_user)):
+async def shp_save(input: ShpSave, user: User1 = Security(get_current_user, scopes=['regular_user'])):
     tm: ToastMessage = FileHandler(user=user).shp_save(input.shp_name, input.layer)
     return tm
 
 
 
 @router.post('/shp-read')
-def shp_read(input: ShpRead, user: User1 = Depends(get_current_user)):
+def shp_read(input: ShpRead, user: User1 = Security(get_current_user, scopes=['regular_user'])):
     return FileHandler(user=user).shp_read(input.shp_name)
 
 

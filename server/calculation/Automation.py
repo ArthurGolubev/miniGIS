@@ -25,12 +25,14 @@ from json import dumps
 
 
 class Automation(YandexDiskHandler):
-    def __init__(self, user: User1, session: Session, alg_type: str):
+    def __init__(self, user: User1, session: Session, alg_type: str, alg = None):
         super().__init__(user=user)
         self._make_yandex_dir_recursively('/miniGIS/automation')
         self.user = user
         self.session = session
         self.alg_type = alg_type
+        if alg:
+            self.alg = alg
         if self.alg_type == 'monitoring':
             self.alg_path = '/miniGIS/automation/monitoring'
         else:

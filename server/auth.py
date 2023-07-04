@@ -1,14 +1,15 @@
 import os
 from loguru import logger
 from humps import decamelize
+from typing import Literal
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
 from passlib.context import CryptContext
+from fastapi.security import SecurityScopes
 from fastapi.security import OAuth2PasswordBearer
 from fastapi import Depends, HTTPException, status, WebSocket, WebSocketDisconnect
 from sqlmodel import Session, select
-
-
+from pydantic import ValidationError
 
 from server.models import TokenData
 from server.models import Token
@@ -25,7 +26,17 @@ from server.database import get_session
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl='miniGISToken')
+# oauth2_scheme = OAuth2PasswordBearer(tokenUrl='miniGISToken')
+oauth2_scheme = OAuth2PasswordBearer(
+    tokenUrl="miniGISToken",
+    scopes={
+        "trigger_search_new_satellite_images": "права для запуска поиска новых спутниковых снимков",
+        "regular_user": "права обычного пользователя",
+        "administrator": "права пользователя-администратора",
+        "telegram_bot": "права для взаимодействия телеграм бота с приложением"
+        }
+)
+
 
 
 
@@ -74,14 +85,25 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     return encoded_jwt
 
 
-async def get_current_user(*, token: str = Depends(oauth2_scheme), session: Session = Depends(get_session)):
+async def get_current_user(
+        *,
+        security_scopes: SecurityScopes,
+        token: str = Depends(oauth2_scheme),
+        session: Session = Depends(get_session)
+        ):
+    if security_scopes.scopes:
+        authenticate_value = f"Bearer scope='{security_scopes.scope_str}'"
+    else:
+        authenticate_value = 'Bearer'
     logger.success(123)
     logger.info(f"{token=}")
     credentinal_exeption = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credential",
-        headers={"WWW-Authenticate": "Bearer"}
+        headers={"WWW-Authenticate": authenticate_value}
     )
+
+
 
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -89,12 +111,22 @@ async def get_current_user(*, token: str = Depends(oauth2_scheme), session: Sess
         username: str = payload.get("sub")
         if username is None:
             raise credentinal_exeption
-        token_data = TokenData(username=username)
-    except JWTError:
+        token_scopes = payload.get('scopes', [])
+        logger.warning(f"{token_scopes=}")
+        token_data = TokenData(username=username, scopes=token_scopes)
+    except (JWTError, ValidationError) as e:
         raise credentinal_exeption
     user = get_user(session=session, username=token_data.username)
     if user is None:
         raise credentinal_exeption
+    
+    for scope in security_scopes.scopes:
+        if scope not in token_data.scopes:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Not enough permissions",
+                headers={"WWW-Authenticate": authenticate_value}
+            )
     return user
 
 
@@ -125,21 +157,22 @@ async def get_websocket_user(token):
 
 def login_for_access_token(user: UserAuthorization, session: Session) -> Token:
     logger.info(f"{user=}")
-    user = authenticate_user(
+    user1: User1 | Literal[False] = authenticate_user(
         session=session,
         username=user.username,
         password=user.password
         )
-    if not user:
+    if not user1:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-
+    permissions = user1.permissions.split(" ") if user1.permissions else None
     access_token = create_access_token(
-        data={"sub": user.username}, expires_delta=access_token_expires
+        data={"sub": user.username, "scopes": permissions},
+        expires_delta=access_token_expires
     )
     return Token(access_token=access_token, token_type="bearer")
 

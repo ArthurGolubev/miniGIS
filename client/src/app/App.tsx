@@ -83,7 +83,9 @@ export const App = () => {
         socket.on("stack-bands", (response) => responseHandler(response, "stack-bands"))
 
         socket.on('automation/monitoring', (response) => responseHandler(response, 'automation/monitoring'))
+        
         socket.on('automation/data-processing', (response) => responseHandler(response, 'automation/data-processing'))
+        socket.on('automation/data-processing', (response) => responseHandler(response, 'automation/data-processing/progress'))
 
 
         socket.on("algorithm/timeline", (response) => addImageToTimeline(response))

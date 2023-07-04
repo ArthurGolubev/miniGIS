@@ -1,6 +1,6 @@
 import os
 from fastapi.routing import APIRouter
-from fastapi import Depends
+from fastapi import Depends, Security
 from loguru import logger
 from sqlmodel import Session, select
 
@@ -19,7 +19,10 @@ router = APIRouter(prefix='/algorithm')
 
 
 @router.get('/all', response_model=list[Algorithm])
-async def user_algorithms(user: User1 = Depends(get_current_user), session: Session = Depends(get_session)):
+async def user_algorithms(
+    user: User1 = Security(get_current_user, scopes=['regular_user']),
+    session: Session = Depends(get_session)
+    ):
     algorithms = session.exec(select(Algorithm).where(Algorithm.user_id == user.id)).all()
     yandex = FileHandler(user=user).get_algorithms_yandex()
     algorithms = tuple(filter(lambda e: e.name in yandex, algorithms))
@@ -31,7 +34,11 @@ async def user_algorithms(user: User1 = Depends(get_current_user), session: Sess
 
 
 @router.get('/detail/{alg_id}', response_model=Algorithm)
-async def get_alg_info(alg_id, session: Session = Depends(get_session), user: User1 = Depends(get_current_user)):
+async def get_alg_info(
+    alg_id,
+    session: Session = Depends(get_session),
+    user: User1 = Security(get_current_user, scopes=['regular_user']),
+    ):
     response = session.exec(select(Algorithm).where(Algorithm.id == alg_id).where(Algorithm.user_id == user.id)).first()
     return response
 

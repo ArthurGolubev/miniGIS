@@ -4,9 +4,10 @@ import socketio
 from pathlib import Path
 from loguru import logger
 from datetime import timedelta
+from fastapi import WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
-from fastapi import FastAPI, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi import FastAPI, Depends, HTTPException, status, Security
+from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer, SecurityScopes
 
 
 # from server.database import create_db_and_tables
@@ -28,6 +29,7 @@ ee_creds = ee.ServiceAccountCredentials(
     key_file='/minigis/credential/MINIGIS_EARTH_ENGINE_KEY_DATA'
 )
 
+# TODO разобраться с инициализацией.
 ee.Initialize(ee_creds)
 
 Path('./cache').mkdir(exist_ok=True, parents=True)
@@ -38,6 +40,18 @@ app_socketio = socketio.ASGIApp(socketio_server=sio, socketio_path='workflow')
 # @app.on_event("startup")
 # def on_startup():
 #     create_db_and_tables()
+
+# oauth2_scheme = OAuth2PasswordBearer(
+#     tokenUrl="token",
+#     scopes={
+#         "trigger_search_new_satellite_images": "права для запуска поиска новых спутниковых снимков",
+#         "regular_user": "права обычного пользователя",
+#         "administrator": "права пользователя-администратора",
+#         "telegram_bot": "права для взаимодействия телеграм бота с приложением"
+#         }
+# )
+
+
 
 @sio.event
 async def connect(sid, environ, auth):
