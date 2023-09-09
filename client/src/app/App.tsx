@@ -1,22 +1,24 @@
+
 import * as React from 'react'
 import { Outlet } from 'react-router'
 
 import { Toasts } from './Toasts'
 import { NavBar } from './navbar/Navbar'
-import { isLoading, toasts, classificationResponse } from '../main/map/rv'
 import { socket } from './socket'
-import { useLazyQuery, useReactiveVar } from '@apollo/client'
-import { AVAILABLE_FILES } from '../main/map/restQueries'
-import { ToastDataWithImgType } from '../main/map/types/interfacesTypeScript'
 import * as bootstrap from 'bootstrap'
 import { useTimelineStore } from '../timeline/store'
+import { useClassificationResponse } from '../analysis/stores/classificationResponse'
+import { useToasts } from '../interface/stores/Toasts'
+import { useLoading } from '../interface/stores/Loading'
 
 export const App = () => {
+    const setLoading = useLoading(state => state.setLoading)
+
+    const setResponse = useClassificationResponse(state => state.setResponse)
+    const setToast = useToasts(state => state.setToast)
 
     const [isConnected, setIsConnected] = React.useState(socket.connected);
     const [fooEvents, setFooEvents] = React.useState([])
-    const classificationResponseSub = useReactiveVar(classificationResponse)
-    const TimelineStore = useTimelineStore()
 
     const dropdownElementList = document.querySelectorAll('.dropdown-toggle') as any
     const dropdownList = [...dropdownElementList].map(dropdownToggleEl => new bootstrap.Dropdown(dropdownToggleEl))
@@ -24,9 +26,9 @@ export const App = () => {
     const addImageToTimeline = useTimelineStore().addImageToTimeline
 
     const responseHandler = (response: string, event: string) => {
-        let msg  = JSON.parse(response) as ToastDataWithImgType
-            isLoading(false)
-            toasts({[new Date().toLocaleString()]: {
+        let msg  = JSON.parse(response)
+            setLoading(false)
+            setToast({[new Date().toLocaleString()]: {
                 header: msg.header,
                 message: msg.message,
                 show: true,
@@ -37,10 +39,7 @@ export const App = () => {
             let operation = event.split('/')
             switch (operation[0]) {
                 case 'unsupervised':
-                    classificationResponse({
-                        ...classificationResponseSub,
-                        [event]: msg
-                    })
+                    setResponse({[event]: msg})
                     break;
                 case 'algorithm/timeline':
                     console.log('algorithm/timeline response -> ', response)
@@ -49,9 +48,9 @@ export const App = () => {
                     console.log("DEFAULT CASE FROM App.tsx -> ", operation[0])
                     break;
             }
-            call1()
-            call2()
-            call3()
+            // call1()
+            // call2()
+            // call3()
     }
 
     React.useEffect(() => {
@@ -100,9 +99,9 @@ export const App = () => {
         };
         }, [])
 
-        const [call1] = useLazyQuery(AVAILABLE_FILES, {variables: {to: 'clip'}})
-        const [call2] = useLazyQuery(AVAILABLE_FILES, {variables: {to: 'stack'}})
-        const [call3] = useLazyQuery(AVAILABLE_FILES, {variables: {to: 'classification'}})
+        // const [call1] = useLazyQuery(AVAILABLE_FILES, {variables: {to: 'clip'}})
+        // const [call2] = useLazyQuery(AVAILABLE_FILES, {variables: {to: 'stack'}})
+        // const [call3] = useLazyQuery(AVAILABLE_FILES, {variables: {to: 'classification'}})
     
     
 

@@ -1,16 +1,17 @@
 import * as React from 'react'
-import { SearchImages } from '../map/sidebar/tools/POI/SearchImages'
-import { useReactiveVar } from '@apollo/client'
-import { algName, algType, automationStep } from './rv'
 import { useNavigate } from 'react-router'
+import { useCreateAlgorithm } from '../../analysis/stores/createAlgorithm'
 
 
 export const Step0 = () => {
     const redirect = useNavigate()
-    const algTypeSub = useReactiveVar(algType)
+    const setStep = useCreateAlgorithm(state => state.setStep)
+    const setAlgName = useCreateAlgorithm(state => state.setAlgName)
+    const algType = useCreateAlgorithm(state => state.algType)
+    const setAlgType = useCreateAlgorithm(state => state.setAlgType)
 
     const nextStep = () => {
-        automationStep(1)
+        setStep(1)
         redirect('/main/automation/step-1')
     }
 
@@ -34,8 +35,8 @@ export const Step0 = () => {
                         name="processDataArray"
                         id="processDataArray"
                         value="dataProcessing"
-                        onChange={()=>algType('dataProcessing')}
-                        checked={algTypeSub == 'dataProcessing'}
+                        onChange={()=>setAlgType('dataProcessing')}
+                        checked={algType == 'dataProcessing'}
                         />
                         <label className="form-check-label" htmlFor="processDataArray">Обработка массива данных по алгоритму за период</label>
                     </div>
@@ -45,8 +46,8 @@ export const Step0 = () => {
                         type="radio"
                         name="monioringAndProcessingData"
                         id="monioringAndProcessingData"
-                        checked={algTypeSub == 'monitoring'}
-                        onChange={()=>algType('monitoring')}
+                        onChange={()=>setAlgType('monitoring')}
+                        checked={algType == 'monitoring'}
                         />
                         <label className="form-check-label" htmlFor="monioringAndProcessingData">Мониторинг и обработка данных по алгоритму</label>
                     </div>   
@@ -55,7 +56,7 @@ export const Step0 = () => {
 
             <div className='row justify-content-start mt-3'>
                 <div className='col-8'>
-                    <input className='form-control' placeholder='Название папки на Яндекс диске' onChange={e => algName(e.target.value)}/>
+                    <input className='form-control' placeholder='Название папки на Яндекс диске' onChange={e => setAlgName(e.target.value)}/>
                 </div>
             </div>
 

@@ -1,21 +1,23 @@
 import * as React from 'react'
 import { useLocation } from 'react-router'
-import { useReactiveVar } from '@apollo/client'
 import { socket } from '../../../../../app/socket'
-import { isLoading, selectedFiles, toasts } from '../../../rv'
+import { useLoading } from '../../../../../interface/stores/Loading'
+import { useSelectedFiles } from '../../../../../analysis/stores/selectedFiles'
+
 
 
 export const StackBtn = () => {
-    const isLoadingSub = useReactiveVar(isLoading)
-    const selectedFilesSub = useReactiveVar(selectedFiles)
+    const isLoading = useLoading(state => state.isLoading)
+    const setLoading = useLoading(state => state.setLoading)
+    const files = useSelectedFiles(state => state.files)
     const location = useLocation()
 
     const stackHandler = () => {
-        isLoading(true)
+        setLoading(true)
         socket.emit(
             "stack-bands",
             {
-                files: selectedFilesSub.files[location.pathname]
+                files: files[location.pathname]
             },
         )
     }
@@ -25,7 +27,7 @@ export const StackBtn = () => {
         <div className='col-12'>
             <button
             onClick={() => stackHandler()}
-            disabled={isLoadingSub}
+            disabled={isLoading}
             className='btn btn-sm btn-success' type='button'>Объединить</button>
         </div>
     </div>

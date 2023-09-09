@@ -1,7 +1,13 @@
 import * as React from 'react'
 import * as L from 'leaflet'
-import { clipMask, layers, mapLayerControl, mapObj, searchImages, selectedVecLay, tools } from '../map/rv'
 import { VectorInterface } from '../map/types/main/LayerTypes'
+import { useSelectedVecLay } from '../../analysis/stores/selectedVecLay'
+import { useLayer } from '../../analysis/stores/layer'
+import { useSearchImages } from '../../analysis/stores/searchImages'
+import { useToolsToggles } from '../../analysis/stores/toolsToggles'
+import { useMapLayerControl } from '../../analysis/stores/mapLayerControl'
+import { useClipMask } from '../../analysis/stores/clipMask'
+import { useMapObject } from '../../analysis/stores/MapObject'
 
 
 
@@ -9,20 +15,28 @@ import { VectorInterface } from '../map/types/main/LayerTypes'
 export const Map2 = ({mapId}: {mapId: string}) => {
 
     const parsGeom = (geom: any, layerControl: any, map: any) => {
+        const setSearchImages = useSearchImages(state => state.setSearchImages)
+        const showTools = useToolsToggles(state => state.showTools)
+        const setLayer = useClipMask(state => state.setLayer)
+        const setMask = useClipMask(state => state.setMask)
 
-        let layerGroup = layers()[selectedVecLay()] as VectorInterface
+        // Видимо, особая магия, чтобы не перерисовывалось. Попробовать отрефакторить на следующей итерации
+        let layerGroup = useLayer(state => state.layers)[useSelectedVecLay(state => state.selectedVecLay)] as VectorInterface
         let g = geom.layer
         g.feature = {}
         g.feature.type = 'Feature'
         g.feature.properties = {}
+        
 
-        if(!tools().setPOI && !tools().setMask){
-            Object.keys(layerGroup.properties).map((key: string) => {
-                g.feature.properties[key] = ''
-            })
-            console.log('layerGroup ->', layerGroup)
-            layerGroup.layer.addLayer(g)
-        }
+
+        // Depricated ? не использую подписку - использую вызов реактивный компоненты (скорее всего, чтобы компонент не перерисовался)
+        // if(!tools().setPOI && !tools().setMask){
+        //     Object.keys(layerGroup.properties).map((key: string) => {
+        //         g.feature.properties[key] = ''
+        //     })
+        //     console.log('layerGroup ->', layerGroup)
+        //     layerGroup.layer.addLayer(g)
+        // }
         
         let id: string
         switch (geom.type) {
@@ -50,9 +64,9 @@ export const Map2 = ({mapId}: {mapId: string}) => {
         let data: VectorInterface | undefined = undefined
         switch (geom.geometry.type) {
             case "Point":
-                if(tools().setPOI){
-                    searchImages({...searchImages(), poi: geom.geometry.coordinates})
-                    tools({...tools(), setPOI: false})
+                if(useToolsToggles(state => state.POI)){
+                    setSearchImages({poi: geom.geometry.coordinates})
+                    showTools({POI: false})
                 } else {
                     // data = {
                     //     layerType: 'shape',
@@ -77,9 +91,10 @@ export const Map2 = ({mapId}: {mapId: string}) => {
                 // }
                 break;
             case "Polygon":
-                if(tools().setMask){
+                if(useToolsToggles(state => state.mask)){
                     
-                    clipMask({layer: layer, mask: geom})
+                    setLayer(layer)
+                    setMask(geom)
                     let newGroupLayer = new L.FeatureGroup() as any
                     newGroupLayer.addLayer(layer)
                     newGroupLayer.addTo(map)
@@ -105,6 +120,7 @@ export const Map2 = ({mapId}: {mapId: string}) => {
 
 
     React.useEffect(() => {
+        const setMapObject = useMapObject(state => state.setMapObject)
         let map: any = L.map(mapId, {'attributionControl': false}).setView([35.88, -5.3525], 10)
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
@@ -125,7 +141,8 @@ export const Map2 = ({mapId}: {mapId: string}) => {
         );
 
         let layerControl = L.control.layers().addTo(map) as any
-        mapLayerControl(layerControl)
+        const setMapLayerControl = useMapLayerControl(state => state.setMapLayerControl)
+        setMapLayerControl(layerControl)
         map.on('pm:create', (geom: any) => parsGeom(geom, layerControl, map))
         // map.on('pm:drawstart', () => {
         //     if(clipMask().layer != undefined){
@@ -133,7 +150,7 @@ export const Map2 = ({mapId}: {mapId: string}) => {
         //     }
         // })
         // map.on('pm:cut', (geom: any) => parsGeom(geom, layerControl, map))
-        mapObj(map)
+        setMapObject(map)
 
     })
 

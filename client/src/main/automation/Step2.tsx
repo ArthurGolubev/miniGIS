@@ -1,14 +1,21 @@
+// Depricated
+// import { automationStep } from './rv'
+
 import * as React from 'react'
 import { ClipBtn } from '../map/sidebar/tools/clip/ClipBtn'
-import { automationStep } from './rv'
 import { useNavigate } from 'react-router'
+import { useCreateAlgorithm } from '../../analysis/stores/createAlgorithm'
 
 
 export const Step2 = () => {
     const redirect = useNavigate()
+    const setStep = useCreateAlgorithm(state => state.setStep)
 
     const nextStep = () => {
-        automationStep(3)
+        // Depricated
+        // automationStep(3)
+
+        setStep(3)
         redirect('/main/automation/step-3')
     }
 

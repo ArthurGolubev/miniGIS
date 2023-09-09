@@ -1,15 +1,13 @@
 import * as React from 'react'
 import { useLocation, useNavigate } from 'react-router'
 import { Accordion } from 'react-bootstrap'
-import { classificationDescription } from '../../../../rv'
-import { useReactiveVar } from '@apollo/client'
+import { classificationDescription } from '../../../../../../analysis/stores/constants'
 
 
 
 export const UnsupervisedList = () => {
     const redirect = useNavigate()
     const location = useLocation()
-    const classificationDescriptionSub = useReactiveVar(classificationDescription)
 
     const path = location.pathname == '/main/automation' ? '/main/automation' : '/classification/unsupervised'
 
@@ -23,7 +21,7 @@ export const UnsupervisedList = () => {
                         <Accordion.Body>
                             <div className='row justify-content-center overflow-auto' style={{maxHeight: "20vh"}}>
                                 <div className='col-12' style={{fontSize: '80%'}}>
-                                    {classificationDescriptionSub.unsupervised.KMean}
+                                    <p>{classificationDescription.unsupervised.KMean}</p>
                                 </div>
                                 <div className='row justify-content-end'>
                                     <div className='col-auto me-3'>
@@ -47,7 +45,7 @@ export const UnsupervisedList = () => {
                     <Accordion.Body>
                         <div className='row justify-content-center overflow-auto' style={{maxHeight: "20vh"}}>
                             <div className='col-12' style={{fontSize: '80%'}}>
-                                {classificationDescriptionSub.unsupervised.BisectingKMean}
+                                <p>{classificationDescription.unsupervised.BisectingKMean}</p>
                             </div>
                             <div className='row justify-content-end'>
                                 <div className='col-auto me-3'>
@@ -71,7 +69,7 @@ export const UnsupervisedList = () => {
                     <Accordion.Body>
                     <div className='row justify-content-center overflow-auto' style={{maxHeight: "20vh"}}>
                         <div className='col-12' style={{fontSize: '80%'}}>
-                            {classificationDescriptionSub.unsupervised.GaussianMixture}
+                            <p>{classificationDescription.unsupervised.GaussianMixture}</p>
                         </div>
                         <div className='row justify-content-end'>
                             <div className='col-auto me-3'>
@@ -95,7 +93,7 @@ export const UnsupervisedList = () => {
                     <Accordion.Body>
                         <div className='row justify-content-center overflow-auto' style={{maxHeight: "20vh"}}>
                             <div className='col-12' style={{fontSize: '80%'}}>
-                                {classificationDescriptionSub.unsupervised.MeanShift}
+                                <p>{classificationDescription.unsupervised.MeanShift}</p>
                             </div>
                             <div className='row justify-content-end'>
                                 <div className='col-auto me-3'>

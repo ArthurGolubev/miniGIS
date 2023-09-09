@@ -1,24 +1,26 @@
-import { useReactiveVar } from "@apollo/client"
 import * as React from "react"
-import { classification, classificationDescription } from "../map/rv"
 import { ClassificationType, unsupervisedType } from "../map/types/interfacesTypeScript"
 import { CreateAutomationBtn } from "./CreateAutomationBtn"
+import { useClassificationConfig } from "../../analysis/stores/classificationConfig"
+import { classificationDescription } from "../../analysis/stores/constants"
 
 
 
 export const Step3 = () => {
-    const classificationDescriptionSub = useReactiveVar(classificationDescription)
-    const classificationSub = useReactiveVar(classification) as ClassificationType
+    const setClasses = useClassificationConfig(state => state.setClasses)
+    const setMethod = useClassificationConfig(state => state.setMethod)
+    const method = useClassificationConfig(state => state.method)
+    
 
     let param
 
-    switch (classificationSub.method) {
+    switch (method) {
         case 'KMean':
             param = <div className='col-4'>
                 <div className='input-group'>
                     <label className='input-group-text' htmlFor='classes'>k:</label>
                     <input className="form-control" type="number" min={1} max={30}
-                        onChange={e => classification({...classificationSub, classes: parseInt(e.target.value) })}
+                        onChange={e => setClasses(parseInt(e.target.value)) }
                     />
                 </div>
             </div>
@@ -28,7 +30,7 @@ export const Step3 = () => {
                 <div className='input-group'>
                     <label className='input-group-text' htmlFor='classes'>k:</label>
                     <input className="form-control" type="number" min={1} max={30}
-                        onChange={e => classification({...classificationSub, classes: parseInt(e.target.value) })}
+                        onChange={e => setClasses(parseInt(e.target.value))}
                     />
                 </div>
             </div>
@@ -38,7 +40,7 @@ export const Step3 = () => {
                 <div className='input-group'>
                     <label className='input-group-text' htmlFor='classes'>n components:</label>
                     <input className="form-control" type="number" min={1} max={30}
-                        onChange={e => classification({...classificationSub, classes: parseInt(e.target.value) })}
+                        onChange={e => setClasses(parseInt(e.target.value)) }
                     />
                 </div>
             </div>
@@ -48,13 +50,13 @@ export const Step3 = () => {
                 <div className='input-group'>
                     <label className='input-group-text' htmlFor='classes'>n samples:</label>
                     <input className="form-control" type="number" min={1} max={100000}
-                        onChange={e => classification({...classificationSub, classes: parseInt(e.target.value) })}
+                        onChange={e => setClasses(parseInt(e.target.value)) }
                     />
                 </div>
             </div>
             break
         default:
-            console.log("DEFAULT CASE FROM Automation.tsx -> ", classificationSub.method)
+            console.log("DEFAULT CASE FROM Automation.tsx -> ", method)
             break;
     }
 
@@ -76,7 +78,7 @@ export const Step3 = () => {
             <div className='row justify-content-start mt-2'>
                 <div className='col-4'>
                     <select className='form-select form-select-sm'
-                        onChange={e => classification({...classificationSub, method: e.target.value})} defaultValue={'KMean'}>
+                        onChange={e => setMethod(e.target.value)} defaultValue={'KMean'}>
                         <option value='KMean'>KMean</option>
                         <option value='BisectingKMean'>BisectingKMean</option>
                         <option value='GaussianMixture'>GaussianMixture</option>
@@ -91,7 +93,7 @@ export const Step3 = () => {
 
                     <div className='row justify-content-start'>
                         <div className='col-12'>
-                            { classificationDescriptionSub.unsupervised[classificationSub.method as unsupervisedType] }
+                            { classificationDescription.unsupervised[method as unsupervisedType] }
                         </div>
                     </div>
 

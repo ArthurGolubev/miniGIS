@@ -2,23 +2,33 @@ import * as React from 'react'
 import * as L from 'leaflet'
 import '@geoman-io/leaflet-geoman-free'
 import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css'
-import { layers, mapObj, searchImages, selectedVecLay, tools, mapLayerControl, clipMask } from './rv'
 import { VectorInterface } from './types/main/LayerTypes'
 import { Sidebar } from './sidebar/Sidebar'
+import { useLayer } from '../../analysis/stores/layer'
+import { useSelectedVecLay } from '../../analysis/stores/selectedVecLay'
+import { useToolsToggles } from '../../analysis/stores/toolsToggles'
+import { useSearchImages } from '../../analysis/stores/searchImages'
+import { useMapLayerControl } from '../../analysis/stores/mapLayerControl'
+import { useClipMask } from '../../analysis/stores/clipMask'
+import { useMapObject } from '../../analysis/stores/MapObject'
 
 
 export const Map = () => {
 
 
     const parsGeom = (geom: any, layerControl: any, map: any) => {
+        const setSearchImages = useSearchImages(state => state.setSearchImages)
+        const showTools = useToolsToggles(state => state.showTools)
+        const setLayer = useClipMask(state => state.setLayer)
+        const setMask = useClipMask(state => state.setMask)
 
-        let layerGroup = layers()[selectedVecLay()] as VectorInterface
+        let layerGroup = useLayer(state => state.layers)[useSelectedVecLay(state => state.selectedVecLay)] as VectorInterface
         let g = geom.layer
         g.feature = {}
         g.feature.type = 'Feature'
         g.feature.properties = {}
 
-        if(!tools().setPOI && !tools().setMask){
+        if(!useToolsToggles(state => state.POI) && !useToolsToggles(state => state.mask)){
             Object.keys(layerGroup.properties).map((key: string) => {
                 g.feature.properties[key] = ''
             })
@@ -58,9 +68,9 @@ export const Map = () => {
         let data: VectorInterface | undefined = undefined
         switch (geom.geometry.type) {
             case "Point":
-                if(tools().setPOI){
-                    searchImages({...searchImages(), poi: geom.geometry.coordinates})
-                    tools({...tools(), setPOI: false})
+                if(useToolsToggles(state => state.POI)){
+                    setSearchImages({poi: geom.geometry.coordinates})
+                    showTools({POI: false})
                 } else {
                     // data = {
                     //     layerType: 'shape',
@@ -85,7 +95,7 @@ export const Map = () => {
                 // }
                 break;
             case "Polygon":
-                if(tools().setMask){
+                if(useToolsToggles(state => state.mask)){
                     
                     // Работает
                     // clipMask({layer: layer, mask: geom})
@@ -99,7 +109,8 @@ export const Map = () => {
                     newGroupLayer.addLayer(layer)
                     newGroupLayer.addTo(map)
                     layerControl.addOverlay(newGroupLayer, 'clip mask')
-                    clipMask({layer: newGroupLayer, mask: geom})
+                    setMask(geom)
+                    setLayer(newGroupLayer)
                 }
                 // data = {
                 //     layerType: 'shape',
@@ -121,6 +132,7 @@ export const Map = () => {
 
 
     React.useEffect(() => {
+        const setMapObject = useMapObject(state => state.setMapObject)
         let map: any = L.map('map', {'attributionControl': false}).setView([35.88, -5.3525], 10)
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
@@ -142,15 +154,16 @@ export const Map = () => {
         
 
         let layerControl = L.control.layers().addTo(map) as any
-        mapLayerControl(layerControl)
+        const setMapLayerControl = useMapLayerControl(state => state.setMapLayerControl)
+        setMapLayerControl(layerControl)
         map.on('pm:create', (geom: any) => parsGeom(geom, layerControl, map))
         map.on('pm:drawstart', () => {
-            if(clipMask().layer != undefined){
-                map.removeLayer(clipMask().layer)
+            if(useClipMask(state => state.layer) != undefined){
+                map.removeLayer(useClipMask(state => state.layer))
             }
         })
         map.on('pm:cut', (geom: any) => parsGeom(geom, layerControl, map))
-        mapObj(map)
+        setMapObject(map)
 
     })
 

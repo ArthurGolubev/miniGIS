@@ -62,29 +62,6 @@ export interface ImagesStackType {
     }
 }
 
-
-export interface ToastDataType {
-    datetime: Date,
-    header: string,
-    message: string,
-    show: boolean
-    color: string
-}
-
-export interface ClassificationResultsType {
-    [key: string]: ToastDataWithImgType
-}
-
-export interface ToastDataWithImgType extends ToastDataType{
-    img_url: string
-    coordinates: Array<number>
-    operation: string
-}
-
-export interface ToastsType {
-    [key: string]: ToastDataType | ToastDataWithImgType
-}
-
 export interface SelectedFilesType {
     satellite: string
     product: string

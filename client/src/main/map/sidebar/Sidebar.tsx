@@ -1,4 +1,3 @@
-import { useReactiveVar } from '@apollo/client'
 import * as React from 'react'
 import { Outlet } from 'react-router'
 

@@ -1,46 +1,54 @@
 import * as React from 'react'
 import { socket } from '../../app/socket'
-import { useReactiveVar } from '@apollo/client'
-import { classification, clipMask, imagesStack, isLoading, searchImages } from '../map/rv'
-import { algName, algType } from './rv'
+import { useCreateAlgorithm } from '../../analysis/stores/createAlgorithm'
+import { useSearchImages } from '../../analysis/stores/searchImages'
+import { useClassificationConfig } from '../../analysis/stores/classificationConfig'
+import { useLoading } from '../../interface/stores/Loading'
+import { useClipMask } from '../../analysis/stores/clipMask'
+import { useImagesStack } from '../../analysis/stores/imagesStack'
 
 export const CreateAutomationBtn = () => {
-    const searchImagesSub = useReactiveVar(searchImages)
-    const imagesStackSub = useReactiveVar(imagesStack)
-    const algTypeSub = useReactiveVar(algType)
-    const clipMaskSub = useReactiveVar(clipMask)
-    const classificationSub = useReactiveVar(classification)
-    const algNameSub = useReactiveVar(algName)
-    const isLoadingSub = useReactiveVar(isLoading)
+    const algName = useCreateAlgorithm(state => state.algName)
+    const algType = useCreateAlgorithm(state => state.algType)
+    const sensor = useSearchImages(state => state.sensor)
+    const poi = useSearchImages(state => state.poi)
+    const startDate = useSearchImages(state => state.startDate)
+    const endDate = useSearchImages(state => state.endDate)
+    const method = useClassificationConfig(state => state.method)
+    const classes = useClassificationConfig(state => state.classes)
+    const setLoading = useLoading(state => state.setLoading)
+    const isLoading = useLoading(state => state.isLoading)
+    const mask = useClipMask(state => state.mask)
+    const imagesStack = useImagesStack(state => state)
 
     
     const createBtnHandler = () => {
 
-        let websocketUrl = algTypeSub == 'monitoring' ? 'automation/monitoring' : 'automation/data-processing'
-        let satellite = searchImagesSub.sensor == 'S2' ? 'sentinel' : 'landsat' as 'sentinel' | 'landsat'
-        let keys = Object.keys(imagesStackSub[satellite])
+        let websocketUrl = algType == 'monitoring' ? 'automation/monitoring' : 'automation/data-processing'
+        let satellite = sensor == 'S2' ? 'sentinel' : 'landsat' as 'sentinel' | 'landsat'
+        let keys = Object.keys(imagesStack[satellite])
         let bands: Array<string> = []
-        keys.map(key => bands = imagesStackSub[satellite][key].meta.bands )
+        keys.map(key => bands = imagesStack[satellite][key].meta.bands )
 
         let msg = {
-            poi: {lat: searchImagesSub.poi[1], lon: searchImagesSub.poi[0]},
-            date: {startDate: searchImagesSub.period.start, endDate: searchImagesSub.period.end},
-            sensor: searchImagesSub.sensor,
+            poi: {lat: poi[1], lon: poi[0]},
+            date: {startDate: startDate, endDate: endDate},
+            sensor: sensor,
             bands: bands,
-            mask: clipMaskSub.mask,
-            alg: classificationSub.method,
-            param: classificationSub.classes,
-            algName: algNameSub,
-            algType: algTypeSub
+            mask: mask,
+            alg: method,
+            param: classes,
+            algName: algName,
+            algType: algType
         }
         socket.emit(websocketUrl, msg)
-        isLoading(true)
+        setLoading(true)
     }
 
     return <div className='col-auto me-3'>
         <button 
         onClick={()=>createBtnHandler()}
-        className='btn btn-sm btn-light' type='button' disabled={isLoadingSub}>
+        className='btn btn-sm btn-light' type='button' disabled={isLoading}>
             Создать алгоритм <i className="bi bi-arrow-right link-primary"></i>
         </button>
     </div>

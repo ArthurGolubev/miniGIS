@@ -1,9 +1,7 @@
 import * as React from 'react'
-import { selectedFiles } from '../../rv'
-import { AVAILABLE_FILES } from '../../restQueries'
-import { useQuery, useReactiveVar } from '@apollo/client'
-import { LoadingStatus } from '../../../../app/navbar/LoadingStatus'
 import { useLocation } from 'react-router'
+import { useSelectedFiles } from '../../../../analysis/stores/selectedFiles'
+import { ax } from '../../../..'
 
 
 export const AvailableFiles = ({to = undefined}: {to: string | undefined}) => {
@@ -14,12 +12,10 @@ export const AvailableFiles = ({to = undefined}: {to: string | undefined}) => {
         'unsupervised': 'stack'
     } as any
     const [state, setState] = React.useState({} as any)
-    const {data, loading} = useQuery(AVAILABLE_FILES, {
-        fetchPolicy: 'network-only',
-        variables: {to: to},
-        onCompleted: data => {
-            let tree = {} as any
-            let satellites = data.availableFiles.items[0].satellites
+
+    ax.get(`/workflow/available-files/${to}`).then(response => {
+        let tree = {} as any
+            let satellites = response.data.items[0].satellites
             console.log('af satellites -> ', satellites)
             Object.keys(satellites).map(sattelite => {
                 tree[sattelite] = {}
@@ -32,12 +28,16 @@ export const AvailableFiles = ({to = undefined}: {to: string | undefined}) => {
             })
             setState(tree)
             console.log('tree -> ', tree)
-        },
     })
-    const selectedFilesSub = useReactiveVar(selectedFiles)
+    
+    const setSatellite = useSelectedFiles(state => state.setSatellite)
+    const setFiles = useSelectedFiles(state => state.setFiles)
+    const setProduct = useSelectedFiles(state => state.setProduct)
+    const files = useSelectedFiles(state => state.files)
+    const satellite = useSelectedFiles(state => state.satellite)
+    const product = useSelectedFiles(state => state.product)
 
 
-    console.log('SOME PERERESOVALOS!! -> ', data)
 
     return <div className='col-11'>
 
@@ -45,22 +45,19 @@ export const AvailableFiles = ({to = undefined}: {to: string | undefined}) => {
             <div className='col-12'>
                 <div>Спутник</div>
                 <div className="input-group mb-3">
-                    { loading ? (
-                        <LoadingStatus />
-                    ) : (
-                        <select className="form-select" id="satellite"
-                            onChange={e => selectedFiles({satellite: e.target.value, product: '', files: {
-                                ...selectedFilesSub.files,
-                                [location.pathname]: []
-                            }})}>
+                <select className="form-select" id="satellite"
+                            onChange={e => {
+                                setSatellite(e.target.value)
+                                setFiles({...files, [location.pathname]: [] })
+                            }}
+                            >
                             <option>...</option>
                             {
-                                state && !loading && Object.keys(state).map(key => {
+                                state && Object.keys(state).map(key => {
                                     return <option key={key} value={key}>{key}</option>
                                 })
                             }
                         </select>
-                    ) }
                 </div>
             </div>
         </div>
@@ -69,44 +66,34 @@ export const AvailableFiles = ({to = undefined}: {to: string | undefined}) => {
             <div className='col-12'>
                 <div>Продукт</div>
                 <div className="input-group mb-3">
-                    { loading ? (
-                        <LoadingStatus />
-                    ) : (
-                        <select className="form-select" id="product"
-                            onChange={e => selectedFiles({...selectedFilesSub, product: e.target.value})}>
+                    <select className="form-select" id="product"
+                            onChange={e => setProduct(e.target.value)}>
                             <option>...</option>
                             {
-                                state && !loading && selectedFilesSub?.satellite &&
-                                Object.keys(state[selectedFilesSub.satellite]).map(key => {
+                                state && satellite &&
+                                Object.keys(state[satellite]).map(key => {
                                     return <option key={key} value={key}>{key}</option>
                                 })
                             }
                         </select>
-                    )}
                 </div>
             </div>
         </div>
 
-        {loading ? (
-            <LoadingStatus />
-        ) :(
-            <div className='row justify-content-center'>
+        <div className='row justify-content-center'>
                 <div className='col-12'>
                     <div>Слои</div>
                     {
-                        state && !loading && selectedFilesSub?.product && selectedFilesSub?.satellite &&
-                        Object.entries(state[selectedFilesSub.satellite][selectedFilesSub.product][scope[to]]).map((entry: Array<any>, iter: number) => {
+                        state && product && satellite &&
+                        Object.entries(state[satellite][product][scope[to]]).map((entry: Array<any>, iter: number) => {
                             console.log("key ->", entry[0])
                             // return <div className={location.pathname == "/main/classification" ? 'col-12' : 'col-4'} key={iter}>
                             return <div className='col-12' key={iter}>
                                 <div className="form-check form-check-inline">
                                     <input className='form-check-input' type={"checkbox"} id={`band-${entry[0]}`} defaultChecked={false} value={entry[1]}
-                                        onChange={e => selectedFiles({
-                                            ...selectedFilesSub,
-                                            files: {
-                                                ...selectedFilesSub.files,
-                                                [location.pathname]: [...selectedFilesSub.files[location.pathname], e.target.value]
-                                            }
+                                        onChange={e => setFiles({
+                                                ...files,
+                                                [location.pathname]: [...files[location.pathname], e.target.value]
                                             })}
                                     />
                                     <label className='form-check-label text-break' htmlFor={"band-" + entry[0]}>{entry[0]}</label>
@@ -116,7 +103,6 @@ export const AvailableFiles = ({to = undefined}: {to: string | undefined}) => {
                     }
                 </div>
             </div>
-        ) }
 
     </div>
 }

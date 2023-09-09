@@ -1,15 +1,20 @@
-import { useMutation } from '@apollo/client'
 import * as React from 'react'
-import { REGISTRATION } from './restMutations'
 import { useNavigate } from "react-router"
 import isEmail from 'validator/lib/isEmail'
 import isStrongPassword from 'validator/lib/isStrongPassword'
+import { ax } from '../index'
 
 
 export const Registration = () => {
-    const [registration] = useMutation(REGISTRATION, {fetchPolicy: 'network-only'})
     const [state, setState] = React.useState({validPassword: true, validEmal: true, validLogin: true})
     const redirect = useNavigate()
+
+    interface RegistrationType {
+        id: string
+        username: string
+        email: string
+        accessToken: string
+    }
 
     const registrationHandler = () => {
         let login = (document.querySelector('#input-login') as HTMLInputElement)
@@ -34,22 +39,19 @@ export const Registration = () => {
 
         setState({ validPassword: validPassword, validEmal: validEmal, validLogin: validLogin })
         if(validEmal && validPassword && validLogin){
-            registration({
-                variables: {
-                    newUser: {
-                        username: login.value,
-                        email: email.value,
-                        password: password1.value
-                    }
-                },
-                onCompleted: data => {
-                    localStorage.setItem("miniGISToken", data.registration.accessToken)
+            ax.post<RegistrationType>('/user/create', {
+                newUser: {
+                    username: login.value,
+                    email: email.value,
+                    password: password1.value
+                }
+            }).then(response => {
+                localStorage.setItem("miniGISToken", response.data.accessToken)
                     login.value = ''
                     email.value = ''
                     password1.value = ''
                     password2.value = ''
                     redirect("/authorization")
-                }
             })
         }
     }

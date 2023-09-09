@@ -1,56 +1,67 @@
 import * as L from 'leaflet'
 import * as React from 'react'
-import { useLazyQuery, useQuery, useReactiveVar } from '@apollo/client'
-import { SHP_READ } from '../../../../../restQueries'
-import { TREE_AVAILABLE_FILES } from '../../../../../restQueries'
-import { isLoading, layers, mapLayerControl, mapObj, treeAvailableFiles } from '../../../../../rv'
 import { VectorInterface } from '../../../../../types/main/LayerTypes'
 import * as moment from 'moment'
+import { useLoading } from '../../../../../../../interface/stores/Loading'
+import { useLayer } from '../../../../../../../analysis/stores/layer'
+import { useMapLayerControl } from '../../../../../../../analysis/stores/mapLayerControl'
+import { useTreeAvailableFiles } from '../../../../../../../analysis/stores/treeAvailableFiles'
+import { useMapObject } from '../../../../../../../analysis/stores/MapObject'
+import { ax } from '../../../../../../..'
 
 
 export const OpenVec = ({showLayerAddControl}: {showLayerAddControl: (status: boolean) => void}) => {
     const [state, setState] = React.useState(undefined)
-    const {data, loading, error} = useQuery(TREE_AVAILABLE_FILES, {
-        onCompleted: data => {
-            isLoading(false)
-            let c = {} as any
-            data.treeAvailableFiles.items.map((item: any) => {
-                let key: string = Object.keys(item)[1]
-                if(key != "items"){
-                    c[key] = item[key]
-                }
-            })
-            treeAvailableFiles(c)
-        }})
-    const [shpRead] = useLazyQuery(SHP_READ, {fetchPolicy: "network-only"})
-    const mapObjSub = useReactiveVar(mapObj) as any
-    const layersSub = useReactiveVar(layers)
-    const mapLayerControlSub = useReactiveVar(mapLayerControl) as any
-    const isLoadingSub = useReactiveVar(isLoading)
-    const treeAvailableFilesSub = useReactiveVar(treeAvailableFiles)
+    const isLoading = useLoading(state => state.isLoading)
+    const setLoading = useLoading(state => state.setLoading)
+    const setTreeAvailableFiles = useTreeAvailableFiles(state => state.setTreeAvailableFiles)
+    const treeAvailableFiles = useTreeAvailableFiles(state => state.treeAvailableFiles)
+    const mapObject = useMapObject(state => state)
+
+    interface treeAvailableFilesResponseType {
+        items: any
+    }
+
+    ax.get<treeAvailableFilesResponseType>("/workflow/shp-read").then(response => {
+        setLoading(false)
+        let c = {} as any
+        response.data.items.map((item: any) => {
+            let key: string = Object.keys(item)[1]
+            if(key != "items"){
+                c[key] = item[key]
+            }
+        })
+        setTreeAvailableFiles(c)
+    })
+    const layers = useLayer(state => state.layers)
+    const setLayers = useLayer(state => state.setLayers)
+    const mapLayerControl = useMapLayerControl(state => state.mapLayerControl)
+
+    interface shpReadResponseType {
+        bbox: string
+        features: any
+        type: string
+    }
 
     const shpReadHandler = () => {
         console.log('state -> ', state)
-        isLoading(true)
-        shpRead({
-            variables: {
-                input: {
-                    shpName: state
-                }
-            },
-            onCompleted: data => {
-
-                console.log('shpRead ->', data)
+        setLoading(true)
+        ax.post<shpReadResponseType>('/workflow/shp-read', {
+            input: {
+                shpName: state
+            }
+        }).then(response => {
+            console.log('shpRead ->', response)
                 let layerKey = state.split("/").slice(-1)[0]
                 let newGroupLayer = new L.FeatureGroup() as any
-                newGroupLayer.addTo(mapObjSub)
+                newGroupLayer.addTo(mapObject)
 
                 const setProps = () => {
                     let props: {
                         [propName: string]: {
                             fieldType: string,
                         }} = {}
-                    Object.entries(data.shpRead.features[0].properties).map((prop: [string, string]) => {
+                    Object.entries(response.data.features[0].properties).map((prop: [string, string]) => {
                         let attrType: string = prop[0].split("_").slice(-1)[0]
                         console.log('attrType -> ', attrType)
                         props[prop[0]] = { fieldType: attrType}
@@ -59,7 +70,7 @@ export const OpenVec = ({showLayerAddControl}: {showLayerAddControl: (status: bo
                 }
 
                 let type: 'Points' | 'Polylines' | 'Polygones'
-                switch (data.shpRead.features[0].geometry.type) {
+                switch (response.data.features[0].geometry.type) {
                     case 'Point':
                         type = 'Points'
                         break;
@@ -70,7 +81,7 @@ export const OpenVec = ({showLayerAddControl}: {showLayerAddControl: (status: bo
                         type = 'Polygones'
                         break;
                     default:
-                        console.log('Default case from OpenVec.tsx', data.shpRead.features[0].geometry.type)
+                        console.log('Default case from OpenVec.tsx', response.data.features[0].geometry.type)
                         break;
                 }
                 let data1: VectorInterface
@@ -79,12 +90,12 @@ export const OpenVec = ({showLayerAddControl}: {showLayerAddControl: (status: bo
                     type: type,
                     layer: newGroupLayer,
                     geom: undefined,
-                    positionInTable: Object.keys(layersSub).length +1,
+                    positionInTable: Object.keys(layers).length +1,
                     color: '#fd7e14',
                     properties: setProps(),
                 }
 
-                data.shpRead.features.map((item: any) => {
+                response.data.features.map((item: any) => {
                     let attr = item.properties
                     let shape = L.geoJSON(item) as any
                     shape.feature = {}
@@ -114,15 +125,14 @@ export const OpenVec = ({showLayerAddControl}: {showLayerAddControl: (status: bo
                     newGroupLayer.addLayer(shape)
                 })
                 
-                layers({ ...layersSub, [layerKey]: data1 })
-                mapLayerControlSub.addOverlay(data1.layer, layerKey)
-                isLoading(false)
-            }
+                setLayers({ [layerKey]: data1 })
+                mapLayerControl.addOverlay(data1.layer, layerKey)
+                setLoading(false)
         })
 
     }
 
-    if(data && !loading) return <div className='row justify-content-center'>
+    return <div className='row justify-content-center'>
         <div className='col-11'>
             
             <div className='row justify-content-center mb-2'>
@@ -133,7 +143,7 @@ export const OpenVec = ({showLayerAddControl}: {showLayerAddControl: (status: bo
                     className='form-select'>
                         <option value={"0"}>...</option>
                         {
-                            treeAvailableFilesSub.vector.map((item: string) => {
+                            treeAvailableFiles.vector.map((item: string) => {
                                 return <option key={item} value={item}>{item}</option>
                             })
                         }
@@ -145,14 +155,14 @@ export const OpenVec = ({showLayerAddControl}: {showLayerAddControl: (status: bo
                 <div className='col-12'>
                     <button
                     onClick={()=>shpReadHandler()}
-                    disabled={isLoadingSub}
+                    disabled={isLoading}
                     className='btn btn-sm btn-success' type='button'>Добавить</button>
                 </div>
             </div>
 
             <div className='row justify-content-center'>
                 <div className='col-12'>
-                    <button onClick={()=>console.log(layersSub)} className='btn btn-sm btn-success' type='button'>layersSub</button>
+                    <button onClick={()=>console.log(layers)} className='btn btn-sm btn-success' type='button'>layersSub</button>
                 </div>
             </div>
 

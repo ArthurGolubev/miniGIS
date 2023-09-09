@@ -1,32 +1,48 @@
-import { useLazyQuery, useReactiveVar } from '@apollo/client'
 import * as React from 'react'
-import { GET_PREVIEW } from '../../../restQueries'
 import * as L from 'leaflet'
-import { isLoading, mapObj, selectedImage, searchImages, layers, toasts } from '../../../rv'
-import { MapLayers, PreviewRaster, RasterInterface } from '../../../types/main/LayerTypes'
+import { PreviewRaster } from '../../../types/main/LayerTypes'
+import { useSearchImages } from '../../../../../analysis/stores/searchImages'
+import { useToasts } from '../../../../../interface/stores/Toasts'
+import { useLoading } from '../../../../../interface/stores/Loading'
+import { useLayer } from '../../../../../analysis/stores/layer'
+import { useSelectedImage } from '../../../../../analysis/stores/selectedImage'
+import { useMapObject } from '../../../../../analysis/stores/MapObject'
+import { ax } from '../../../../..'
 
 
 export const ImagesList = () => {
-    const mapObjSub         = useReactiveVar(mapObj) as any
-    const searchImagesSub = useReactiveVar(searchImages)
-    const layersSub: MapLayers = useReactiveVar(layers)
+
+    const setLayers = useLayer(state => state.setLayers)
+    const setToast = useToasts(state => state.setToast)
+    const images = useSearchImages(state => state.images)
+    const sensor = useSearchImages(state => state.sensor)
+    const setLoading = useLoading(state => state.setLoading)
+    const setSelectedImage = useSelectedImage(statae => statae.setSelectedImage)
+    const mapObject = useMapObject(state => state) as any
+
+    const layers = useLayer(state => state.layers)
     
-    const [getImagePreview, {data: data2, loading: loading2, error: error2}] = useLazyQuery(GET_PREVIEW)
     const getImagePreviewHandler = (metadata: any) => {
-        console.log('жмяк')
-        isLoading(true)
-        getImagePreview({variables: {
-            systemIndex: metadata["system:index"],
-            sensor: searchImagesSub.sensor
-        },
-        fetchPolicy: 'network-only',
-        onCompleted: data => {
+        setLoading(true)
+
+        interface getPreviewResponseType {
+            imgUrl: string
+            header: string
+            message: string
+            datetime: string
+            sensor: string
+            systemIndex: string
+            bounds: Array<Array<number>>
+        }
+
+        const getPreview = () => ax.get<getPreviewResponseType>(`/workflow/get-image-preview/${sensor}/${metadata["system:index"]}`, )
+        .then(response => {
             // let coordinates = metadata["system:footprint"]["coordinates"]
-            let coordinates = data.getImagePreview.bounds
-            console.log('some data -> ', data)
+            let coordinates = response.data.bounds
+            console.log('some data -> ', response.data)
             console.log('some coordinates -> ', coordinates)
-            L.geoJSON().addTo(mapObjSub).addData({type: 'LineString', coordinates: coordinates} as any)
-            let layer = L.imageOverlay(data.getImagePreview.imgUrl, coordinates.map((point: Array<number>) => [point[1], point[0]]) ) as any
+            L.geoJSON().addTo(mapObject).addData({type: 'LineString', coordinates: coordinates} as any)
+            let layer = L.imageOverlay(response.data.imgUrl, coordinates.map((point: Array<number>) => [point[1], point[0]]) ) as any
 
             let date = metadata.DATE_ACQUIRED ? (metadata.DATE_ACQUIRED) : (new Date(metadata.GENERATION_TIME).toISOString().slice(0, 10))
             let cloud = metadata.CLOUD_COVER ? (metadata.CLOUD_COVER.toFixed(2)) : (metadata.CLOUD_COVERAGE_ASSESSMENT.toFixed(2))
@@ -37,25 +53,24 @@ export const ImagesList = () => {
                 layer: layer,
                 date: date,
                 cloud: cloud,
-                positionInTable: Object.keys(layersSub).length + 1
+                positionInTable: Object.keys(layers).length + 1
             }
-            layers({ ...layersSub, [metadata["system:index"]]: mapLayer })
-            layer.addTo(mapObjSub)
-            selectedImage({
+            setLayers({ [metadata["system:index"]]: mapLayer })
+            layer.addTo(mapObject)
+            setSelectedImage({
                 metadata: metadata,
-                imgUrl: data.getImagePreview.imgUrl,
-                sensor: data.getImagePreview.sensor,
-                systemIndex: data.getImagePreview.systemIndex
+                imgUrl: response.data.imgUrl,
+                sensor: response.data.sensor,
+                systemIndex: response.data.systemIndex
             })
-            toasts({[new Date().toLocaleString()]: {
-                header: data.getImagePreview.header,
-                message: data.getImagePreview.message,
+            setToast({[new Date().toLocaleString()]: {
+                header: response.data.header,
+                message: response.data.message,
                 show: true,
-                datetime: new Date(data.getImagePreview.datetime),
+                datetime: new Date(response.data.datetime),
                 color: 'text-bg-success'
             }})
-            isLoading(false)
-        }
+            setLoading(false)
         })
     }
 
@@ -63,12 +78,13 @@ export const ImagesList = () => {
         <div className='col-12 ' style={{maxHeight: "400px"}}>
             <ul className='mt-1'>
                 {
-                    searchImagesSub.images.map((item: any, iter: number) => {
+                    images.map((item: any, iter: number) => {
                         return <li key={iter} className="mb-1">
                             <div className="d-grid gap-2 col-10 mx-auto">
                                 <button className="btn btn-sm btn-outline-primary"
                                 onClick={() => getImagePreviewHandler(item)}
-                                disabled={loading2}>
+                                // disabled={loading2}
+                                >
                                     {
                                         `
                                         ${item.DATE_ACQUIRED ? (item.DATE_ACQUIRED) : (new Date(item.GENERATION_TIME).toISOString().slice(0, 10))} 

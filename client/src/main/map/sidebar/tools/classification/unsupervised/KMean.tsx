@@ -1,29 +1,34 @@
 import * as React from 'react'
 import { useLocation } from 'react-router'
-import { useReactiveVar } from '@apollo/client'
 import { BlankMap } from '../resultOnMap/BlankMap'
 import { AvailableFiles } from '../../AvailableFiles'
 import { socket } from '../../../../../../app/socket'
 import { ResultOnMap } from '../resultOnMap/ResultOnMap'
-import { ClassificationResultsType } from '../../../../types/interfacesTypeScript'
-import { classification, isLoading, selectedFiles, classificationResponse, classificationDescription } from '../../../../rv'
+import { classificationDescription } from '../../../../../../analysis/stores/constants'
+import { useClassificationResponse } from '../../../../../../analysis/stores/classificationResponse'
+import { useLoading } from '../../../../../../interface/stores/Loading'
+import { useClassificationConfig } from '../../../../../../analysis/stores/classificationConfig'
+import { useSelectedFiles } from '../../../../../../analysis/stores/selectedFiles'
 
 export const KMean = () => {
-    const classificationSub = useReactiveVar(classification)
-    const selectedFilesSub = useReactiveVar(selectedFiles)
+    const responses = useClassificationResponse(state => state.responses)
+    const files = useSelectedFiles(state => state.files)
     const location = useLocation()
-    const isLoadingSub = useReactiveVar(isLoading)
-    const classificationResponseSub = useReactiveVar(classificationResponse) as ClassificationResultsType
-    const classificationDescriptionSub = useReactiveVar(classificationDescription)
+    const isLoading = useLoading(state => state.isLoading)
+    const setLoading = useLoading(state => state.setLoading)
+    const classes = useClassificationConfig(state => state.classes)
+    const setClasses = useClassificationConfig(state => state.setClasses)
+
+    
     
     const classifyHandler = () => {
         console.log('KMean start!')
-        isLoading(true)
+        setLoading(true)
         socket.emit(
             "unsupervised/kmean",
             {
-                filePath: selectedFilesSub.files[location.pathname][0],
-                k: classificationSub.classes
+                filePath: files[location.pathname][0],
+                k: classes
             },
         )
     }
@@ -42,7 +47,7 @@ export const KMean = () => {
             {/* -------------------------------------------Descriptions-Start------------------------------------------ */}
             <div className='row justify-content-center'>
                 <div className='col-10'>
-                    {classificationDescriptionSub.unsupervised.KMean}
+                    {classificationDescription.unsupervised.KMean}
                 </div>
             </div>
             {/* -------------------------------------------Descriptions-End-------------------------------------------- */}
@@ -55,8 +60,8 @@ export const KMean = () => {
                         {/* -------------------------------------------Map-Start------------------------------------------ */}
                         <div className='col-6'>
                             {
-                                classificationResponseSub?.["unsupervised/kmean"] ?
-                                <ResultOnMap data={classificationResponseSub["unsupervised/kmean"]} /> : 
+                                responses?.["unsupervised/kmean"] ?
+                                <ResultOnMap data={responses["unsupervised/kmean"]} /> : 
                                 <BlankMap /> 
                             }
                         </div>
@@ -71,14 +76,14 @@ export const KMean = () => {
                                     <div className='input-group'>
                                         <label className='input-group-text' htmlFor='classes'>k:</label>
                                         <input className="form-control" type="number" min={1} max={30}
-                                            onChange={e => classification({...classificationSub, classes: parseInt(e.target.value) })}
+                                            onChange={e => setClasses(parseInt(e.target.value)) }
                                         />
                                     </div>
                                 </div>
                             </div>
                             <div className='row justify-content-start mb-2'>
                                 <div className='col-12 text-center'>
-                                    <button onClick={()=>classifyHandler()} className='btn btn-sm btn-success' type='button' disabled={isLoadingSub}>classify</button>
+                                    <button onClick={()=>classifyHandler()} className='btn btn-sm btn-success' type='button' disabled={isLoading}>classify</button>
                                 </div>
                             </div>
                         </div>

@@ -1,22 +1,23 @@
-import { useReactiveVar } from '@apollo/client'
 import * as React from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { isLoading, isProgress, showToggle } from '../../main/map/rv'
 import { LoadingStatus } from './LoadingStatus'
 import { StackIcon } from './StackIcon'
 import { ProfileIcon } from './ProfileIcon'
 import { ProgressBarStatus } from './ProgressBarStatus'
 import { useTimelineStore } from '../../timeline/store'
 import { useMainStore } from '../store'
+import { useSidebarToggles } from '../../interface/stores/SidebarToggles'
+import { useLoading } from '../../interface/stores/Loading'
 
 
 export const NavBar = () => {
-    const isLoadingSub = useReactiveVar(isLoading)
+
+    const setToggle = useSidebarToggles(state => state.setToggle)
     const isLoadingSub2 = useMainStore().isLoading
     const isProgressBarSub = useTimelineStore().isProgressBar
-    const showToggleSub = useReactiveVar(showToggle)
     const setLoading = useMainStore().setLoading
     const location = useLocation()
+    const isLoading = useLoading(state => state.isLoading)
 
     React.useEffect(() => {
         if(isProgressBarSub == undefined){setLoading(false)}
@@ -35,7 +36,7 @@ export const NavBar = () => {
         
             <div className="collapse navbar-collapse " id="navbarNav">
                 <div className='col-auto text-center'>
-                    {(isLoadingSub || isLoadingSub2) && <LoadingStatus />}
+                    {(isLoading || isLoadingSub2) && <LoadingStatus />}
                 </div>
                 <div className='col-1 text-center'>
                     {isProgressBarSub != undefined && <ProgressBarStatus />}
@@ -60,7 +61,7 @@ export const NavBar = () => {
                                 <li className="nav-item">
                                     <Link
                                     to='/main/map/layers'
-                                    onClick={()=>{ showToggle({...showToggleSub, LayerList: true}) }}
+                                    onClick={()=>{ setToggle({LayerList: true}) }}
                                     className={location.pathname.startsWith('/main/map/layers') ? 'nav-link active' : 'nav-link'}
                                     type='button'>Добавить слой</Link>
                                 </li>

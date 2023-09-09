@@ -1,8 +1,7 @@
 import * as React from "react"
 import { ImageOverlay, MapContainer, TileLayer } from "react-leaflet"
-import { ToastDataWithImgType } from "../../../../types/interfacesTypeScript"
 import { LatLngBounds } from "leaflet"
-import {CRS} from 'leaflet';
+import { ToastDataWithImgType } from "../../../../../../interface/stores/Toasts";
 
 
 export const ResultOnMap = ({data}: {data: ToastDataWithImgType}) => {

@@ -1,35 +1,42 @@
-import { useLazyQuery, useQuery, useReactiveVar } from '@apollo/client'
 import * as React from 'react'
 import * as L from 'leaflet'
-import { ADD_LAYER } from '../../../../../restQueries'
-import { TREE_AVAILABLE_FILES } from '../../../../../restQueries'
-import { isLoading, layers, mapObj, selectedRasterLay, treeAvailableFiles } from '../../../../../rv'
 import { ClassificationRaster, PreviewRaster, RasterInterface } from '../../../../../types/main/LayerTypes'
+import { useLoading } from '../../../../../../../interface/stores/Loading'
+import { useLayer } from '../../../../../../../analysis/stores/layer'
+import { useSelectedRasterLay } from '../../../../../../../analysis/stores/selecetedRasterLay'
+import { useTreeAvailableFiles } from '../../../../../../../analysis/stores/treeAvailableFiles'
+import { useMapObject } from '../../../../../../../analysis/stores/MapObject'
+import { ax } from '../../../../../../..'
 
 
 
 export const Open = ({showAddImgMenu}: {showAddImgMenu: (key: boolean) => void}) => {
-    const {data, loading} = useQuery(TREE_AVAILABLE_FILES, {
-        fetchPolicy: 'network-only',
-        onCompleted: data => {
-            isLoading(false)
+    const setLoading = useLoading(state => state.setLoading)
+    const isLoading = useLoading(state => state.isLoading)
+    const setTreeAvailableFiles = useTreeAvailableFiles(state => state.setTreeAvailableFiles)
+    const treeAvailableFiles = useTreeAvailableFiles(state => state.treeAvailableFiles)
+
+
+    interface treeAvailableFilesResponseType {
+        items: any
+    }
+
+    ax.get<treeAvailableFilesResponseType>("/workflow/shp-read").then(response => {
+        setLoading(false)
             let c = {} as any
-            data.treeAvailableFiles.items.map((item: any) => {
+            response.data.items.map((item: any) => {
                 let key: string = Object.keys(item)[1]
                 if(key != "items"){
                     c[key] = item[key]
                 }
             })
-            treeAvailableFiles(c)
-        },
+            setTreeAvailableFiles(c)
     })
-    const [addLayer] = useLazyQuery(ADD_LAYER, {fetchPolicy: "network-only"})
-    const mapObjSub = useReactiveVar(mapObj) as any
-    const layersSub = useReactiveVar(layers)
-    const selectedRasterLaySub = useReactiveVar(selectedRasterLay)
-    const isLoadingSub = useReactiveVar(isLoading)
-    const treeAvailableFilesSub = useReactiveVar(treeAvailableFiles)
-    
+
+    const layers = useLayer(state => state.layers)
+    const setLayers = useLayer(state => state.setLayers)
+    const selectedRasterLay = useSelectedRasterLay(state => state.selectedRasterLay)
+    const mapObject = useMapObject(state => state) as any
 
     const [state, setState] = React.useState({
         "scope": "0",
@@ -38,21 +45,27 @@ export const Open = ({showAddImgMenu}: {showAddImgMenu: (key: boolean) => void})
         "target": "0"
     })
 
+    interface addLayerResponseType {
+        header: string
+        message: string
+        datetime: string
+        imgUrl: string
+        meta: string
+    }
+
 
     const addLayerHandler = () => {
-        isLoading(true)
-        addLayer({
-            variables: {
-                input: {
-                    ...state
-                }
-            },
-            onCompleted: data => {
-                console.log("data -> ", data)
-                let metadata = JSON.parse(data.addLayer.meta)
-                L.geoJSON().addTo(mapObjSub).addData({type: 'LineString', coordinates: metadata["system:footprint"]["coordinates"]} as any)
-                let layer = L.imageOverlay(data.addLayer.imgUrl, metadata["system:footprint"]["coordinates"].map((point: Array<number>) => [point[1], point[0]]) ) as any
-                layer.addTo(mapObjSub)
+        setLoading(true)
+        ax.post<addLayerResponseType>("/workflow/add-layer", {
+            input: {
+                ...state
+            }
+        }).then(response => {
+            console.log("data -> ", response.data)
+                let metadata = JSON.parse(response.data.meta)
+                L.geoJSON().addTo(mapObject).addData({type: 'LineString', coordinates: metadata["system:footprint"]["coordinates"]} as any)
+                let layer = L.imageOverlay(response.data.imgUrl, metadata["system:footprint"]["coordinates"].map((point: Array<number>) => [point[1], point[0]]) ) as any
+                layer.addTo(mapObject)
 
 
                 let mapLayer: ClassificationRaster | PreviewRaster
@@ -67,20 +80,19 @@ export const Open = ({showAddImgMenu}: {showAddImgMenu: (key: boolean) => void})
                             layer: layer,
                             date: date,
                             cloud: cloud,
-                            positionInTable: Object.keys(layersSub).length + 1    
+                            positionInTable: Object.keys(layers).length + 1    
                         }
                         console.log('mapLayer! -> ', mapLayer)
-                        layers({ 
-                            ...layersSub,
-                            [selectedRasterLaySub]: {
-                                ...layersSub[selectedRasterLaySub],
+                        setLayers({
+                            [selectedRasterLay]: {
+                                ...layers[selectedRasterLay],
                                 imgs: {
-                                    ...(layersSub[selectedRasterLaySub] as RasterInterface).imgs,
+                                    ...(layers[selectedRasterLay] as RasterInterface).imgs,
                                     [layer._leaflet_id]: mapLayer
                                 }
                             } as RasterInterface
                         })
-                        layersSub[selectedRasterLaySub].layer.addLayer(layer)
+                        layers[selectedRasterLay].layer.addLayer(layer)
                         break;
                     case "classification":
                         mapLayer = {
@@ -89,32 +101,33 @@ export const Open = ({showAddImgMenu}: {showAddImgMenu: (key: boolean) => void})
                             resultType: 'KMean',
                             layerType: "raster",
                             layer: layer,
-                            positionInTable: Object.keys(layersSub).length + 1
+                            positionInTable: Object.keys(layers).length + 1
                         }
-                        layers({ 
-                            ...layersSub,
-                            [selectedRasterLaySub]: {
-                                ...layersSub[selectedRasterLaySub],
+                        setLayers({ 
+                            ...layers,
+                            [selectedRasterLay]: {
+                                ...layers[selectedRasterLay],
                                 imgs: {
-                                    ...(layersSub[selectedRasterLaySub] as RasterInterface).imgs,
+                                    ...(layers[selectedRasterLay] as RasterInterface).imgs,
                                     [layer._leaflet_id]: mapLayer
                                 }
                             } as RasterInterface
                         })
-                        layersSub[selectedRasterLaySub].layer.addLayer(layer)
+                        layers[selectedRasterLay].layer.addLayer(layer)
                         break;
                     default:
                         console.log('DEFAULT CASE from Open.tsx ->', state.scope)
                         break;
                 }
                 showAddImgMenu(false)
-                isLoading(false)
-            }
+                setLoading(false)
         })
+        
+        
     }
 
 
-    if(!treeAvailableFilesSub || loading) return null
+    if(!treeAvailableFiles) return null
     return <div className='row justify-content-center'>
         <div className='col-11'>
             
@@ -124,7 +137,7 @@ export const Open = ({showAddImgMenu}: {showAddImgMenu: (key: boolean) => void})
                     <select className='form-select' onChange={e => setState({scope: e.target.value, satellite: "0", product: "0", target: "0"})} >
                         <option value={"0"}>...</option>
                         {
-                            Object.keys(treeAvailableFilesSub).slice(0,2).map(item => {
+                            Object.keys(treeAvailableFiles).slice(0,2).map(item => {
                                 return <option key={item} value={item}>{item}</option>
                             })
                         }
@@ -141,7 +154,7 @@ export const Open = ({showAddImgMenu}: {showAddImgMenu: (key: boolean) => void})
                         <option value={"0"}>...</option>
                         {
                             state.scope != "0" &&
-                            Object.keys(treeAvailableFilesSub[state["scope"]]).map(item => {
+                            Object.keys(treeAvailableFiles[state["scope"]]).map(item => {
                                 return <option key={item} value={item}>{item}</option>
                             })
                         }
@@ -160,7 +173,7 @@ export const Open = ({showAddImgMenu}: {showAddImgMenu: (key: boolean) => void})
                                     <option value={"0"}>...</option>
                                     {
                                         state.scope != "0" && state.satellite != "0" &&
-                                        Object.keys(treeAvailableFilesSub[state["scope"]][state["satellite"]]).map((item: string) => {
+                                        Object.keys(treeAvailableFiles[state["scope"]][state["satellite"]]).map((item: string) => {
                                             return <option key={item} value={item}>{item}</option>
                                         })
                                     }
@@ -173,7 +186,7 @@ export const Open = ({showAddImgMenu}: {showAddImgMenu: (key: boolean) => void})
                         <div className='row justify-content-center mb-2'>
                             <div className='col-12'>
                                 {
-                                    treeAvailableFilesSub[state["scope"]][state["satellite"]][state["product"]].map((item: string) => {
+                                    treeAvailableFiles[state["scope"]][state["satellite"]][state["product"]].map((item: string) => {
                                         return <div className='form-check' key={item}
                                         onChange={() => setState({...state, target: item})}>
                                             <input id={`check-${item}`} className='form-check-input' type={"radio"} />
@@ -189,7 +202,7 @@ export const Open = ({showAddImgMenu}: {showAddImgMenu: (key: boolean) => void})
                         <div className='row justify-content-center mb-2'>
                             <div className='col-12'>
                                 {
-                                    Object.keys(treeAvailableFilesSub[state["scope"]][state["satellite"]]).map((item: string) => {
+                                    Object.keys(treeAvailableFiles[state["scope"]][state["satellite"]]).map((item: string) => {
                                         return <div className='form-check mb-1 mt-1' key={item}>
                                             <input id={`check-${item}`} className='form-check-input' type={"radio"} 
                                             onChange={() => setState({...state, product: item, target: item})} />
@@ -210,7 +223,7 @@ export const Open = ({showAddImgMenu}: {showAddImgMenu: (key: boolean) => void})
                     onClick={()=>addLayerHandler()}
                     className='btn btn-sm btn-success'
                     type='button'
-                    disabled={isLoadingSub}
+                    disabled={isLoading}
                     >Add</button>
                 </div>
             </div>

@@ -1,21 +1,22 @@
 import * as React from 'react'
 import * as L from 'leaflet'
-import { layers, mapObj } from '../../../../../rv'
-import { useReactiveVar } from '@apollo/client'
 import { VectorInterface } from '../../../../../types/main/LayerTypes'
+import { useLayer } from '../../../../../../../analysis/stores/layer'
+import { useMapObject } from '../../../../../../../analysis/stores/MapObject'
 
 
 
 export const NewVec = ({showLayerAddControl}: {showLayerAddControl: (status: boolean) => void}) => {
     type vecTypes = 'Points' | 'Polylines' | 'Polygones'
     const [state, setState] = React.useState({vecName: '', vecType: 'Points' as vecTypes})
-    const mapObjSub = useReactiveVar(mapObj)
-    const layersSub = useReactiveVar(layers)
+    const layers = useLayer(state => state.layers)
+    const setLayers = useLayer(state => state.setLayers)
 
 
     const addVecLa = () => {
         let newGroupLayer = new L.FeatureGroup() as any
-        newGroupLayer.addTo(mapObjSub)
+        const mapObject = useMapObject(state => state)
+        newGroupLayer.addTo(mapObject)
 
         let data: VectorInterface
         data = {
@@ -23,11 +24,11 @@ export const NewVec = ({showLayerAddControl}: {showLayerAddControl: (status: boo
             type: state.vecType,
             layer: newGroupLayer,
             geom: undefined,
-            positionInTable: Object.keys(layersSub).length +1,
+            positionInTable: Object.keys(layers).length +1,
             color: '#fd7e14',
             properties: {}
         }
-        layers({ ...layersSub, [state.vecName]: data })
+        setLayers({ [state.vecName]: data })
         showLayerAddControl(undefined)
     }
 

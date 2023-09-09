@@ -1,21 +1,25 @@
 import * as React from 'react'
-import { useReactiveVar } from '@apollo/client'
-import { isLoading, layers, selectedRasterLay, showToggle } from '../../../../rv'
 import { RasterInterface } from '../../../../types/main/LayerTypes'
 import { Open } from './raster/Open'
+import { useSidebarToggles } from '../../../../../../interface/stores/SidebarToggles'
+import { useLoading } from '../../../../../../interface/stores/Loading'
+import { useLayer } from '../../../../../../analysis/stores/layer'
+import { useSelectedRasterLay } from '../../../../../../analysis/stores/selecetedRasterLay'
 
 
 export const DetailRaster = () => {
+
+    const layers = useLayer(state => state.layers)
+    const setToggle = useSidebarToggles(state => state.setToggle)
     const [state, setState] = React.useState(false)
-    const layersSub = useReactiveVar(layers)
-    const showToggleSub = useReactiveVar(showToggle)
-    const selectedRasterLaySub = useReactiveVar(selectedRasterLay)
-    const isLoadingSub = useReactiveVar(isLoading)
+    const setLoading = useLoading(state => state.setLoading)
+    const isLoading = useLoading(state => state.isLoading)
+    const setSelectedRasterLay = useSelectedRasterLay(state => state.setSelectedRasterLay)
+    const selectedRasterLay = useSelectedRasterLay(state => state.selectedRasterLay)
 
     const backToLayerList = () => {
-        selectedRasterLay(''),
-        showToggle({
-            ...showToggleSub,
+        setSelectedRasterLay(''),
+        setToggle({
             DetailRaster: false,
             LayerList: true
         })
@@ -23,7 +27,7 @@ export const DetailRaster = () => {
 
     const addBtnHandler = () => {
         setState(true)
-        isLoading(true)
+        setLoading(true)
     }
 
     return <div>
@@ -36,7 +40,7 @@ export const DetailRaster = () => {
                     <blockquote className="blockquote">
                         <div className='row justify-content-center'>
                             <div className='col'>
-                                {selectedRasterLaySub}
+                                {selectedRasterLay}
                             </div>
                             <div className='col-auto me-3'>
                                 <button 
@@ -50,7 +54,7 @@ export const DetailRaster = () => {
                     <figcaption className="blockquote-footer">
                         {/* <strong>Тип слоя: </strong>{(layersSub[selectedRasterLaySub] as RasterInterface).type ?? 'не назначен'}. */}
                         {/* <span> </span> */}
-                        <strong>Количество изображений: </strong>{Object.keys(layersSub[selectedRasterLaySub].layer._layers).length}
+                        <strong>Количество изображений: </strong>{Object.keys(layers[selectedRasterLay].layer._layers).length}
                     </figcaption>
                 </figure>
             </div>
@@ -73,13 +77,13 @@ export const DetailRaster = () => {
                         </thead>
                         <tbody>
                             {
-                                Object.keys((layersSub[selectedRasterLaySub] as RasterInterface).layer._layers).map((imgId: string) => {
+                                Object.keys((layers[selectedRasterLay] as RasterInterface).layer._layers).map((imgId: string) => {
                                     return <tr key={imgId}>
                                         <th className='text-center' onClick={() => console.log('someInfo')}>
                                             <i className="bi bi-info-circle"></i>
                                         </th>
                                         <td className='text-center text-break'>
-                                            {(layersSub[selectedRasterLaySub] as RasterInterface).imgs[imgId].name}
+                                            {(layers[selectedRasterLay] as RasterInterface).imgs[imgId].name}
                                         </td>
                                         {/* <td className='text-center'>
                                             {(layersSub[selectedRasterLaySub] as RasterInterface).imgs[imgId]}
@@ -101,7 +105,7 @@ export const DetailRaster = () => {
             <div className='col-11'>
                 <button
                 onClick={()=>addBtnHandler()}
-                disabled={isLoadingSub}
+                disabled={isLoading}
                 className='btn btn-sm btn-success' type='button'>Добавить</button>
             </div>
         </div>

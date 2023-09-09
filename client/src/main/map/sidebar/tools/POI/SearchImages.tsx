@@ -1,23 +1,39 @@
-import { useLazyQuery, useReactiveVar } from '@apollo/client'
 import * as React from 'react'
-import { SEARCH_PREVIEW } from '../../../restQueries'
-import { errors, isLoading, mapObj, selectedImage, searchImages, tools, imagesStack, toasts } from '../../../rv'
+import { ax } from '../../../../../index'
 import { ImagesList } from './ImagesList'
 import { Metadata } from './Metadata'
+import { useToolsToggles } from '../../../../../analysis/stores/toolsToggles'
+import { useSearchImages } from '../../../../../analysis/stores/searchImages'
+import { useToasts } from '../../../../../interface/stores/Toasts'
+import { useLoading } from '../../../../../interface/stores/Loading'
+import { useErrors } from '../../../../../interface/stores/errors'
+import { useSelectedImage } from '../../../../../analysis/stores/selectedImage'
+import { useMapObject } from '../../../../../analysis/stores/MapObject'
 
 
 export const SearchImages = () => {
-    const errorsSub = useReactiveVar(errors)
-    const toolsSub = useReactiveVar(tools)
-    const selectedImageSub = useReactiveVar(selectedImage)
-    const searchImagesSub = useReactiveVar(searchImages)
-    const mapObjSub = useReactiveVar(mapObj) as any
-    const [searchImagesQuery, {data: data1, loading: loading1, error: error1}] = useLazyQuery(SEARCH_PREVIEW, {fetchPolicy: "network-only"})
+    
+    const setToast = useToasts(state => state.setToast)
+    const showTools = useToolsToggles(state => state.showTools)
+    const POI = useToolsToggles(state => state.POI)
+    const setSearchImages = useSearchImages(state => state.setSearchImages)
+    const endDate = useSearchImages(state => state.endDate)
+    const startDate = useSearchImages(state => state.startDate)
+    const poi = useSearchImages(state => state.poi)
+    const sensor = useSearchImages(state => state.sensor)
+    const images = useSearchImages(state => state.images)
+    const setLoading = useLoading(state => state.setLoading)
+    const periodError = useErrors(state => state.periodError)
+    const setPeriodError = useErrors(state => state.setPeriodError)
+    const metadata = useSelectedImage(state => state.metadata)
+    const mapObject = useMapObject(state => state)
+
+
     
 
     const setPOI = () => {
-        tools({...toolsSub, setPOI: true})
-        mapObjSub.pm.enableDraw('Marker', {
+        showTools({POI: true})
+        mapObject.pm.enableDraw('Marker', {
             tooltips: false,
             markerStyle: {
                 title: "Установите POI"
@@ -26,33 +42,37 @@ export const SearchImages = () => {
         })
     }
 
+    interface SearchPreviewResponseType {
+        images: Array<any>
+        header: string
+        message: string
+        datetime: string
+    }
+
     const searchImagesHandler = () => {
-        if (searchImagesSub.period.start && searchImagesSub.period.end){
-            isLoading(true)
-            searchImagesQuery({
-                variables: {
-                    input: {
-                        poi: {lat: searchImagesSub.poi[1], lon: searchImagesSub.poi[0]},
-                        date: {startDate: searchImagesSub.period.start, endDate: searchImagesSub.period.end},
-                        sensor: searchImagesSub.sensor,
-                        operation: 'search-preview'
-                    }
-                },
-                onCompleted: data => {
-                    console.log('1 ->', data)
-                    searchImages({...searchImagesSub, images: data.searchPreview.images})
-                    toasts({[new Date().toLocaleString()]: {
-                        header: data.searchPreview.header,
-                        message: data.searchPreview.message,
+        if (startDate && endDate){
+            setLoading(true)
+
+            ax.post<SearchPreviewResponseType>('/workflow/search-preview', {
+                input: {
+                    poi: {lat: poi[1], lon: poi[0]},
+                    date: {startDate, endDate},
+                    sensor: sensor,
+                    operation: 'search-preview'
+                }
+            }).then(response => {
+                setSearchImages({images: response.data.images})
+                    setToast({[new Date().toLocaleString()]: {
+                        header: response.data.header,
+                        message: response.data.message,
                         show: true,
-                        datetime: new Date(data.searchPreview.datetime),
+                        datetime: new Date(response.data.datetime),
                         color: 'text-bg-success'
                     }})
-                    isLoading(false)
-                },
+                    setLoading(false)
             })
         } else {
-            errors({...errorsSub, period: true})
+            setPeriodError(true)
         }
     }
 
@@ -66,7 +86,7 @@ export const SearchImages = () => {
                     onClick={()=>setPOI()}
                     className='btn btn-sm btn-success me-2'
                     type='button'
-                    disabled={toolsSub.setPOI}>
+                    disabled={POI}>
                         Указать точку на местности
                 </button>
                 <button
@@ -74,7 +94,7 @@ export const SearchImages = () => {
                     className='btn btn-sm btn-success'
                     type='button'
                     disabled={
-                        searchImagesSub.poi.length <= 0 || loading1 || searchImagesSub.period.start == '' || searchImagesSub.period.end == ''
+                        poi.length <= 0 || startDate == undefined || endDate == undefined
                         }>
                         Поиск
                 </button>
@@ -83,28 +103,14 @@ export const SearchImages = () => {
         <div className='row justify-content-start'>
             <div className='col ms-2 mt-3'>
                 <input type='date' id="start-date" 
-                    onChange={e => searchImages({
-                        ...searchImagesSub,
-                        period: {
-                            ...searchImagesSub.period,
-                            start: e.target.value
-                        }
-                    })}
+                    onChange={e => setSearchImages({startDate: e.target.value}) }
                 /> - 
                 <input type='date' id="end-date" 
-                    onChange={e => {
-                        console.log(e.target.value)
-                        searchImages({
-                        ...searchImagesSub,
-                        period: {
-                            ...searchImagesSub.period,
-                            end: e.target.value
-                        }
-                    })} }
+                    onChange={e => setSearchImages({endDate: e.target.value}) }
                 />
             </div>
             {
-                errorsSub.period &&
+                periodError &&
                 <div className='row justify-content-start'>
                     <div className='col-9 ms-2 mt-1'>
                         <div className="alert alert-danger" role="alert">
@@ -117,7 +123,7 @@ export const SearchImages = () => {
         <div className='row justify-content-start'>
             <div className='col-9 ms-2 mt-3'>
                 {
-                    searchImagesSub.sensor == 'LC08' &&
+                    sensor == 'LC08' &&
                     <div className="alert alert-success text-center" role="alert">
                         Collection 1 (1982-2021)
                     </div>
@@ -125,7 +131,7 @@ export const SearchImages = () => {
                 <div className="input-group input-group-sm mb-3">
                     <label className="input-group-text" htmlFor="sensor">Спутник</label>
                     <select defaultValue="S2" className="form-select" id="sensor"
-                        onChange={e => searchImages({...searchImagesSub, sensor: e.target.value})}>
+                        onChange={e => setSearchImages({sensor: e.target.value})}>
                         <option value="S2">Sentinel 2</option>
                         <option value="LC08">Landsat 8</option>
                         <option value="LC07">Landsat 7</option>
@@ -136,11 +142,11 @@ export const SearchImages = () => {
             </div>
         </div>
         {
-            searchImagesSub.images.length > 0 && selectedImageSub.metadata == undefined &&
+            images.length > 0 && metadata == undefined &&
             <ImagesList />
         }
         {
-            selectedImageSub?.metadata &&
+            metadata &&
             <Metadata />
         }
     </div>

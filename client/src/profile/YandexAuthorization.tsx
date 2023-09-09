@@ -1,26 +1,37 @@
-import { useQuery } from '@apollo/client'
 import * as React from 'react'
-import { GET_YANDEX_DISK_AUTH_URL, GET_YANDEX_DISK_TOKEN } from './restMutations'
 import { useNavigate, useSearchParams } from "react-router-dom"
+import { ax } from '../index'
 
 
 export const YandexAuthorization = () => {
     const redirect = useNavigate()
+    const [state, setState] = React.useState(undefined)
     let [searchParams, setSearchParams] = useSearchParams()
-    const {data, loading} = useQuery(GET_YANDEX_DISK_AUTH_URL)
-    const {data: data2} = useQuery(GET_YANDEX_DISK_TOKEN, {
-        skip: searchParams.toString() == '',
-        variables: {
-            code: searchParams.values().next().value ?? 123
-        },
-        onCompleted: () => {
-            redirect("/main")
+    
+    const yandexDiskAuthUrl = 
+    React.useEffect(() => {
+        ax.get('/user/get-yandex-disk-auth-url').then(response => setState(response))
+    }, [])
+    // Попробовать так
+    React.useEffect(() => {
+        if(searchParams.toString() !== ''){
+            ax.get("/user/get-yandex-disk-token/{args.code}").then(() => redirect("/main"))
         }
     })
     
+    // const {data: data2} = useQuery(GET_YANDEX_DISK_TOKEN, {
+    //     skip: searchParams.toString() == '',
+    //     variables: {
+    //         code: searchParams.values().next().value ?? 123
+    //     },
+    //     onCompleted: () => {
+    //         redirect("/main")
+    //     }
+    // })
+    
     
 
-    if(!data || loading) return null
+    if(state == undefined) return null
 
     return <div className='row justify-content-center' style={{height: '65vh'}}>
         <div className='col-auto d-flex align-items-center'>
@@ -34,7 +45,7 @@ export const YandexAuthorization = () => {
                         <div className='row justify-content-center mt-3'>
                             <div className='col-auto'>
                                 <a
-                                href={data.getYandexDiskAuthUrl.url}
+                                href={state.url}
                                 className='btn btn-sm btn-primary'
                                 type='button'>Авторизироваться</a>
                             </div>

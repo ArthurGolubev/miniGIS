@@ -1,43 +1,51 @@
 import * as React from 'react'
 import { useNavigate } from 'react-router'
-import { useMutation, useQuery } from '@apollo/client'
-import { AUTHORIZATION, GET_ME } from './restMutations'
-import { useProfileStore } from './store'
-
+import { ax } from '../index'
 
 
 export const Authorization = () => {
     const redirect = useNavigate()
     const [state, setState] = React.useState({ validPassword: true, validLogin: true })
-    const [login, {data: token}] = useMutation(AUTHORIZATION, {fetchPolicy: 'network-only'})
-    const {data} = useQuery(GET_ME, {
-        skip: !token?.loginForAccessTokenFromClient?.accessToken,
-        fetchPolicy: "network-only",
-        onCompleted: user => {
-            if(user.getMe.yandexToken == "False"){
-                redirect("/yandex-authorization")
-            } else {
-                localStorage.setItem('usr', user.getMe.username)
-                redirect('/main/map/workflow/poi')
-            }
+    const [token, setToken] = React.useState(undefined)
+
+    interface AuthorizationType {
+        accessToken: string
+        tokenType: string
+    }
+
+    interface GetMeType {
+        id: string
+        email: string
+        username: string
+        yandexToken: string
+    }
+
+    // Попробовать так
+    React.useEffect(() => {
+        if(!token?.accessToken){
+            ax.get<GetMeType>("/user/get-me").then(response => {
+                if(response.data.yandexToken == "False"){
+                        redirect("/yandex-authorization")
+                    } else {
+                        localStorage.setItem('usr', response.data.username)
+                        redirect('/main/map/workflow/poi')
+                    }
+            })
         }
     })
 
     
-    const authorizationHandler = () => {
+    const authorizationHandler = async () => {
         let username = (document.querySelector('#input-login') as HTMLInputElement)
         let password = (document.querySelector('#input-password') as HTMLInputElement)
-        login({
-            variables: {
-                user: {
-                    username: username.value,
-                    password: password.value
-                }
-            },
-            onCompleted: data => {
-                localStorage.setItem('miniGISToken', data.loginForAccessTokenFromClient.accessToken)
+        let response = await ax.post<AuthorizationType>("/user/get-token-from-client", {
+            user: {
+                username: username.value,
+                password: password.value
             }
         })
+        localStorage.setItem('miniGISToken', response.data.accessToken)
+        setToken(response)
     }
 
     return <div className='row justify-content-center' style={{height: '65vh'}}>

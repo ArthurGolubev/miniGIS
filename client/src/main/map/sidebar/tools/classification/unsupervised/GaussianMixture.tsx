@@ -1,29 +1,33 @@
-import { useReactiveVar } from '@apollo/client'
 import * as React from 'react'
-import { classification, classificationDescription, classificationResponse, isLoading, selectedFiles, } from '../../../../rv'
 import { AvailableFiles } from '../../AvailableFiles'
 import { useLocation } from 'react-router'
 import { ResultOnMap } from '../resultOnMap/ResultOnMap'
 import { BlankMap } from '../resultOnMap/BlankMap'
 import { socket } from '../../../../../../app/socket'
-import { ClassificationResultsType } from '../../../../types/interfacesTypeScript'
-
+import { classificationDescription } from '../../../../../../analysis/stores/constants'
+import { useClassificationResponse } from '../../../../../../analysis/stores/classificationResponse'
+import { useLoading } from '../../../../../../interface/stores/Loading'
+import { useClassificationConfig } from '../../../../../../analysis/stores/classificationConfig'
+import { useSelectedFiles } from '../../../../../../analysis/stores/selectedFiles'
 
 export const GaussianMixture = () => {
-    const classificationSub = useReactiveVar(classification)
-    const selectedFilesSub = useReactiveVar(selectedFiles)
+
+    const files = useSelectedFiles(state => state.files)
+    const responses = useClassificationResponse(state => state.responses)
     const location = useLocation()
-    const isLoadingSub = useReactiveVar(isLoading) 
-    const classificationResponseSub = useReactiveVar(classificationResponse) as ClassificationResultsType
-    const classificationDescriptionSub = useReactiveVar(classificationDescription)
+    const isLoading = useLoading(state => state.isLoading)
+    const setLoading = useLoading(state => state.setLoading)
+    const classes = useClassificationConfig(state => state.classes)
+    const setClasses = useClassificationConfig(state => state.setClasses)
+
     
     const classifyHandler = () => {
-        isLoading(true)
+        setLoading(true)
         socket.emit(
             "unsupervised/gaussian-mixture",
             {
-                filePath: selectedFilesSub.files[location.pathname][0],
-                n_components: classificationSub.classes
+                filePath: files[location.pathname][0],
+                n_components: classes
             }
         )
     }
@@ -42,7 +46,7 @@ export const GaussianMixture = () => {
             {/* -------------------------------------------Description-Start------------------------------------------ */}
             <div className='row justify-content-center'>
                 <div className='col-10'>
-                    {classificationDescriptionSub.unsupervised.GaussianMixture}
+                    {classificationDescription.unsupervised.GaussianMixture}
                 </div>
             </div>
             {/* -------------------------------------------Description-End-------------------------------------------- */}
@@ -54,8 +58,8 @@ export const GaussianMixture = () => {
                         {/* -------------------------------------------Map-Start------------------------------------------ */}
                         <div className='col-6'>
                             {
-                                classificationResponseSub?.["unsupervised/gaussian-mixture"] ?
-                                <ResultOnMap data={classificationResponseSub["unsupervised/gaussian-mixture"]} /> : 
+                                responses?.["unsupervised/gaussian-mixture"] ?
+                                <ResultOnMap data={responses["unsupervised/gaussian-mixture"]} /> : 
                                 <BlankMap /> 
                             }
                         </div>
@@ -70,14 +74,14 @@ export const GaussianMixture = () => {
                                     <div className='input-group'>
                                         <label className='input-group-text' htmlFor='classes'>n components:</label>
                                         <input className="form-control" type="number" min={1} max={30}
-                                            onChange={e => classification({...classificationSub, classes: parseInt(e.target.value) })}
+                                            onChange={e => setClasses(parseInt(e.target.value)) }
                                         />
                                     </div>
                                 </div>
                             </div>
                             <div className='row justify-content-start mb-2'>
                                 <div className='col-12 text-center'>
-                                    <button onClick={()=>classifyHandler()} className='btn btn-sm btn-success' type='button' disabled={isLoadingSub}>classify</button>
+                                    <button onClick={()=>classifyHandler()} className='btn btn-sm btn-success' type='button' disabled={isLoading}>classify</button>
                                 </div>
                             </div>
                         </div>

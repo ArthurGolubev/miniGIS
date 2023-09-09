@@ -1,20 +1,22 @@
 import * as React from 'react'
 import * as L from 'leaflet'
-import { layers, mapLayerControl, mapObj } from '../../../../../rv'
-import { useReactiveVar } from '@apollo/client'
 import { RasterInterface } from '../../../../../types/main/LayerTypes'
+import { useLayer } from '../../../../../../../analysis/stores/layer'
+import { useMapLayerControl } from '../../../../../../../analysis/stores/mapLayerControl'
+import { useMapObject } from '../../../../../../../analysis/stores/MapObject'
 
 
 
 export const OpenRaster = ({showLayerAddControl}: {showLayerAddControl: (p: boolean) => void}) => {
-    const mapObjSub = useReactiveVar(mapObj)
-    const layersSub = useReactiveVar(layers)
-    const mapLayerControlSub = useReactiveVar(mapLayerControl) as any
     const [state, setState] = React.useState({layerName: ''})
+    const setLayers = useLayer(state => state.setLayers)
+    const layers = useLayer(state => state.layers)
+    const mapLayerControl = useMapLayerControl(state => state.mapLayerControl)
+    const mapObject = useMapObject(state => state)
     
     const addRasterLayer = () => {
         let newGroupLayer = new L.FeatureGroup() as any
-        newGroupLayer.addTo(mapObjSub)
+        newGroupLayer.addTo(mapObject)
 
         let data: RasterInterface
         data = {
@@ -22,10 +24,10 @@ export const OpenRaster = ({showLayerAddControl}: {showLayerAddControl: (p: bool
             layerType: 'raster',
             layer: newGroupLayer,
             imgs: {},
-            positionInTable: Object.keys(layersSub).length +1,
+            positionInTable: Object.keys(layers).length +1,
         }
-        layers({ ...layersSub, [state.layerName]: data })
-        mapLayerControlSub.addOverlay(newGroupLayer, state.layerName)
+        setLayers({ [state.layerName]: data })
+        mapLayerControl.addOverlay(newGroupLayer, state.layerName)
         showLayerAddControl(undefined)
     }
 

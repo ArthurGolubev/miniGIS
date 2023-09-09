@@ -1,12 +1,18 @@
-import { useReactiveVar } from "@apollo/client"
-import { bands, imagesStack, searchImages, selectedImage } from "../../../rv"
 import * as React from 'react'
+import { bands } from "../../../../../analysis/stores/constants"
+import { useSearchImages } from "../../../../../analysis/stores/searchImages"
+import { LandsatType, SentinelType, useImagesStack } from "../../../../../analysis/stores/imagesStack"
+import { useSelectedImage } from "../../../../../analysis/stores/selectedImage"
 
 
 export const BandsList = () => {
-    const selectedImageSub  = useReactiveVar(selectedImage)
-    const searchImagesSub   = useReactiveVar(searchImages)
-    const imagesStackSub    = useReactiveVar(imagesStack)
+
+    const sensor = useSearchImages(state => state.sensor)
+    const sentinel = useImagesStack(state => state.sentinel)
+    const landsat = useImagesStack(state => state.landsat)
+    const imagesStack = useImagesStack(state => state)
+    const setImagesStack = useImagesStack(state => state.setImagesStack)
+    const metadata = useSelectedImage(state => state.metadata)
 
     const bandsHandler = (isChecked: boolean, band: string | Array<string>) => {
         let satellite: "sentinel" | "landsat"
@@ -15,27 +21,27 @@ export const BandsList = () => {
         let bands
         let info
 
-        if(searchImagesSub.sensor === 'S2'){
+        if(sensor === 'S2'){
             // SENTINEL
             satellite = 'sentinel'
-            date = new Date(selectedImageSub.metadata.GENERATION_TIME).toISOString().slice(0, 10)
-            exist = !!imagesStackSub.sentinel?.[date]
+            date = new Date(metadata.GENERATION_TIME).toISOString().slice(0, 10)
+            exist = !!sentinel?.[date]
             info = {
-                mgrsTile: selectedImageSub.metadata.MGRS_TILE,
-                productId: selectedImageSub.metadata.PRODUCT_ID,
-                granuleId: selectedImageSub.metadata.GRANULE_ID,
+                mgrsTile: metadata.MGRS_TILE,
+                productId: metadata.PRODUCT_ID,
+                granuleId: metadata.GRANULE_ID,
                 bands: []
             }
         } else {
             // LANDSAT
             satellite = 'landsat'
-            date = selectedImageSub.metadata.DATE_ACQUIRED
-            exist = !!imagesStackSub.landsat?.[date]
+            date = metadata.DATE_ACQUIRED
+            exist = !!landsat?.[date]
             info = {
-                sensorId: searchImagesSub.sensor,
-                path: String(selectedImageSub.metadata.WRS_PATH),
-                row: String(selectedImageSub.metadata.WRS_ROW),
-                productId: selectedImageSub.metadata.LANDSAT_PRODUCT_ID,
+                sensorId: sensor,
+                path: String(metadata.WRS_PATH),
+                row: String(metadata.WRS_ROW),
+                productId: metadata.LANDSAT_PRODUCT_ID,
                 bands: []
             }
         }
@@ -43,7 +49,7 @@ export const BandsList = () => {
         if (typeof(band) == "string"){
             if(exist){
                 // если такой объект уже существеут, то взять его бенды
-                bands = imagesStackSub[satellite][date].meta.bands
+                bands = imagesStack[satellite][date].meta.bands
                 // добавить или убрать слой
                 isChecked ? bands.push(band) : bands = bands.filter(b => b != band)
                 // обновить банды
@@ -57,10 +63,9 @@ export const BandsList = () => {
             band.forEach(check => (document.querySelector(`#band-${check}`) as HTMLInputElement).checked = true)
         }
         console.log('info -> ', info)
-        imagesStack({
-            ...imagesStackSub,
+        setImagesStack({
             [satellite]: {
-                ...imagesStackSub[satellite],
+                ...imagesStack[satellite],
                 [date]: {
                     meta: {
                         ...info
@@ -68,14 +73,13 @@ export const BandsList = () => {
                     status: 'wait'
                 }
             }
-        })
+        } as SentinelType | LandsatType)
     }
 
 
 
     const getSattelliteBands = () => {
-        console.log('searchImagesSub.sensor ->', searchImagesSub.sensor)
-        switch (searchImagesSub.sensor) {
+        switch (sensor) {
             case 'S2':
                 console.log('S2')
                 return bands.sentinel2

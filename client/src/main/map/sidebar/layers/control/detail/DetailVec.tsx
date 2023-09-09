@@ -1,20 +1,27 @@
 import * as React from 'react'
-import { useLazyQuery, useReactiveVar } from '@apollo/client'
-import { isLoading, layers, mapLayerControl, mapObj, selectedVecLay, showToggle } from '../../../../rv'
 import { VectorInterface } from '../../../../types/main/LayerTypes'
-import { SHP_SAVE } from '../../../../restQueries'
+import { useSidebarToggles } from '../../../../../../interface/stores/SidebarToggles'
+import { useLoading } from '../../../../../../interface/stores/Loading'
+import { useLayer } from '../../../../../../analysis/stores/layer'
+import { useSelectedVecLay } from '../../../../../../analysis/stores/selectedVecLay'
+import { useMapLayerControl } from '../../../../../../analysis/stores/mapLayerControl'
+import { useMapObject } from '../../../../../../analysis/stores/MapObject'
+import { ax } from '../../../../../..'
 
 
 
 export const DetailVec = () => {
-    const isLoadingSub = useReactiveVar(isLoading)
-    const layersSub = useReactiveVar(layers)
-    const selectedVecLaySub = useReactiveVar(selectedVecLay)
-    const mapObjSub = useReactiveVar(mapObj)
-    const showToggleSub = useReactiveVar(showToggle)
-    const mapLayerControlSub = useReactiveVar(mapLayerControl) as any
+    const selectedVecLay = useSelectedVecLay(state => state.selectedVecLay)
+    const setSelectedVecLay = useSelectedVecLay(state => state.setSelectedVecLay)
+    const setLayers = useLayer(state => state.setLayers)
+    const layers = useLayer(state => state.layers)
+    const setToggle = useSidebarToggles(state => state.setToggle)
+    const setLoading = useLoading(state => state.setLoading)
+    const isLoading = useLoading(state => state.isLoading)
+    const mapLayerControl = useMapLayerControl(state => state.mapLayerControl)
     const [state, setState] = React.useState({attr: false, shape: false, editPropShapeID: undefined})
-    const [shpWrite] = useLazyQuery(SHP_SAVE, {fetchPolicy: 'network-only'})
+    // const [shpWrite] = useLazyQuery(SHP_SAVE, {fetchPolicy: 'network-only'})
+    const mapObject = useMapObject(state => state)
     
     type InputTypes = "C" | "N" | "F" | "L" | "D"
     const inputTypes = {
@@ -32,17 +39,17 @@ export const DetailVec = () => {
             'Polylines': 'Line',
             'Polygones': 'Polygon'
         }
-        mapObjSub.pm.enableDraw(shape[type], {
+        mapObject.pm.enableDraw(shape[type], {
             continueDrawing: true,
         })
         setState({...state, shape: true})
     }
 
     const saveLayerHandler = (key: string) => {
-        let layer = layersSub[selectedVecLaySub] as VectorInterface
-        mapLayerControlSub.addOverlay(layer.layer, key)
+        let layer = layers[selectedVecLay] as VectorInterface
+        mapLayerControl.addOverlay(layer.layer, key)
         layer.layer.setStyle({color: layer.color})
-        mapObjSub.pm.disableDraw()
+        mapObject.pm.disableDraw()
         setState({...state, shape: false})
     }
 
@@ -52,36 +59,34 @@ export const DetailVec = () => {
 
         console.log('attrName -> ', attrName)
         console.log('attrType -> ', attrType)
-        layers({
-            ...layersSub,
-            [selectedVecLaySub]: {
-                ...layersSub[selectedVecLaySub],
+        setLayers({
+            [selectedVecLay]: {
+                ...layers[selectedVecLay],
                 properties: {
-                    ...(layersSub[selectedVecLaySub] as VectorInterface)?.properties,
+                    ...(layers[selectedVecLay] as VectorInterface)?.properties,
                     [`${attrName}_${attrType}`]: {
                         fieldType: attrType,
                     }
                 }
             } as VectorInterface
         })
-        Object.keys( layersSub[selectedVecLaySub].layer._layers).map((key: string) => layersSub[selectedVecLaySub].layer._layers[key].feature.properties[`${attrName}_${attrType}`] = attrType == 'L' ? false : '' )
+        Object.keys( layers[selectedVecLay].layer._layers).map((key: string) => layers[selectedVecLay].layer._layers[key].feature.properties[`${attrName}_${attrType}`] = attrType == 'L' ? false : '' )
         setState({...state, attr: false})
     }
 
     const saveShapeAttr = (propName: string, value: string | boolean) => {
         console.log('value -> ', value)
         // layersSub[selectedVecLaySub].layer._layers[state.editPropShapeID].feature.properties[propName] = `${value}`
-        layersSub[selectedVecLaySub].layer._layers[state.editPropShapeID].feature.properties[propName] = value
-        layers({...layersSub }) // для реал-тайм обновления таблицы атрибутов
+        layers[selectedVecLay].layer._layers[state.editPropShapeID].feature.properties[propName] = value
+        setLayers({...layers }) // для реал-тайм обновления таблицы атрибутов
         // если делать полностью через реактивную переменную, а не properties[propName] = `${value}` , то нельзя
         // развернуть спредом ...layer внутри реактивной переменной - потому что там глубокое копирование и циркулярная вложеность объекта...
         // (не копируется!)
     }
 
     const backToLayerList = () => {
-        selectedVecLay(''),
-        showToggle({
-            ...showToggleSub,
+        setSelectedVecLay(''),
+        setToggle({
             DetailVec: false,
             LayerList: true
         })
@@ -89,18 +94,15 @@ export const DetailVec = () => {
 
     const saveToShp = () => {
 
-        console.log('layersSub -> ', layersSub)
-        console.log('GEO-JSON -> ', layersSub[selectedVecLaySub].layer.toGeoJSON())
-        isLoading(true)
-        shpWrite({
-            variables: {
-                input: {
-                    shpName: selectedVecLaySub,
-                    layer: JSON.stringify(layersSub[selectedVecLaySub].layer.toGeoJSON())
-                }
-            },
-            onCompleted: () => isLoading(false)
-        })
+        console.log('layersSub -> ', layers)
+        console.log('GEO-JSON -> ', layers[selectedVecLay].layer.toGeoJSON())
+        setLoading(true)
+        ax.post('/workflow/shp-save', {
+            input: {
+                shpName: selectedVecLay,
+                layer: JSON.stringify(layers[selectedVecLay].layer.toGeoJSON())
+            }
+        }).then(() => setLoading(false))
     }
     
     return <div>
@@ -113,7 +115,7 @@ export const DetailVec = () => {
                     <blockquote className="blockquote">
                         <div className='row justify-content-center'>
                             <div className='col'>
-                                {selectedVecLaySub}
+                                {selectedVecLay}
                             </div>
                             <div className='col-auto me-3'>
                                 <button 
@@ -125,9 +127,9 @@ export const DetailVec = () => {
                         </div>
                     </blockquote>
                     <figcaption className="blockquote-footer">
-                        <strong>Тип слоя: </strong>{(layersSub[selectedVecLaySub] as VectorInterface).type}.
+                        <strong>Тип слоя: </strong>{(layers[selectedVecLay] as VectorInterface).type}.
                         <span> </span>
-                        <strong>Количество фигур: </strong>{Object.keys(layersSub[selectedVecLaySub].layer._layers).length}
+                        <strong>Количество фигур: </strong>{Object.keys(layers[selectedVecLay].layer._layers).length}
                     </figcaption>
                 </figure>
             </div>
@@ -145,14 +147,14 @@ export const DetailVec = () => {
                             <span className='input-group-text'>Фигуры</span>
                             <button
                             disabled={state.shape}
-                            onClick={()=>addShapeHandler((layersSub[selectedVecLaySub] as VectorInterface).type)}
+                            onClick={()=>addShapeHandler((layers[selectedVecLay] as VectorInterface).type)}
                             className={!state.shape ? 'btn btn-sm btn-light' : 'btn btn-sm btn-success'}
                             type='button'>
                                 <i className="bi bi-plus-lg"></i>
                             </button>
                             <button 
                             disabled={!state.shape}
-                            onClick={()=>saveLayerHandler(selectedVecLaySub)}
+                            onClick={()=>saveLayerHandler(selectedVecLay)}
                             className={!state.shape ? 'btn btn-sm btn-light' : 'btn btn-sm btn-success'}
                             type='button'>
                                 <i className="bi bi-check-lg"></i>
@@ -195,12 +197,12 @@ export const DetailVec = () => {
                     <div className='row justify-content-center'>
                         <div className='col-12'>
                             {
-                                (layersSub[selectedVecLaySub] as VectorInterface).type != 'Points' && <div>
+                                (layers[selectedVecLay] as VectorInterface).type != 'Points' && <div>
                                     <p>Цвет фигуры</p>
                                     <input
                                         type="color"
-                                        value={(layersSub[selectedVecLaySub] as VectorInterface).color}
-                                        onChange={e => (layersSub[selectedVecLaySub] as VectorInterface).layer.setStyle({color: e.target.value})}
+                                        value={(layers[selectedVecLay] as VectorInterface).color}
+                                        onChange={e => (layers[selectedVecLay] as VectorInterface).layer.setStyle({color: e.target.value})}
                                     />
                                 </div>
                             }
@@ -251,14 +253,14 @@ export const DetailVec = () => {
                             <div className='col-12'>
                                 <ul>
                                     {
-                                        Object.keys((layersSub[selectedVecLaySub] as VectorInterface).properties).map((propName: string) => {
+                                        Object.keys((layers[selectedVecLay] as VectorInterface).properties).map((propName: string) => {
                                             return <li key={propName} className="mb-2">
                                                 {
-                                                    (layersSub[selectedVecLaySub] as VectorInterface).properties[propName].fieldType == 'L' ? (
+                                                    (layers[selectedVecLay] as VectorInterface).properties[propName].fieldType == 'L' ? (
                                                         <div className="form-check">
                                                             <input className="form-check-input" name={propName}
                                                             type="checkbox"
-                                                            checked={(layersSub[selectedVecLaySub].layer._layers[state.editPropShapeID].feature.properties[propName] as boolean) ?? undefined}
+                                                            checked={(layers[selectedVecLay].layer._layers[state.editPropShapeID].feature.properties[propName] as boolean) ?? undefined}
                                                             onChange={e => saveShapeAttr(e.target.name, e.target.checked)}
                                                             />
                                                             <label className="form-check-label" htmlFor="flexCheckDefault">
@@ -270,8 +272,8 @@ export const DetailVec = () => {
                                                             <span className='input-group-text'>{propName.slice(0,-2)}</span>
                                                             <input className='form-control' name={propName}
                                                             id={`edit-attr-${propName}`}
-                                                            type={inputTypes[((layersSub[selectedVecLaySub] as VectorInterface).properties[propName].fieldType) as InputTypes]}
-                                                            value={(layersSub[selectedVecLaySub].layer._layers[state.editPropShapeID].feature.properties[propName] as string) ?? ""}
+                                                            type={inputTypes[((layers[selectedVecLay] as VectorInterface).properties[propName].fieldType) as InputTypes]}
+                                                            value={(layers[selectedVecLay].layer._layers[state.editPropShapeID].feature.properties[propName] as string) ?? ""}
                                                             onChange={e => saveShapeAttr(e.target.name, e.target.value)}
                                                             />
                                                         </div>
@@ -302,7 +304,7 @@ export const DetailVec = () => {
                                 <th className='text-center'>Edit</th>
                                 <th className='text-center'>ID</th>
                                 {
-                                    Object.keys((layersSub[selectedVecLaySub] as VectorInterface).properties).map((key: string) => {
+                                    Object.keys((layers[selectedVecLay] as VectorInterface).properties).map((key: string) => {
                                         return <th key={key}>{key.slice(0, -2)}</th>
                                     })
                                 }
@@ -310,7 +312,7 @@ export const DetailVec = () => {
                         </thead>
                         <tbody>
                             {
-                                Object.keys((layersSub[selectedVecLaySub] as VectorInterface).layer._layers).map((geomId: string) => {
+                                Object.keys((layers[selectedVecLay] as VectorInterface).layer._layers).map((geomId: string) => {
                                     return <tr key={geomId}>
                                         {
                                             state.editPropShapeID != geomId ? (
@@ -326,16 +328,16 @@ export const DetailVec = () => {
                                         }
                                         <th className='text-center'>{geomId}</th>
                                         {
-                                            Object.keys((layersSub[selectedVecLaySub] as VectorInterface).properties).map((key: string) => {
-                                                if((layersSub[selectedVecLaySub] as VectorInterface).properties[key].fieldType == 'L'){
-                                                    return <td key={key}>{(layersSub[selectedVecLaySub] as VectorInterface).layer._layers[geomId].feature.properties?.[key] ? (
+                                            Object.keys((layers[selectedVecLay] as VectorInterface).properties).map((key: string) => {
+                                                if((layers[selectedVecLay] as VectorInterface).properties[key].fieldType == 'L'){
+                                                    return <td key={key}>{(layers[selectedVecLay] as VectorInterface).layer._layers[geomId].feature.properties?.[key] ? (
                                                         <strong className='text-warning'>true</strong> ) : ( <strong className='text-primary'>false</strong> )
                                                     }</td>
                                                     
-                                                } else if((layersSub[selectedVecLaySub] as VectorInterface).properties[key].fieldType == 'D'){
-                                                    return <td key={key} style={{whiteSpace: 'nowrap'}}>{(layersSub[selectedVecLaySub] as VectorInterface).layer._layers[geomId].feature.properties?.[key]}</td>
+                                                } else if((layers[selectedVecLay] as VectorInterface).properties[key].fieldType == 'D'){
+                                                    return <td key={key} style={{whiteSpace: 'nowrap'}}>{(layers[selectedVecLay] as VectorInterface).layer._layers[geomId].feature.properties?.[key]}</td>
                                                 } else {
-                                                    return <td key={key}>{(layersSub[selectedVecLaySub] as VectorInterface).layer._layers[geomId].feature.properties?.[key]}</td>
+                                                    return <td key={key}>{(layers[selectedVecLay] as VectorInterface).layer._layers[geomId].feature.properties?.[key]}</td>
                                                 }
                                             })
                                         }
@@ -356,7 +358,7 @@ export const DetailVec = () => {
             <div className='col-auto'>
                 <button
                 onClick={()=>saveToShp()}
-                disabled={isLoadingSub}
+                disabled={isLoading}
                 className='btn btn-sm btn-light' type='button'>Сохранить, как .shp файл</button>
             </div>
         </div>

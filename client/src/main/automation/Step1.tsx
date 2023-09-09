@@ -1,15 +1,22 @@
+// Depricated
+// import { automationStep } from './rv'
+
 import * as React from 'react'
 import { SearchImages } from '../map/sidebar/tools/POI/SearchImages'
-import { useReactiveVar } from '@apollo/client'
-import { automationStep } from './rv'
 import { useNavigate } from 'react-router'
+import { useCreateAlgorithm } from '../../analysis/stores/createAlgorithm'
+// import { useSteps } from '../../analysis/stores/createAlgorithm'
 
 
 export const Step1 = () => {
     const redirect = useNavigate()
+    const setStep = useCreateAlgorithm(state => state.setStep)
 
     const nextStep = () => {
-        automationStep(2)
+        // Depricated
+        // automationStep(2)
+
+        setStep(2)
         redirect('/main/automation/step-2')
     }
 

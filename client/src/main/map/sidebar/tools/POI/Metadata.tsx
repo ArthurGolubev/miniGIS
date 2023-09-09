@@ -1,12 +1,13 @@
 import * as React from 'react'
-import { selectedImage } from '../../../rv'
 import { DownloadBtn } from './DownloadBtn'
 import { BandsList } from './BandsList'
 import { useLocation } from 'react-router'
+import { useSelectedImage } from '../../../../../analysis/stores/selectedImage'
 
 
 export const Metadata = () => {
     const location = useLocation()
+    const setSelectedImage = useSelectedImage(state => state.setSelectedImage)
 
 
     return <div className='row justify-content-start'>
@@ -14,7 +15,7 @@ export const Metadata = () => {
             <div className='row justify-content-start'>
                 <div className='col-auto'>
                     <button 
-                    onClick={()=>selectedImage({metadata: undefined, imgUrl: '', sensor: '', systemIndex: ''})}
+                    onClick={()=>setSelectedImage({metadata: undefined, imgUrl: '', sensor: '', systemIndex: ''})}
                     className='btn btn-sm btn-light' type='button'>
                         <i className="bi bi-arrow-left link-primary"></i> назад
                     </button>

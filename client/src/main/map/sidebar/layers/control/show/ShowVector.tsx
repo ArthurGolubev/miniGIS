@@ -1,19 +1,22 @@
 import * as React from 'react'
-import { layers, selectedVecLay, showToggle } from '../../../../rv'
-import { useReactiveVar } from '@apollo/client'
 import { VectorInterface } from '../../../../types/main/LayerTypes'
+import { useSidebarToggles } from '../../../../../../interface/stores/SidebarToggles'
+import { useLayer } from '../../../../../../analysis/stores/layer'
+import { useSelectedVecLay } from '../../../../../../analysis/stores/selectedVecLay'
 
 
 
 export const ShowVec = ({layerKey}: {layerKey: string}) => {
-    const layersSub = useReactiveVar(layers)
-    const showToggleSub = useReactiveVar(showToggle)
 
+    const setToggle = useSidebarToggles(state => state.setToggle)
+    const show = useSidebarToggles(state => state.show)
+    const layers = useLayer(state => state.layers)
+    const setSelectedVecLay = useSelectedVecLay(state => state.setSelectedVecLay)
 
     const showLayerAttr = (key: string) => {
-        selectedVecLay(key)
-        showToggle({
-            ...showToggleSub,
+        setSelectedVecLay(key)
+        setToggle({
+            ...show,
             DetailVec: true,
             LayerList: false
         })
@@ -37,10 +40,10 @@ export const ShowVec = ({layerKey}: {layerKey: string}) => {
 
                 <div className='row justify-content-between'>
                     <div className='col-auto'>
-                        <strong>Тип слоя: </strong>{(layersSub[layerKey] as VectorInterface).type}
+                        <strong>Тип слоя: </strong>{(layers[layerKey] as VectorInterface).type}
                     </div>
                     <div className='col-auto'>
-                        <strong>Количество фигур: </strong>{Object.keys(layersSub[layerKey].layer._layers).length}
+                        <strong>Количество фигур: </strong>{Object.keys(layers[layerKey].layer._layers).length}
                     </div>
                 </div>
 

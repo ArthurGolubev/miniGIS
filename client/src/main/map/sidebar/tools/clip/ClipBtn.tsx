@@ -1,37 +1,42 @@
-import { useReactiveVar } from "@apollo/client"
 import * as React from "react"
-import { clipMask, isLoading, mapObj, selectedFiles, toasts, tools} from "../../../rv"
-import { MapObject } from "../../../types/main/MapTypes"
 import { useLocation } from "react-router"
 import { socket } from "../../../../../app/socket"
+import { useToolsToggles } from "../../../../../analysis/stores/toolsToggles"
+import { useLoading } from "../../../../../interface/stores/Loading"
+import { useSelectedFiles } from "../../../../../analysis/stores/selectedFiles"
+import { useClipMask } from "../../../../../analysis/stores/clipMask"
+import { useMapObject } from "../../../../../analysis/stores/MapObject"
 
 
 export const ClipBtn = () => {
-    const mapObjSub: MapObject = useReactiveVar(mapObj)
-    const toolsSub = useReactiveVar(tools)
-    const selectedFilesSub = useReactiveVar(selectedFiles)
-    const clipMaskSub = useReactiveVar(clipMask)
-    const isLoadingSub = useReactiveVar(isLoading)
+    const files = useSelectedFiles(state => state.files)
+    const showTools = useToolsToggles(state => state.showTools)
     let location = useLocation()
+    const isLoading = useLoading(state => state.isLoading)
+    const setLoading = useLoading(state => state.setLoading)
+    const mask = useClipMask(state => state.mask)
+    const layer = useClipMask(state => state.layer)
+    const mapObject = useMapObject(state => state)
+
 
 
 
 
     const sendHandler = () => {
-        isLoading(true)
+        setLoading(true)
         socket.emit(
             "clip-to-mask",
             {
-                mask: clipMaskSub.mask,
-                files: selectedFilesSub.files[location.pathname]
+                mask: mask,
+                files: files[location.pathname]
             },
         )
     }
 
 
     const drawMaskHandler = () => {
-        tools({...toolsSub, setMask: true})
-        mapObjSub.pm.enableDraw('Polygon', {continueDrawing: false, pathOptions: {color: 'red'}})
+        showTools({mask: true})
+        mapObject.pm.enableDraw('Polygon', {continueDrawing: false, pathOptions: {color: 'red'}})
     }
 
 
@@ -42,7 +47,7 @@ export const ClipBtn = () => {
                 <div className='col text-center mt-1'>
                     <button 
                     onClick={()=>drawMaskHandler()}
-                    disabled={isLoadingSub}
+                    disabled={isLoading}
                     className='btn btn-sm btn-success' type='button'>
                         нарисовать
                     </button>
@@ -54,7 +59,7 @@ export const ClipBtn = () => {
                             onClick={()=>sendHandler()}
                             className='btn btn-sm btn-success'
                             type='button'
-                            disabled={!(clipMaskSub.layer != undefined) || isLoadingSub}
+                            disabled={!(layer != undefined) || isLoading}
                             >Вырезать</button>
                         </div>
                     )
