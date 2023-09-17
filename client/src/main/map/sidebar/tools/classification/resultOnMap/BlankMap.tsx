@@ -3,7 +3,7 @@ import { MapContainer, TileLayer } from "react-leaflet"
 
 export const BlankMap = () => {
     return <MapContainer
-    center={[35.88, -5.3525]} zoom={'10'} style={{height: "40vh", width: "100wh"}}
+    center={[35.88, -5.3525]} zoom={10} style={{height: "40vh", width: "100wh"}}
     attributionControl={false}
     >
         <TileLayer

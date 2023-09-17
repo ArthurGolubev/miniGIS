@@ -12,9 +12,9 @@ npx webpack build --mode=development
 
 
 # deploy="../kubernetes/minigis/minigis-web"
-deploy="/home/arthur/dev/kubernetes/minigis/minigis-web/dev"
-microk8s.kubectl delete -f "$deploy/dev_dep.yml"
-microk8s.kubectl apply -f "$deploy/dev_dep.yml"
+deploy="/home/$USER/dev/kubernetes/minigis/minigis-web/dev"
+microk8s.kubectl delete -f "$deploy/04_deployment.yml"
+microk8s.kubectl apply -f "$deploy/04_deployment.yml"
 
 end=$SECONDS
 runtime=$((end - start))

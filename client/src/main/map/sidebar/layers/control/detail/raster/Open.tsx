@@ -6,7 +6,7 @@ import { useLayer } from '../../../../../../../analysis/stores/layer'
 import { useSelectedRasterLay } from '../../../../../../../analysis/stores/selecetedRasterLay'
 import { useTreeAvailableFiles } from '../../../../../../../analysis/stores/treeAvailableFiles'
 import { useMapObject } from '../../../../../../../analysis/stores/MapObject'
-import { ax } from '../../../../../../..'
+import { ax } from '../../../../../../../axiosInstance'
 
 
 

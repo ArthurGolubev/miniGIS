@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { useLocation } from 'react-router'
 import { useSelectedFiles } from '../../../../analysis/stores/selectedFiles'
-import { ax } from '../../../..'
+import { ax } from '../../../../axiosInstance'
 
 
 export const AvailableFiles = ({to = undefined}: {to: string | undefined}) => {

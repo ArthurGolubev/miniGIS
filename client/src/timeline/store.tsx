@@ -1,9 +1,8 @@
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 import { AlgorithmType } from '../profile/store'
-import { ax } from '..'
+import { ax } from '../axiosInstance'
 import { socket } from '../app/socket'
-import { useMainStore } from '../app/store'
 
 
 interface ClassificationResultType {

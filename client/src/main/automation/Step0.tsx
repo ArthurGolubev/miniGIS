@@ -1,10 +1,10 @@
 import * as React from 'react'
-import { useNavigate } from 'react-router'
+import { useNavigate } from 'react-router-dom'
 import { useCreateAlgorithm } from '../../analysis/stores/createAlgorithm'
 
 
 export const Step0 = () => {
-    const redirect = useNavigate()
+    const navigate = useNavigate()
     const setStep = useCreateAlgorithm(state => state.setStep)
     const setAlgName = useCreateAlgorithm(state => state.setAlgName)
     const algType = useCreateAlgorithm(state => state.algType)
@@ -12,9 +12,9 @@ export const Step0 = () => {
 
     const nextStep = () => {
         setStep(1)
-        redirect('/main/automation/step-1')
+        navigate('/main/automation/step-1')
     }
-
+    
     return <div className='row justify-content-start mt-3'>
         <div className='col-12'>
             <figure>
@@ -30,6 +30,7 @@ export const Step0 = () => {
                 <div className='col-12'>
                     <div className="form-check">
                         <input
+                        data-testid='radio check dataProcessing'
                         className="form-check-input"
                         type="radio"
                         name="processDataArray"
@@ -42,6 +43,7 @@ export const Step0 = () => {
                     </div>
                     <div className="form-check">
                         <input
+                        data-testid='radio check monitoring'
                         className="form-check-input"
                         type="radio"
                         name="monioringAndProcessingData"
@@ -56,7 +58,12 @@ export const Step0 = () => {
 
             <div className='row justify-content-start mt-3'>
                 <div className='col-8'>
-                    <input className='form-control' placeholder='Название папки на Яндекс диске' onChange={e => setAlgName(e.target.value)}/>
+                    <input
+                        data-testid='algorithm name input'
+                        className='form-control'
+                        placeholder='Название папки на Яндекс диске'
+                        onChange={e => setAlgName(e.target.value)}
+                        />
                 </div>
             </div>
 
@@ -64,6 +71,7 @@ export const Step0 = () => {
                 <div className='col-12'>
                     <div className='col-auto me-3'>
                         <button 
+                        data-testid='next-btn'
                         onClick={()=>nextStep()}
                         className='btn btn-sm btn-light' type='button'>
                             Далее <i className="bi bi-arrow-right link-primary"></i>

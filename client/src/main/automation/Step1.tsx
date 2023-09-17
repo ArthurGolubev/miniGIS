@@ -1,9 +1,7 @@
-// Depricated
-// import { automationStep } from './rv'
 
 import * as React from 'react'
 import { SearchImages } from '../map/sidebar/tools/POI/SearchImages'
-import { useNavigate } from 'react-router'
+import { useNavigate } from 'react-router-dom'
 import { useCreateAlgorithm } from '../../analysis/stores/createAlgorithm'
 // import { useSteps } from '../../analysis/stores/createAlgorithm'
 
@@ -13,9 +11,6 @@ export const Step1 = () => {
     const setStep = useCreateAlgorithm(state => state.setStep)
 
     const nextStep = () => {
-        // Depricated
-        // automationStep(2)
-
         setStep(2)
         redirect('/main/automation/step-2')
     }

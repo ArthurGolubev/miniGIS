@@ -21,7 +21,7 @@ export const Toasts = () => {
     }
 
     return <ToastContainer position={"bottom-start"}>
-        {Object.keys(toasts).map(key => {
+        {/* {Object.keys(toasts).map(key => {
             return <Toast 
                 show={toasts[key].show}
                 delay={50000}
@@ -36,6 +36,6 @@ export const Toasts = () => {
                 </Toast.Header>
                 <Toast.Body>{toasts[key].message}</Toast.Body>
             </Toast>
-        })}
+        })} */}
     </ToastContainer>
 }

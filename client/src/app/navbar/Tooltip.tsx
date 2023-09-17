@@ -3,7 +3,7 @@ import * as bootstrap from 'bootstrap'
 import tem from './test.html'
 
 
-export const Tooltip = () => {
+export const Tooltip1 = () => {
     const tooltipRef = React.useRef()
     
     

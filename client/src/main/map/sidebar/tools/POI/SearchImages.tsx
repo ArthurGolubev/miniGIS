@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { ax } from '../../../../../index'
+import { ax } from '../../../../../axiosInstance'
 import { ImagesList } from './ImagesList'
 import { Metadata } from './Metadata'
 import { useToolsToggles } from '../../../../../analysis/stores/toolsToggles'

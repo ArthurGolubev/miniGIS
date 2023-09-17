@@ -7,7 +7,7 @@ import { useLoading } from '../../../../../interface/stores/Loading'
 import { useLayer } from '../../../../../analysis/stores/layer'
 import { useSelectedImage } from '../../../../../analysis/stores/selectedImage'
 import { useMapObject } from '../../../../../analysis/stores/MapObject'
-import { ax } from '../../../../..'
+import { ax } from '../../../../../axiosInstance'
 
 
 export const ImagesList = () => {

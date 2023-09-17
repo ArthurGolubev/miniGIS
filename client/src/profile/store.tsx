@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
-import { ax } from '../index'
+import { ax } from '../axiosInstance'
 
 export interface AlgorithmType {
     id: string

@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { useNavigate, useSearchParams } from "react-router-dom"
-import { ax } from '../index'
+import { ax } from '../axiosInstance'
 
 
 export const YandexAuthorization = () => {

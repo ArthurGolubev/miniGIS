@@ -2,7 +2,7 @@ import * as React from 'react'
 import { useNavigate } from "react-router"
 import isEmail from 'validator/lib/isEmail'
 import isStrongPassword from 'validator/lib/isStrongPassword'
-import { ax } from '../index'
+import { ax } from '../axiosInstance'
 
 
 export const Registration = () => {

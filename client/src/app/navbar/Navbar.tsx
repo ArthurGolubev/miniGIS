@@ -28,7 +28,7 @@ export const NavBar = () => {
     return <nav className='navbar navbar-expand-sm bg-light' style={{height: '5vh'}}>
         <div className='container-fluid'>
             <Link className='navbar-brand' to={'/'}>
-                miniGIS
+                miniGIS+
             </Link>
             <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span className="navbar-toggler-icon"></span>
@@ -47,6 +47,7 @@ export const NavBar = () => {
                             <ul className="navbar-nav">
                                 <li className="nav-item">
                                     <Link
+                                    data-testid="link-automation/step-0"
                                     to='/main/automation/step-0'
                                     className={location.pathname.startsWith('/main/automation/step-') ? 'nav-link active' : 'nav-link'}
                                     type='button'>Автоматизация</Link>

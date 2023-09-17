@@ -1,6 +1,6 @@
 import * as React from "react"
 import 'bootstrap'
-import { Link, useLocation, useNavigate } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { useProfileStore } from "../../profile/store"
 
 

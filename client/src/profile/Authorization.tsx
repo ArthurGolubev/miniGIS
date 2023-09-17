@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { useNavigate } from 'react-router'
-import { ax } from '../index'
+import { ax } from '../axiosInstance'
 
 
 export const Authorization = () => {

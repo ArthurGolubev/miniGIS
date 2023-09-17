@@ -6,7 +6,7 @@ import { useLayer } from '../../../../../../analysis/stores/layer'
 import { useSelectedVecLay } from '../../../../../../analysis/stores/selectedVecLay'
 import { useMapLayerControl } from '../../../../../../analysis/stores/mapLayerControl'
 import { useMapObject } from '../../../../../../analysis/stores/MapObject'
-import { ax } from '../../../../../..'
+import { ax } from '../../../../../../axiosInstance'
 
 
 

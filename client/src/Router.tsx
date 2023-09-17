@@ -31,8 +31,7 @@ import { ConfusionMatrix } from './timeline/ConfusionMatrix';
 import { BandsStatistic } from './timeline/bandStatistic/BandsStatistic';
 import { Legend } from './timeline/Legend';
 
-
-export const router = createHashRouter([
+export const routes = [
     {
         path: "/",
         element: <App />,
@@ -169,4 +168,5 @@ export const router = createHashRouter([
             },
         ]
     },
-])
+]
+export const router = createHashRouter(routes)
