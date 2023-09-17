@@ -19,7 +19,7 @@ jobs:
               uses: actions/setup-node@v3
 
             - name: npm install
-              uses: cd client && npm ci
+              run: cd client && npm ci
 
             - name: Test frontend, component <Step0 />
               run: npm test
