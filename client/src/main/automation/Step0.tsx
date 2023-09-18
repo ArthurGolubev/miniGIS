@@ -71,7 +71,7 @@ export const Step0 = () => {
                 <div className='col-12'>
                     <div className='col-auto me-3'>
                         <button 
-                        data-testid='next-btn'
+                        data-testid='step0-next-btn'
                         onClick={()=>nextStep()}
                         className='btn btn-sm btn-light' type='button'>
                             Далее <i className="bi bi-arrow-right link-primary"></i>

@@ -12,9 +12,6 @@ export const Step2 = () => {
     const setStep = useCreateAlgorithm(state => state.setStep)
 
     const nextStep = () => {
-        // Depricated
-        // automationStep(3)
-
         setStep(3)
         redirect('/main/automation/step-3')
     }
@@ -40,6 +37,7 @@ export const Step2 = () => {
                 <div className='col-12'>
                     <div className='col-auto me-3'>
                         <button 
+                        data-testid='step2-next-btn'
                         onClick={()=>nextStep()}
                         className='btn btn-sm btn-light'
                         type='button'>

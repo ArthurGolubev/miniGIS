@@ -40,7 +40,7 @@ export const ClipBtn = () => {
     }
 
 
-    return <div className='row justify-content-center'>
+    return <div className='row justify-content-center'  data-testid={'ClipBtn'}>
         <div className='col-11'>
             
             <div className='row justify-content-center'>

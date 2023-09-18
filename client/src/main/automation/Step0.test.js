@@ -1,23 +1,15 @@
-// import * as React from 'react'
-import { screen, render, waitFor } from '@testing-library/react'
-import { userEvent } from '@testing-library/user-event'
 import '@testing-library/jest-dom'
-import { MemoryRouter, Route, RouterProvider, Routes, createMemoryRouter } from 'react-router-dom'
-import { Step0 } from './Step0'
+import { screen, render } from '@testing-library/react'
+import { userEvent } from '@testing-library/user-event'
+import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { useCreateAlgorithm } from '../../analysis/stores/createAlgorithm'
+import { Step0 } from './Step0'
 import { Step1 } from './Step1'
 
-jest.mock("axios")
 jest.mock('../map/sidebar/tools/POI/SearchImages', () => ({
     SearchImages: () => <div data-testid="SearchImagesMock"/>
     })
 )
-// Depricated
-// const mockedUsedNavigate = jest.fn()
-// jest.mock("react-router-dom", () => ({
-//     ...(jest.requireActual("react-router-dom")),
-//     useNavigate: () => mockedUsedNavigate
-// }))
 
 
 describe('Test <Step0 />', () => {
@@ -62,7 +54,7 @@ describe('Test <Step0 />', () => {
         expect(useCreateAlgorithm.getState().algType).toBe('monitoring')
     })
     test('click next Step', async () => {
-        const nextBtn = screen.getByTestId('next-btn')
+        const nextBtn = screen.getByTestId('step0-next-btn')
                 
         expect(useCreateAlgorithm.getState().step).toBe(0)
         

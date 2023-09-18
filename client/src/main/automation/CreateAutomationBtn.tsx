@@ -45,7 +45,7 @@ export const CreateAutomationBtn = () => {
         setLoading(true)
     }
 
-    return <div className='col-auto me-3'>
+    return <div className='col-auto me-3' data-testid='CreateAutomationBtn'>
         <button 
         onClick={()=>createBtnHandler()}
         className='btn btn-sm btn-light' type='button' disabled={isLoading}>

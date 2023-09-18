@@ -103,9 +103,11 @@ export const SearchImages = () => {
         <div className='row justify-content-start'>
             <div className='col ms-2 mt-3'>
                 <input type='date' id="start-date" 
+                    defaultValue={startDate}
                     onChange={e => setSearchImages({startDate: e.target.value}) }
                 /> - 
                 <input type='date' id="end-date" 
+                    defaultValue={endDate}
                     onChange={e => setSearchImages({endDate: e.target.value}) }
                 />
             </div>
