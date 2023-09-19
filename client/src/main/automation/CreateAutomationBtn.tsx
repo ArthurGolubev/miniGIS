@@ -6,48 +6,74 @@ import { useClassificationConfig } from '../../analysis/stores/classificationCon
 import { useLoading } from '../../interface/stores/Loading'
 import { useClipMask } from '../../analysis/stores/clipMask'
 import { useImagesStack } from '../../analysis/stores/imagesStack'
+import { useToasts } from '../../interface/stores/Toasts'
 
 export const CreateAutomationBtn = () => {
-    const algName = useCreateAlgorithm(state => state.algName)
-    const algType = useCreateAlgorithm(state => state.algType)
-    const sensor = useSearchImages(state => state.sensor)
-    const poi = useSearchImages(state => state.poi)
-    const startDate = useSearchImages(state => state.startDate)
-    const endDate = useSearchImages(state => state.endDate)
-    const method = useClassificationConfig(state => state.method)
-    const classes = useClassificationConfig(state => state.classes)
-    const setLoading = useLoading(state => state.setLoading)
-    const isLoading = useLoading(state => state.isLoading)
-    const mask = useClipMask(state => state.mask)
-    const imagesStack = useImagesStack(state => state)
+    const imagesStack = useImagesStack()
+    const {algName, algType} = useCreateAlgorithm()
+    const {sensor, poi, startDate, endDate} = useSearchImages()
+    const {method, classes} = useClassificationConfig()
+    const {setLoading, isLoading} = useLoading()
+    const {mask} = useClipMask()
+    const {setToast} = useToasts()
 
-    
-    const createBtnHandler = () => {
 
-        let websocketUrl = algType == 'monitoring' ? 'automation/monitoring' : 'automation/data-processing'
-        let satellite = sensor == 'S2' ? 'sentinel' : 'landsat' as 'sentinel' | 'landsat'
-        let keys = Object.keys(imagesStack[satellite])
+    const checkValidAndSand = () => {
+        let satellite: 'sentinel' | 'landsat'
+        let websocketUrl
         let bands: Array<string> = []
-        keys.map(key => bands = imagesStack[satellite][key].meta.bands )
+        let emptyFields = []  
 
-        let msg = {
-            poi: {lat: poi[1], lon: poi[0]},
-            date: {startDate: startDate, endDate: endDate},
-            sensor: sensor,
-            bands: bands,
-            mask: mask,
-            alg: method,
-            param: classes,
-            algName: algName,
-            algType: algType
+
+        if(algType == undefined ){emptyFields.push('Тип алгоритма не указан')}
+        else{websocketUrl = algType == 'monitoring' ? 'automation/monitoring' : 'automation/data-processing'}
+
+        if(sensor == undefined ){emptyFields.push('Сенсор не указан')}
+        else{
+            satellite = sensor == 'S2' ? 'sentinel' : 'landsat' as 'sentinel' | 'landsat'
+            let keys = Object.keys(imagesStack[satellite])
+            keys.map(key => bands = imagesStack[satellite][key].meta.bands )
         }
-        socket.emit(websocketUrl, msg)
-        setLoading(true)
+
+        if(poi.length < 2) emptyFields.push('Точка на местности не указана')
+        if(startDate === undefined) emptyFields.push('Начальная дата не указана')
+        if(endDate === undefined) emptyFields.push('Конечная дата не указана')
+        if(bands.length === 0) emptyFields.push('Не указаны слои')
+        if(mask === undefined) emptyFields.push('Маска не указана')
+        if(method === undefined) emptyFields.push('Метод классификации не указан')
+        if(classes === 0) emptyFields.push('Параметр для классификации не указан')
+        if(algName === undefined) emptyFields.push('Название алгоритма не указано')
+        if(algType === undefined) emptyFields.push('Тип алгоритма не указан')
+
+        if(emptyFields.length === 0){
+            let msg = {
+                poi: {lat: poi[1], lon: poi[0]},
+                date: {startDate: startDate, endDate: endDate},
+                sensor: sensor,
+                bands: bands,
+                mask: mask,
+                alg: method,
+                param: classes,
+                algName: algName,
+                algType: algType
+            }
+            socket.emit(websocketUrl, msg)
+            setLoading(true)
+        } else {
+            setToast({[new Date().toLocaleString()]: {
+                header: `Не указаны следующие поля`,
+                message: emptyFields.join('\n'),
+                show: true,
+                datetime: new Date(),
+                color: 'text-bg-warning'
+            }})
+        }
     }
 
     return <div className='col-auto me-3' data-testid='CreateAutomationBtn'>
         <button 
-        onClick={()=>createBtnHandler()}
+        data-testid='create-automation-btn'
+        onClick={()=>checkValidAndSand()}
         className='btn btn-sm btn-light' type='button' disabled={isLoading}>
             Создать алгоритм <i className="bi bi-arrow-right link-primary"></i>
         </button>

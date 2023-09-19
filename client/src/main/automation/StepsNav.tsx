@@ -12,7 +12,7 @@ export const StepsNav = () => {
 
     return <nav aria-label="breadcrumb">
         <ol className="breadcrumb">
-            <li className={step == 1 ? stepActive: stepUnactive }>
+            <li className={step == 0 ? stepActive: stepUnactive }>
                 {step !== 0 ? <Link to={'/main/automation/step-0'} onClick={()=>setStep(0)}>Этап 0</Link> : `Этап ${step}`}
             </li>
             <li className={step == 1 ? stepActive: stepUnactive }>
