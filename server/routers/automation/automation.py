@@ -1,19 +1,20 @@
 from loguru import logger
-from server.sio import sio
-from server.models import Algorithm
 from sqlmodel import Session
-from server.database import engine
-from server.calculation.Automation import Automation
 from fastapi import APIRouter
 from fastapi import Depends, Security
-from server.database import get_session
 from sqlmodel import select
-from server.models import ToastMessage
 from datetime import datetime, timedelta
-from server.models import User1
 
-from server.models import SearchPreviewTM
-from server.auth import get_current_user
+from ...sio import sio
+from ...models import User1
+from ...models import Algorithm
+from ...database import engine
+from ...models import ToastMessage
+from ...database import get_session
+
+from ...models import SearchPreviewTM
+from ...auth import get_current_user
+from ...calculation.Automation import Automation
 
 router = APIRouter(prefix='/automation')
 

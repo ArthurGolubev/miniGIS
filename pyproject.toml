@@ -32,6 +32,9 @@ python-socketio = {extras = ["client"], version = "^5.8.0"}
 alembic = "^1.10.3"
 google-cloud-bigquery = "^3.10.0"
 ruff = "^0.0.287"
+pytest = "^7.4.2"
+httpx = "^0.25.0"
+pytest-mock = "^3.11.1"
 
 [tool.poetry.dev-dependencies]
 

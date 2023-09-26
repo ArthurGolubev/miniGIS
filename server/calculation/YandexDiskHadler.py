@@ -2,7 +2,7 @@ import os
 import yadisk
 
 
-from server.models import User1
+from ..models import User1
 
 
 class YandexDiskHandler:

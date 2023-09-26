@@ -4,14 +4,13 @@ from fastapi import Depends, Security
 from loguru import logger
 from sqlmodel import Session, select
 
-from server.models import User1
-from server.models import Algorithm
-from server.calculation.FileHandler import FileHandler
-
-from server.auth import get_current_user
-from server.auth import get_websocket_user
-from server.database import get_session
-from server.sio import sio
+from ...models import User1
+from ...models import Algorithm
+from ...calculation.FileHandler import FileHandler
+from ...auth import get_current_user
+from ...auth import get_websocket_user
+from ...database import get_session
+from ...sio import sio
 
 
 

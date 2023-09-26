@@ -7,33 +7,36 @@ from datetime import timedelta
 from fastapi import WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
 from fastapi import FastAPI, Depends, HTTPException, status, Security
+from fastapi.testclient import TestClient
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer, SecurityScopes
 
 
-# from server.database import create_db_and_tables
-from server.database import get_session
-from server.auth import login_for_access_token
-from server.auth import get_websocket_user
+from .database import get_session
+from .auth import login_for_access_token
+from .auth import get_websocket_user
 
-from server.routers import main
+from .routers import main
 import ee
 
 
 
-from server.models import Token
-from server.sio import sio
+from .models import Token
+from .sio import sio
 
-
-ee_creds = ee.ServiceAccountCredentials(
-    email=os.getenv("MINIGIS_EARTH_ENGINE_SERVICE_ACCOUNT_EMAIL"),
-    key_file='/minigis/credential/MINIGIS_EARTH_ENGINE_KEY_DATA'
-)
-
-# TODO разобраться с инициализацией.
-ee.Initialize(ee_creds)
 
 Path('./cache').mkdir(exist_ok=True, parents=True)
 app = FastAPI()
+
+@app.on_event('startup')
+def startup_event():
+    ee_creds = ee.ServiceAccountCredentials(
+        email=os.getenv("MINIGIS_EARTH_ENGINE_SERVICE_ACCOUNT_EMAIL"),
+        key_file='/minigis/credential/MINIGIS_EARTH_ENGINE_KEY_DATA'
+    )
+    # TODO разобраться с инициализацией.
+    ee.Initialize(ee_creds)
+
+
 
 app_socketio = socketio.ASGIApp(socketio_server=sio, socketio_path='workflow')
 

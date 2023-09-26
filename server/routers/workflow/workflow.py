@@ -7,37 +7,37 @@ from fastapi.encoders import jsonable_encoder
 from sqlmodel import Session
 from time import sleep
 
-from server.models import DownloadSentinel
-from server.models import DownloadLandsat
-from server.models import ToastMessage
-from server.models import ClipToMask
-from server.models import SearchPreviewTM
-from server.models import SearchPreview
-from server.models import PreviewTM
-from server.models import AddLayerTM
-from server.models import AddLayerOptions
-from server.models import ShpSave
-from server.models import ShpRead
-from server.models import User1
-from server.models import KMeanOptions
-from server.models import StackOptions
-from server.models import ClassificationTM
+from ...models import DownloadSentinel
+from ...models import DownloadLandsat
+from ...models import ToastMessage
+from ...models import ClipToMask
+from ...models import SearchPreviewTM
+from ...models import SearchPreview
+from ...models import PreviewTM
+from ...models import AddLayerTM
+from ...models import AddLayerOptions
+from ...models import ShpSave
+from ...models import ShpRead
+from ...models import User1
+from ...models import KMeanOptions
+from ...models import StackOptions
+from ...models import ClassificationTM
 
 
 from humps import decamelize
 from humps import camelize
 
 
-from server.calculation.EarthEngine import EarthEngine
-from server.calculation.FileHandler import FileHandler
+from ...calculation.EarthEngine import EarthEngine
+from ...calculation.FileHandler import FileHandler
 
 
 
-from server.database import get_session
-from server.auth import get_current_user
+from ...database import get_session
+from ...auth import get_current_user
 from .classification import classification
 
-from server.sio import sio
+from ...sio import sio
 import asyncio
 
 from multiprocessing import Queue, Process

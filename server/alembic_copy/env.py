@@ -5,8 +5,7 @@ from logging.config import fileConfig
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 from sqlmodel import SQLModel                       # NEW
-# from ...server.models import User1, Algorithm
-from server.models import User1, Algorithm
+from ..models import User1, Algorithm
 
 from alembic import context
 

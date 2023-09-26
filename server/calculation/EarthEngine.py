@@ -1,16 +1,16 @@
 import os
 import ee
+import yadisk
 
 from time import time
 from io import BytesIO
 from loguru import logger
 from google.cloud import storage
+from multiprocessing import Queue
 from datetime import datetime, timedelta
 
-from server.calculation.YandexDiskHadler import YandexDiskHandler
-from server.models import Coordinates, DownloadLandsat, Period, DownloadSentinel, ToastMessage, SearchPreviewTM, PreviewTM
-from multiprocessing import Queue
-import yadisk
+from ..calculation.YandexDiskHadler import YandexDiskHandler
+from ..models import Coordinates, DownloadLandsat, Period, DownloadSentinel, ToastMessage, SearchPreviewTM, PreviewTM
 
 
 
@@ -19,9 +19,6 @@ class EarthEngine(YandexDiskHandler):
         self.landsat = ['LC08']
         self.sentinel = ['S2']
         super().__init__(user=user)
-        logger.debug(f'EE END 1')
-
-        logger.debug(f'EE END 3')
 
 
 

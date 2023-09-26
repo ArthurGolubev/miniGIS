@@ -1,7 +1,6 @@
 
 from datetime import datetime
-from sqlmodel import Field, SQLModel, Relationship, ARRAY, Column, Float, String
-from sqlalchemy.dialects import postgresql
+from sqlmodel import Field, SQLModel
 from humps import camelize, decamelize
 
 def to_camel(string):

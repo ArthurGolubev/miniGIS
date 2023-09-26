@@ -1,6 +1,6 @@
+from fastapi import APIRouter
 from .workflow import workflow
 from .user import user
-from fastapi import APIRouter
 from .automation import automation
 from .algorithm import algorithm
 

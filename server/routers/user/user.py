@@ -6,24 +6,24 @@ from fastapi import Security
 
 
 
-from server.auth import get_current_user
-from server.auth import get_password_hash
-from server.auth import login_for_access_token
+from ...auth import get_current_user
+from ...auth import get_password_hash
+from ...auth import login_for_access_token
 
 
 
-from server.models import User1
-from server.models import Token
-from server.models import Algorithm
-from server.models import User1Read
-from server.models import User1Create
-from server.models import UserAuthorization
+from ...models import User1
+from ...models import Token
+from ...models import Algorithm
+from ...models import User1Read
+from ...models import User1Create
+from ...models import UserAuthorization
 
 
-from server.database import get_session
+from ...database import get_session
+from ...calculation.YandexDiskHadler import YandexDiskHandler
 
 
-from server.calculation.YandexDiskHadler import YandexDiskHandler
 
 
 

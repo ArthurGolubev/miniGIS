@@ -1,18 +1,18 @@
 from loguru import logger
-from server.models import KMeanOptions
-from server.models import BisectingKMeanOptions
-from server.models import GaussianMixtureOptions
-from server.models import MeanShiftOptions
-from server.models import ClassificationTM
-from server.sio import sio
+from .....models import KMeanOptions
+from .....models import BisectingKMeanOptions
+from .....models import GaussianMixtureOptions
+from .....models import MeanShiftOptions
+from .....models import ClassificationTM
+from .....sio import sio
 from humps import decamelize
 from multiprocessing import Process, Queue
 import asyncio
 
-from server.calculation.classification.unsupervision.KMean import KMean
-from server.calculation.classification.unsupervision.MeanShift import MeanShift
-from server.calculation.classification.unsupervision.BisectingKMean import BisectingKMean
-from server.calculation.classification.unsupervision.GaussianMixture import GaussianMixture
+from .....calculation.classification.unsupervision.KMean import KMean
+from .....calculation.classification.unsupervision.MeanShift import MeanShift
+from .....calculation.classification.unsupervision.BisectingKMean import BisectingKMean
+from .....calculation.classification.unsupervision.GaussianMixture import GaussianMixture
 
 
 

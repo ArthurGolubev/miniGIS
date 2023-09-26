@@ -3,8 +3,8 @@ from sklearn import cluster
 from sklearn.cluster import estimate_bandwidth
 from datetime import datetime
 
-from server.models import ClassificationTM
-from server.calculation.classification.unsupervision.ImgHandler import ImgHandler
+from ....models import ClassificationTM
+from ....calculation.classification.unsupervision.ImgHandler import ImgHandler
 from multiprocessing import Queue
 
 from sklearn.model_selection import train_test_split

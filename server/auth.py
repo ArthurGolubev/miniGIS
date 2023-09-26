@@ -11,14 +11,14 @@ from fastapi import Depends, HTTPException, status, WebSocket, WebSocketDisconne
 from sqlmodel import Session, select
 from pydantic import ValidationError
 
-from server.models import TokenData
-from server.models import Token
-from server.models import User1
-from server.models import UserAuthorization
-from server.models import DownloadSentinel
-from server.database import engine
+from .models import TokenData
+from .models import Token
+from .models import User1
+from .models import UserAuthorization
+from .models import DownloadSentinel
+from .database import engine
 
-from server.database import get_session
+from .database import get_session
 
 
 

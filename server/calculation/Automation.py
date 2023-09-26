@@ -1,30 +1,33 @@
+import yadisk
 import shapefile
+from json import dumps
 from io import BytesIO
 from loguru import logger
 from sqlmodel import Session
-from server.models import User1
 from multiprocessing import Queue
-from server.models import Algorithm
-from server.models import ClipToMask
 from datetime import datetime, timedelta
-from server.models import SearchPreviewTM
-from server.models import Period, Coordinates
-from server.calculation.FileHandler import FileHandler
-from server.calculation.EarthEngine import EarthEngine
-from server.models import DownloadSentinel, SentinelMeta
-from server.calculation.YandexDiskHadler import YandexDiskHandler
-from server.calculation.classification.unsupervision.KMean import KMean
-from server.calculation.classification.unsupervision.MeanShift import MeanShift
-from server.calculation.classification.unsupervision.BisectingKMean import BisectingKMean
-from server.calculation.classification.unsupervision.GaussianMixture import GaussianMixture
-from server.models import GeoJSON, ClipToMask
-import yadisk
-from server.models import ToastMessage
-from json import dumps
+
+
+from ..models import User1
+from ..models import GeoJSON
+from ..models import Algorithm
+from ..models import ClipToMask
+from ..models import ToastMessage
+from ..models import SearchPreviewTM
+from ..models import Period, Coordinates
+from ..calculation.FileHandler import FileHandler
+from ..calculation.EarthEngine import EarthEngine
+from ..models import DownloadSentinel, SentinelMeta
+from ..calculation.YandexDiskHadler import YandexDiskHandler
+from ..calculation.classification.unsupervision.KMean import KMean
+from ..calculation.classification.unsupervision.MeanShift import MeanShift
+from ..calculation.classification.unsupervision.BisectingKMean import BisectingKMean
+from ..calculation.classification.unsupervision.GaussianMixture import GaussianMixture
 
 
 
 class Automation(YandexDiskHandler):
+    
     def __init__(self, user: User1, session: Session, alg_type: str, alg = None):
         super().__init__(user=user)
         self._make_yandex_dir_recursively('/miniGIS/automation')

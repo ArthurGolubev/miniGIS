@@ -16,8 +16,8 @@ from matplotlib import colormaps, colors
 from pyproj import Transformer
 
 
-from server.calculation.YandexDiskHadler import YandexDiskHandler
-from server.calculation.FileHandler import FileHandler
+from ....calculation.YandexDiskHadler import YandexDiskHandler
+from ....calculation.FileHandler import FileHandler
 
 import numpy as np
 

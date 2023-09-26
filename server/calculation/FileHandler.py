@@ -13,12 +13,11 @@ from datetime import datetime
 from shapely.geometry import Polygon
 from pyproj import Transformer
 from io import BytesIO
-
-from server.models import ToastMessage, ClipToMask
-from server.models import AddLayerTM
-from server.models import User1
-from server.calculation.EarthEngine import EarthEngine
-from server.calculation.YandexDiskHadler import YandexDiskHandler
+from ..models import ToastMessage, ClipToMask
+from ..models import AddLayerTM
+from ..models import User1
+from ..calculation.EarthEngine import EarthEngine
+from ..calculation.YandexDiskHadler import YandexDiskHandler
 
 from multiprocessing import Queue
 
