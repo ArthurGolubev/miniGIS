@@ -7,7 +7,7 @@ on:
 
 jobs:
   
-    tests_frontend:
+    testing_frontend:
       name: Testing Frontend
       runs-on: ubuntu-latest
 
@@ -25,7 +25,7 @@ jobs:
             run: cd client && npm test
 
 
-    test_backend:
+    testing_backend:
       name: Testing Backend
       runs-on: ubuntu-latest
 
@@ -44,11 +44,11 @@ jobs:
           run: cd server && poetry install
 
         - name: Тестирование Backend
-          run: cd server && poetry run pytest
+          run: poetry run pytest
 
 
     build:
-      needs: tests_frontend
+      needs: [testing_frontend, testing_backend]
       name: Build and push Docker Image
       runs-on: ubuntu-latest
 
